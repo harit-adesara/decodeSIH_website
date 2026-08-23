@@ -95,28 +95,28 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-2xl h-[90vh] max-h-[700px] flex flex-col rounded-3xl glass-panel border border-emerald-500/30 shadow-2xl overflow-hidden bg-slate-900/95">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-2xl h-[90vh] max-h-[700px] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/80 flex items-center justify-between">
+        <div className="p-4 bg-gradient-to-r from-teal-50 to-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Bot className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-2xl bg-teal-600 flex items-center justify-center shadow-md shadow-teal-600/20 text-white">
+              <Bot className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display font-bold text-white text-base">
+                <h3 className="font-display font-bold text-slate-900 text-base">
                   Bharat Swasthya AI Tele-Health
                 </h3>
-                <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">
-                  <Sparkles className="w-3 h-3 animate-spin text-amber-400" />
+                <span className="flex items-center gap-1 bg-teal-50 text-teal-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-teal-200">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
                   Gemini Ready
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-slate-400 text-xs mt-0.5">
-                <MapPin className="w-3 h-3 text-emerald-400" />
+              <div className="flex items-center gap-1 text-slate-500 text-xs mt-0.5">
+                <MapPin className="w-3 h-3 text-teal-600" />
                 <span>
-                  Regional Context: <strong className="text-slate-200">{locationContext.district}, {locationContext.state}</strong>
+                  Regional Context: <strong className="text-slate-800">{locationContext.district}, {locationContext.state}</strong>
                 </span>
               </div>
             </div>
@@ -124,52 +124,52 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+            className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Message Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/50">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.sender === "bot" && (
-                <div className="w-8 h-8 rounded-xl bg-emerald-600/30 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-1">
-                  <Bot className="w-4 h-4 text-emerald-400" />
+                <div className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center shrink-0 mt-1">
+                  <Bot className="w-4 h-4 text-teal-700" />
                 </div>
               )}
 
               <div
                 className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${
                   msg.sender === "user"
-                    ? "bg-emerald-600 text-white rounded-tr-none shadow-md shadow-emerald-600/20"
-                    : "bg-slate-800/90 text-slate-200 rounded-tl-none border border-slate-700/60 shadow-md"
+                    ? "bg-teal-600 text-white rounded-tr-none shadow-sm"
+                    : "bg-white text-slate-800 rounded-tl-none border border-slate-200 shadow-sm"
                 }`}
               >
-                <div className="whitespace-pre-line prose prose-invert prose-sm">
+                <div className="whitespace-pre-line prose prose-sm">
                   {msg.text}
                 </div>
                 <div
                   className={`text-[10px] mt-2 font-mono flex items-center justify-between ${
-                    msg.sender === "user" ? "text-emerald-200" : "text-slate-400"
+                    msg.sender === "user" ? "text-teal-100" : "text-slate-400"
                   }`}
                 >
                   <span>{msg.timestamp}</span>
                   {msg.source && (
-                    <span className="text-[9px] bg-slate-700/60 px-1.5 py-0.5 rounded">
-                      {msg.source === "gemini_ai" ? "Powered by Gemini AI" : "Bharat Health Rules"}
+                    <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
+                      {msg.source === "gemini_ai" ? "Gemini AI" : "Health Engine"}
                     </span>
                   )}
                 </div>
               </div>
 
               {msg.sender === "user" && (
-                <div className="w-8 h-8 rounded-xl bg-slate-700 border border-slate-600 flex items-center justify-center shrink-0 mt-1">
-                  <User className="w-4 h-4 text-slate-300" />
+                <div className="w-8 h-8 rounded-xl bg-slate-200 border border-slate-300 flex items-center justify-center shrink-0 mt-1">
+                  <User className="w-4 h-4 text-slate-600" />
                 </div>
               )}
             </div>
@@ -177,12 +177,12 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
 
           {isLoading && (
             <div className="flex gap-3 items-center">
-              <div className="w-8 h-8 rounded-xl bg-emerald-600/30 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                <Bot className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 text-teal-700" />
               </div>
-              <div className="bg-slate-800/90 rounded-2xl rounded-tl-none p-3 border border-slate-700/60 flex items-center gap-2 text-slate-400 text-xs">
-                <RefreshCw className="w-4 h-4 animate-spin text-emerald-400" />
-                <span>Evaluating symptoms & cross-referencing {locationContext.district} disease surveillance records...</span>
+              <div className="bg-white rounded-2xl rounded-tl-none p-3 border border-slate-200 flex items-center gap-2 text-slate-500 text-xs shadow-sm">
+                <RefreshCw className="w-4 h-4 animate-spin text-teal-600" />
+                <span>Evaluating symptoms & cross-referencing {locationContext.district} disease records...</span>
               </div>
             </div>
           )}
@@ -191,13 +191,13 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
         </div>
 
         {/* Quick Prompts Chips */}
-        <div className="px-4 py-2 bg-slate-950/60 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto">
-          <span className="text-[11px] font-semibold text-slate-400 shrink-0">Suggested:</span>
+        <div className="px-4 py-2 bg-white border-t border-slate-200 flex items-center gap-2 overflow-x-auto">
+          <span className="text-[11px] font-semibold text-slate-500 shrink-0">Suggested:</span>
           {quickPrompts.map((prompt, idx) => (
             <button
               key={idx}
               onClick={() => handleSendMessage(prompt)}
-              className="text-xs bg-slate-800/80 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/40 text-slate-300 px-3 py-1.5 rounded-full border border-slate-700 shrink-0 transition-all"
+              className="text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 shrink-0 transition-all"
             >
               {prompt}
             </button>
@@ -205,33 +205,33 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 sm:p-4 bg-slate-900 border-t border-slate-800">
-          <div className="flex items-center gap-2 bg-slate-950/90 rounded-2xl p-1.5 border border-slate-700 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+        <div className="p-3 sm:p-4 bg-white border-t border-slate-200">
+          <div className="flex items-center gap-2 bg-slate-50 rounded-2xl p-1.5 border border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all">
             <textarea
               rows="1"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`Ask about fever, symptoms, or outbreaks in ${locationContext.district}...`}
-              className="flex-1 bg-transparent text-white placeholder-slate-500 text-xs sm:text-sm px-3 py-2 outline-none resize-none max-h-24"
+              className="flex-1 bg-transparent text-slate-800 placeholder-slate-400 text-xs sm:text-sm px-3 py-2 outline-none resize-none max-h-24"
             />
             <button
               onClick={() => handleSendMessage()}
               disabled={!inputMessage.trim() || isLoading}
-              className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all shrink-0"
+              className="w-10 h-10 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all shrink-0 shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
+          <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 px-1">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
               Preliminary AI Triage only. Consult doctor for diagnosis.
             </span>
             <button
               onClick={onOpenEmergency}
-              className="text-red-400 hover:underline flex items-center gap-1 font-semibold"
+              className="text-rose-600 hover:underline flex items-center gap-1 font-semibold"
             >
               <PhoneCall className="w-3 h-3" /> Emergency Call (108)
             </button>
@@ -241,4 +241,5 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
     </div>
   );
 };
+
 export default AiChatbotModal;

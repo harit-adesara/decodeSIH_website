@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.js";
 import { Report } from "../models/Report.js";
 import { Advisory } from "../models/Advisory.js";
+import { sendEmail, welcomeStaffEmailTemplate } from "../utils/mail.js";
 
 /**
  * @desc    Doctor searches and filters disease reports (by state, district, city, status, keywords)
@@ -203,6 +204,15 @@ export const createHealthAssistantByDoctor = asyncHandler(async (req, res) => {
     phone: phone || "",
     hospitalOrClinic: hospitalOrClinic || req.user.hospitalOrClinic || "",
     createdBy: req.user._id,
+    isEmailVerified: true,
+  });
+
+  // Dispatch welcome email to health assistant
+  await sendEmail({
+    email: healthAssistant.email,
+    subject: "Official Health Assistant Account Created - Bharat Swasthya AI",
+    html: welcomeStaffEmailTemplate(healthAssistant.name, healthAssistant.email, "health_assistant", password),
+    text: `Namaste ${healthAssistant.name},\n\nYour Health Assistant account has been created by ${req.user.name}.\nLogin Email: ${healthAssistant.email}\nPassword: ${password}`,
   });
 
   const responseUser = {

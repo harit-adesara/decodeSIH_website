@@ -21,13 +21,14 @@ import axiosInstance from "../api/axiosInstance";
 import AnalyticsView from "../components/AnalyticsView";
 import { useAuth } from "../context/AuthContext";
 
-export const HealthAssistantPortal = () => {
+export const HealthAssistantPortal = ({ onOpenProfile }) => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("submit"); // 'submit', 'my-reports', 'advisories', 'analytics'
   const [myReports, setMyReports] = useState([]);
   const [advisories, setAdvisories] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
+
 
   // Field Report Form State
   const [reportForm, setReportForm] = useState({
@@ -164,17 +165,17 @@ export const HealthAssistantPortal = () => {
   return (
     <div className="space-y-6 pb-16">
       {/* Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-teal-500/30 bg-gradient-to-r from-slate-900 via-teal-950/40 to-slate-900 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-teal-400 text-xs font-bold uppercase tracking-wider mb-1">
-            <HeartHandshake className="w-4 h-4" /> Grassroots Field Health Worker Portal
+          <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
+            <HeartHandshake className="w-4 h-4 text-teal-600" /> Grassroots Field Health Worker Portal
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-white">
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
             {user?.name || "Anita Deshmukh (ASHA / Field Lead)"}
           </h1>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
             {user?.hospitalOrClinic || "Hadapsar Primary Health Centre (PHC)"} •{" "}
-            <span className="text-teal-300 font-semibold">
+            <span className="text-teal-700 font-semibold">
               📍 {user?.city}, {user?.district}, {user?.state}
             </span>
           </p>
@@ -182,23 +183,32 @@ export const HealthAssistantPortal = () => {
 
         {/* Quick Tab Triggers */}
         <div className="flex items-center gap-2">
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all border border-slate-200"
+            >
+              Edit Profile
+            </button>
+          )}
           <button
             onClick={() => setActiveTab("submit")}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-teal-600/20 active:scale-95 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm active:scale-95 transition-all"
           >
             <PlusCircle className="w-4 h-4" /> Submit Field Report
           </button>
         </div>
       </div>
 
+
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab("submit")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "submit"
-              ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <PlusCircle className="w-4 h-4" />
@@ -209,8 +219,8 @@ export const HealthAssistantPortal = () => {
           onClick={() => setActiveTab("my-reports")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "my-reports"
-              ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -221,8 +231,8 @@ export const HealthAssistantPortal = () => {
           onClick={() => setActiveTab("advisories")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "advisories"
-              ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <Megaphone className="w-4 h-4" />
@@ -233,8 +243,8 @@ export const HealthAssistantPortal = () => {
           onClick={() => setActiveTab("analytics")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "analytics"
-              ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <BarChart3 className="w-4 h-4" />
@@ -244,20 +254,20 @@ export const HealthAssistantPortal = () => {
 
       {/* Tab 1: Submit Field Report Form */}
       {activeTab === "submit" && (
-        <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl glass-panel border border-teal-500/30 bg-slate-900/90 shadow-2xl space-y-6">
+        <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
           <div>
-            <h3 className="text-xl font-bold font-display text-white flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-teal-400" />
+            <h3 className="text-xl font-bold font-display text-slate-900 flex items-center gap-2">
+              <PlusCircle className="w-5 h-5 text-teal-600" />
               Grassroots Disease / Symptom Field Report
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Submit observations from door-to-door visits, PHCs, or village clusters for Doctor diagnosis.
             </p>
           </div>
 
           {submitSuccess && (
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs sm:text-sm text-emerald-300 flex items-center gap-2.5 animate-fadeIn">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm text-emerald-700 flex items-center gap-2.5 animate-fadeIn">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               <span>
                 Report registered successfully! Forwarded to Medical Officer workstation for clinical review.
               </span>
@@ -267,7 +277,7 @@ export const HealthAssistantPortal = () => {
           <form onSubmit={handleSubmitReport} className="space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Report Title / Case Summary *
               </label>
               <input
@@ -276,14 +286,14 @@ export const HealthAssistantPortal = () => {
                 value={reportForm.title}
                 onChange={(e) => setReportForm({ ...reportForm, title: e.target.value })}
                 placeholder="e.g. Cluster of High Fever and Joint Pain in Ward 14"
-                className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none"
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
               />
             </div>
 
             {/* Suspected Disease & Patient Count */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Suspected Disease *
                 </label>
                 <input
@@ -292,12 +302,12 @@ export const HealthAssistantPortal = () => {
                   value={reportForm.suspectedDisease}
                   onChange={(e) => setReportForm({ ...reportForm, suspectedDisease: e.target.value })}
                   placeholder="e.g. Dengue Fever, Viral Flu, Gastroenteritis"
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Number of Patients Affected *
                 </label>
                 <input
@@ -308,45 +318,45 @@ export const HealthAssistantPortal = () => {
                   onChange={(e) =>
                     setReportForm({ ...reportForm, patientCount: Number(e.target.value) })
                   }
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
                 />
               </div>
             </div>
 
             {/* Location Hierarchy: State -> District -> City */}
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2">
-              <div className="text-xs font-semibold text-teal-400 flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5" /> Geographic Location (State &gt; District &gt; City)
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">State *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">State *</label>
                   <input
                     type="text"
                     required
                     value={reportForm.state}
                     onChange={(e) => setReportForm({ ...reportForm, state: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">District *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">District *</label>
                   <input
                     type="text"
                     required
                     value={reportForm.district}
                     onChange={(e) => setReportForm({ ...reportForm, district: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">City / Taluk / Village *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">City / Taluk / Village *</label>
                   <input
                     type="text"
                     required
                     value={reportForm.city}
                     onChange={(e) => setReportForm({ ...reportForm, city: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
               </div>
@@ -354,7 +364,7 @@ export const HealthAssistantPortal = () => {
 
             {/* Symptom Preset Tagger */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Observed Symptoms (Click to tag or type below)
               </label>
               <div className="flex flex-wrap gap-1.5 mb-2">
@@ -367,8 +377,8 @@ export const HealthAssistantPortal = () => {
                       onClick={() => toggleSymptom(sym)}
                       className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
                         isSelected
-                          ? "bg-teal-500/20 text-teal-300 border-teal-500/50"
-                          : "bg-slate-800/80 text-slate-400 border-slate-700 hover:border-slate-600"
+                          ? "bg-teal-50 text-teal-700 border-teal-300 font-semibold"
+                          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       {isSelected ? "✓ " : "+ "} {sym}
@@ -381,13 +391,13 @@ export const HealthAssistantPortal = () => {
                 value={reportForm.symptoms}
                 onChange={(e) => setReportForm({ ...reportForm, symptoms: e.target.value })}
                 placeholder="High fever, Retro-orbital pain, Muscle aches..."
-                className="w-full bg-slate-800 text-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none"
+                className="w-full bg-white text-slate-800 text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none"
               />
             </div>
 
             {/* Clinical Observations / Text */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Field Observations & Environmental Factors *
               </label>
               <textarea
@@ -396,14 +406,14 @@ export const HealthAssistantPortal = () => {
                 value={reportForm.description}
                 onChange={(e) => setReportForm({ ...reportForm, description: e.target.value })}
                 placeholder="Describe patient age range, onset duration, local water storage conditions, recent rain stagnation, or family history..."
-                className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none resize-none"
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none resize-none"
               />
             </div>
 
             {/* Image Upload (Optional) */}
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                <ImageIcon className="w-4 h-4 text-teal-400" />
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-teal-600" />
                 Upload Clinical Photo / Water Sample / Test Strip (Optional)
               </label>
 
@@ -412,7 +422,7 @@ export const HealthAssistantPortal = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-500 cursor-pointer"
+                  className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer"
                 />
 
                 {imagePreview && (
@@ -420,7 +430,7 @@ export const HealthAssistantPortal = () => {
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="h-16 w-16 rounded-xl object-cover border border-teal-500/40"
+                      className="h-16 w-16 rounded-xl object-cover border border-teal-300"
                     />
                     <button
                       type="button"
@@ -428,7 +438,7 @@ export const HealthAssistantPortal = () => {
                         setImageFile(null);
                         setImagePreview(null);
                       }}
-                      className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center"
+                      className="absolute -top-1 -right-1 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center"
                     >
                       ✕
                     </button>
@@ -440,13 +450,13 @@ export const HealthAssistantPortal = () => {
             {/* Severity and Viral Check */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Field Severity Assessment
                 </label>
                 <select
                   value={reportForm.severity}
                   onChange={(e) => setReportForm({ ...reportForm, severity: e.target.value })}
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-teal-500 outline-none cursor-pointer"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none cursor-pointer"
                 >
                   <option value="low">Low (Mild symptoms)</option>
                   <option value="moderate">Moderate (Standard follow-up)</option>
@@ -461,9 +471,9 @@ export const HealthAssistantPortal = () => {
                     type="checkbox"
                     checked={reportForm.isViral}
                     onChange={(e) => setReportForm({ ...reportForm, isViral: e.target.checked })}
-                    className="w-4 h-4 text-teal-600 rounded bg-slate-800 border-slate-700 focus:ring-teal-500"
+                    className="w-4 h-4 text-teal-600 rounded bg-white border-slate-300 focus:ring-teal-500"
                   />
-                  <span className="text-xs text-slate-300 font-medium">
+                  <span className="text-xs text-slate-700 font-medium">
                     Suspected Contagious / Viral
                   </span>
                 </label>
@@ -475,7 +485,7 @@ export const HealthAssistantPortal = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm sm:text-base shadow-xl shadow-teal-600/25 flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
                 <span>{submitting ? "Submitting Report..." : "Submit to Doctor Station"}</span>
@@ -489,17 +499,17 @@ export const HealthAssistantPortal = () => {
       {activeTab === "my-reports" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white text-lg">My Submitted Field Reports</h3>
+            <h3 className="font-bold text-slate-900 text-lg">My Submitted Field Reports</h3>
             <button
               onClick={fetchMyReports}
-              className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+              className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-slate-400 glass-panel rounded-3xl">
+            <div className="p-12 text-center text-slate-500 bg-white rounded-3xl border border-slate-200">
               Loading your submitted field reports...
             </div>
           ) : myReports.length > 0 ? (
@@ -507,7 +517,7 @@ export const HealthAssistantPortal = () => {
               {myReports.map((report) => (
                 <div
                   key={report._id}
-                  className="p-5 rounded-3xl glass-panel border border-slate-800 bg-slate-900/80 space-y-3"
+                  className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
@@ -515,39 +525,39 @@ export const HealthAssistantPortal = () => {
                         <span
                           className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
                             report.status === "verified_labeled"
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
                           }`}
                         >
                           {report.status === "verified_labeled"
                             ? "✓ Doctor Diagnosed & Verified"
                             : "⏳ Pending Doctor Review"}
                         </span>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500">
                           📍 {report.city}, {report.district}
                         </span>
                       </div>
-                      <h4 className="font-bold text-base text-white">{report.title}</h4>
+                      <h4 className="font-bold text-base text-slate-900">{report.title}</h4>
                     </div>
 
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-500">
                       {new Date(report.createdAt).toLocaleDateString()}
                     </div>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
                     {report.description}
                   </p>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-medium">
                       👥 {report.patientCount} Patients
                     </span>
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-medium">
                       Suspected: {report.suspectedDisease}
                     </span>
                     {report.confirmedDisease && (
-                      <span className="text-xs bg-emerald-500/10 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 font-bold">
+                      <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
                         Confirmed: {report.confirmedDisease}
                       </span>
                     )}
@@ -555,18 +565,18 @@ export const HealthAssistantPortal = () => {
 
                   {/* Doctor feedback box if labeled */}
                   {report.doctorDiagnosis && (
-                    <div className="p-3.5 rounded-2xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200 space-y-1">
-                      <div className="font-bold text-blue-300 flex items-center gap-1.5">
-                        <Stethoscope className="w-3.5 h-3.5" /> Doctor Review & Diagnosis:
+                    <div className="p-3.5 rounded-2xl bg-teal-50 border border-teal-200 text-xs text-teal-800 space-y-1">
+                      <div className="font-bold text-teal-900 flex items-center gap-1.5">
+                        <Stethoscope className="w-3.5 h-3.5 text-teal-700" /> Doctor Review & Diagnosis:
                       </div>
                       <p>{report.doctorDiagnosis}</p>
                       {report.doctorRemarks && (
-                        <p className="text-slate-300">
+                        <p className="text-slate-700">
                           <strong>Remarks: </strong> {report.doctorRemarks}
                         </p>
                       )}
                       {report.prescribedAction && (
-                        <p className="text-emerald-300">
+                        <p className="text-emerald-700 font-semibold">
                           <strong>Directives for Field Worker: </strong> {report.prescribedAction}
                         </p>
                       )}
@@ -576,7 +586,7 @@ export const HealthAssistantPortal = () => {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center text-slate-400 glass-panel rounded-3xl">
+            <div className="p-12 text-center text-slate-500 bg-white rounded-3xl border border-slate-200">
               No reports submitted yet. Click &quot;New Disease Field Report&quot; to register your first observation.
             </div>
           )}
@@ -586,7 +596,7 @@ export const HealthAssistantPortal = () => {
       {/* Tab 3: Doctor Advisories */}
       {activeTab === "advisories" && (
         <div className="space-y-4">
-          <h3 className="font-bold text-white text-lg">
+          <h3 className="font-bold text-slate-900 text-lg">
             Doctor Health Advisories & Directives for {user?.district}, {user?.state}
           </h3>
 
@@ -594,21 +604,21 @@ export const HealthAssistantPortal = () => {
             {advisories.map((advisory) => (
               <div
                 key={advisory._id}
-                className="p-5 rounded-3xl glass-panel border border-amber-500/20 bg-slate-900/80 space-y-3"
+                className="p-5 rounded-3xl bg-white border border-amber-200 shadow-sm space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 uppercase">
                     {advisory.priority} Priority
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500">
                     Target: {advisory.targetDistrict}, {advisory.targetState}
                   </span>
                 </div>
-                <h4 className="font-bold text-white text-base">{advisory.title}</h4>
-                <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                <h4 className="font-bold text-slate-900 text-base">{advisory.title}</h4>
+                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   {advisory.message}
                 </p>
-                <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1">
+                <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
                   <span>From: {advisory.doctor?.name || "District Medical Officer"}</span>
                   <span>{new Date(advisory.createdAt).toLocaleDateString()}</span>
                 </div>
@@ -630,4 +640,5 @@ export const HealthAssistantPortal = () => {
     </div>
   );
 };
+
 export default HealthAssistantPortal;

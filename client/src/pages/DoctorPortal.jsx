@@ -25,7 +25,7 @@ import CreateStaffModal from "../components/CreateStaffModal";
 import AnalyticsView from "../components/AnalyticsView";
 import { useAuth } from "../context/AuthContext";
 
-export const DoctorPortal = () => {
+export const DoctorPortal = ({ onOpenProfile }) => {
   const { user, locationContext, updateLocation } = useAuth();
   const [activeTab, setActiveTab] = useState("review"); // 'review', 'analytics', 'advisories'
   const [reports, setReports] = useState([]);
@@ -134,37 +134,45 @@ export const DoctorPortal = () => {
   return (
     <div className="space-y-6 pb-16">
       {/* Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-blue-500/30 bg-gradient-to-r from-slate-900 via-blue-950/40 to-slate-900 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
-            <Stethoscope className="w-4 h-4" /> Medical Officer Diagnostic Portal
+          <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
+            <Stethoscope className="w-4 h-4 text-teal-600" /> Medical Officer Diagnostic Workspace
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-white">
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
             {user?.name || "Dr. Rajesh Sharma, MD"}
           </h1>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
             {user?.hospitalOrClinic || "Sassoon General Hospital & Medical College"} •{" "}
-            <span className="text-blue-300 font-semibold">{user?.qualification || "MD Internal Medicine"}</span>
+            <span className="text-teal-700 font-semibold">{user?.qualification || "MD Internal Medicine"}</span>
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all border border-slate-200"
+            >
+              Edit Profile
+            </button>
+          )}
           <button
             onClick={() => setShowCreateReportModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+            className="px-3.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4" /> Add Clinical Report
           </button>
           <button
             onClick={() => setShowAdvisoryModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-600/20 transition-all active:scale-95"
+            className="px-3.5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
             <Megaphone className="w-4 h-4" /> Broadcast Advisory
           </button>
           <button
             onClick={() => setShowStaffModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-teal-600/20 transition-all active:scale-95"
+            className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
             <UserPlus className="w-4 h-4" /> Create Health Assistant
           </button>
@@ -172,13 +180,13 @@ export const DoctorPortal = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveTab("review")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
             activeTab === "review"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <ListFilter className="w-4 h-4" />
@@ -189,8 +197,8 @@ export const DoctorPortal = () => {
           onClick={() => setActiveTab("analytics")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
             activeTab === "analytics"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <BarChart3 className="w-4 h-4" />
@@ -201,8 +209,8 @@ export const DoctorPortal = () => {
           onClick={() => setActiveTab("advisories")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
             activeTab === "advisories"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           }`}
         >
           <Megaphone className="w-4 h-4" />
@@ -222,15 +230,15 @@ export const DoctorPortal = () => {
       {activeTab === "review" && (
         <div className="space-y-4">
           {/* Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-slate-400 font-semibold pl-1">Status Filter:</span>
+              <span className="text-xs text-slate-500 font-semibold pl-1">Status Filter:</span>
               <button
                 onClick={() => setStatusFilter("pending_review")}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   statusFilter === "pending_review"
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                    : "bg-slate-800 text-slate-400 hover:text-white"
+                    ? "bg-amber-50 text-amber-700 border border-amber-300"
+                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Pending Review
@@ -239,8 +247,8 @@ export const DoctorPortal = () => {
                 onClick={() => setStatusFilter("verified_labeled")}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   statusFilter === "verified_labeled"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                    : "bg-slate-800 text-slate-400 hover:text-white"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-300"
+                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Verified & Labeled
@@ -249,8 +257,8 @@ export const DoctorPortal = () => {
                 onClick={() => setStatusFilter("All")}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   statusFilter === "All"
-                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                    : "bg-slate-800 text-slate-400 hover:text-white"
+                    ? "bg-teal-50 text-teal-700 border border-teal-300"
+                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
                 }`}
               >
                 All Reports
@@ -265,13 +273,13 @@ export const DoctorPortal = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && fetchReports()}
                   placeholder="Search diseases, symptoms..."
-                  className="bg-slate-800 text-white text-xs pl-8 pr-3 py-1.5 rounded-xl border border-slate-700 focus:border-blue-500 outline-none w-48 sm:w-60"
+                  className="bg-white text-slate-800 text-xs pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none w-48 sm:w-60"
                 />
-                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
               <button
                 onClick={fetchReports}
-                className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
+                className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -280,8 +288,8 @@ export const DoctorPortal = () => {
 
           {/* Reports Grid / Cards */}
           {loading ? (
-            <div className="p-12 text-center text-slate-400 text-sm glass-panel rounded-3xl">
-              <RefreshCw className="w-6 h-6 mx-auto mb-2 text-blue-400 animate-spin" />
+            <div className="p-12 text-center text-slate-500 text-sm bg-white rounded-3xl border border-slate-200">
+              <RefreshCw className="w-6 h-6 mx-auto mb-2 text-teal-600 animate-spin" />
               Loading surveillance reports...
             </div>
           ) : reports.length > 0 ? (
@@ -289,7 +297,7 @@ export const DoctorPortal = () => {
               {reports.map((report) => (
                 <div
                   key={report._id}
-                  className="p-5 rounded-3xl glass-panel border border-slate-800 bg-slate-900/80 glass-card-hover space-y-3"
+                  className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover space-y-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
@@ -297,54 +305,54 @@ export const DoctorPortal = () => {
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
                             report.status === "verified_labeled"
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
                           }`}
                         >
                           {report.status === "verified_labeled" ? "Verified Diagnosis" : "Pending Doctor Review"}
                         </span>
                         {report.isViral && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
                             <Bug className="w-3 h-3" /> Viral Strain
                           </span>
                         )}
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500">
                           📍 {report.city}, {report.district}, {report.state}
                         </span>
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-white">{report.title}</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900">{report.title}</h3>
                     </div>
 
                     <button
                       onClick={() => setSelectedReportForLabel(report)}
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition-all active:scale-95"
+                      className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all active:scale-95"
                     >
                       <Stethoscope className="w-3.5 h-3.5" />
                       {report.status === "verified_labeled" ? "Update Diagnosis" : "Diagnose & Label"}
                     </button>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
                     {report.description}
                   </p>
 
                   {/* Metadata Chips */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-medium">
                       👥 {report.patientCount || 1} Patients Affected
                     </span>
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
-                      Suspected: <strong className="text-amber-300">{report.suspectedDisease}</strong>
+                    <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-medium">
+                      Suspected: <strong className="text-amber-700">{report.suspectedDisease}</strong>
                     </span>
                     {report.confirmedDisease && (
-                      <span className="text-xs bg-emerald-500/10 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 font-medium">
+                      <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200 font-medium">
                         Confirmed: <strong>{report.confirmedDisease}</strong>
                       </span>
                     )}
                     {report.symptoms?.map((sym, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-slate-800/60 text-slate-300 px-2 py-0.5 rounded-lg border border-slate-700"
+                        className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg border border-slate-200"
                       >
                         {sym}
                       </span>
@@ -357,20 +365,20 @@ export const DoctorPortal = () => {
                       <img
                         src={report.image}
                         alt="Medical report"
-                        className="h-32 rounded-xl border border-slate-700 object-cover"
+                        className="h-32 rounded-xl border border-slate-200 object-cover"
                       />
                     </div>
                   )}
 
                   {/* Doctor remarks banner if already labeled */}
                   {report.doctorDiagnosis && (
-                    <div className="p-3 rounded-2xl bg-blue-950/30 border border-blue-500/30 text-xs text-blue-200 flex items-start gap-2">
-                      <Stethoscope className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-xs text-teal-800 flex items-start gap-2">
+                      <Stethoscope className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
                       <div>
                         <strong>Doctor Clinical Findings: </strong>
                         {report.doctorDiagnosis}. {report.doctorRemarks}
                         {report.prescribedAction && (
-                          <div className="text-slate-300 mt-1">
+                          <div className="text-slate-700 mt-1">
                             <strong>Prescribed Action: </strong>
                             {report.prescribedAction}
                           </div>
@@ -382,7 +390,7 @@ export const DoctorPortal = () => {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center text-slate-400 text-sm glass-panel rounded-3xl">
+            <div className="p-12 text-center text-slate-500 text-sm bg-white rounded-3xl border border-slate-200">
               No reports found matching current filter parameters.
             </div>
           )}
@@ -398,10 +406,10 @@ export const DoctorPortal = () => {
       {activeTab === "advisories" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white text-lg">Broadcasted Medical Advisories & Directives</h3>
+            <h3 className="font-bold text-slate-900 text-lg">Broadcasted Medical Advisories & Directives</h3>
             <button
               onClick={() => setShowAdvisoryModal(true)}
-              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
             >
               <Megaphone className="w-3.5 h-3.5" /> Create New Advisory
             </button>
@@ -411,21 +419,21 @@ export const DoctorPortal = () => {
             {advisories.map((advisory) => (
               <div
                 key={advisory._id}
-                className="p-5 rounded-3xl glass-panel border border-amber-500/20 bg-slate-900/80 space-y-3"
+                className="p-5 rounded-3xl bg-white border border-amber-200 shadow-sm space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 uppercase">
                     {advisory.priority} Priority
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500">
                     Target: {advisory.targetDistrict}, {advisory.targetState}
                   </span>
                 </div>
-                <h4 className="font-bold text-white text-base">{advisory.title}</h4>
-                <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                <h4 className="font-bold text-slate-900 text-base">{advisory.title}</h4>
+                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   {advisory.message}
                 </p>
-                <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1">
+                <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
                   <span>Issued by: {advisory.doctor?.name || "Medical Officer"}</span>
                   <span>{new Date(advisory.createdAt).toLocaleDateString()}</span>
                 </div>
@@ -463,22 +471,22 @@ export const DoctorPortal = () => {
           isOpen={showStaffModal}
           onClose={() => setShowStaffModal(false)}
           onCreated={() => {
-            alert("Health Assistant account created successfully.");
+            alert("Health Assistant account created successfully. Welcome email dispatched.");
           }}
         />
       )}
 
       {/* Doctor Report Creation Modal */}
       {showCreateReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl glass-panel border border-blue-500/30 shadow-2xl overflow-hidden bg-slate-900/95">
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-950/80 via-slate-900 to-slate-900 border-b border-blue-500/20 flex items-center justify-between">
-              <h3 className="font-display font-bold text-white text-base sm:text-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-teal-50 to-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="font-display font-bold text-slate-900 text-base sm:text-lg">
                 Submit Doctor Clinical Case Report
               </h3>
               <button
                 onClick={() => setShowCreateReportModal(false)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+                className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900"
               >
                 ✕
               </button>
@@ -486,20 +494,20 @@ export const DoctorPortal = () => {
 
             <form onSubmit={handleCreateDoctorReport} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Report Title *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Report Title *</label>
                 <input
                   type="text"
                   required
                   value={newReport.title}
                   onChange={(e) => setNewReport({ ...newReport, title: e.target.value })}
                   placeholder="e.g. Inpatient Cluster of Acute Dengue Hemorrhagic Cases"
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-blue-500 outline-none"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Confirmed / Suspected Disease *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Confirmed / Suspected Disease *</label>
                   <input
                     type="text"
                     required
@@ -512,96 +520,96 @@ export const DoctorPortal = () => {
                       })
                     }
                     placeholder="e.g. Dengue Fever (DENV-2)"
-                    className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-blue-500 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Patient Count Affected *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Patient Count Affected *</label>
                   <input
                     type="number"
                     min={1}
                     value={newReport.patientCount}
                     onChange={(e) => setNewReport({ ...newReport, patientCount: Number(e.target.value) })}
-                    className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:border-blue-500 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">State *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">State *</label>
                   <input
                     type="text"
                     value={newReport.state}
                     onChange={(e) => setNewReport({ ...newReport, state: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">District *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">District *</label>
                   <input
                     type="text"
                     value={newReport.district}
                     onChange={(e) => setNewReport({ ...newReport, district: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">City / Taluk *</label>
+                  <label className="block text-[11px] text-slate-500 mb-1">City / Taluk *</label>
                   <input
                     type="text"
                     value={newReport.city}
                     onChange={(e) => setNewReport({ ...newReport, city: e.target.value })}
-                    className="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-xl border border-slate-700 outline-none"
+                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Symptoms (Comma Separated)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Symptoms (Comma Separated)</label>
                 <input
                   type="text"
                   value={newReport.symptoms}
                   onChange={(e) => setNewReport({ ...newReport, symptoms: e.target.value })}
                   placeholder="High Fever, Retro-orbital pain, Petechial rash"
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 outline-none"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Clinical Observations & Description *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Clinical Observations & Description *</label>
                 <textarea
                   rows="3"
                   required
                   value={newReport.description}
                   onChange={(e) => setNewReport({ ...newReport, description: e.target.value })}
                   placeholder="Detailed findings, lab metrics, and epidemiological observations..."
-                  className="w-full bg-slate-800 text-white text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 outline-none resize-none"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Attach Image (Optional)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Attach Image (Optional)</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setReportImageFile(e.target.files[0])}
-                  className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
+                  className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer"
                 />
               </div>
 
-              <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
+              <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowCreateReportModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingReport}
-                  className="px-6 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold"
+                  className="px-6 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm"
                 >
                   {submittingReport ? "Submitting..." : "Save Clinical Report"}
                 </button>
@@ -613,4 +621,5 @@ export const DoctorPortal = () => {
     </div>
   );
 };
+
 export default DoctorPortal;

@@ -36,6 +36,7 @@ const seedDatabase = async () => {
       phone: "+91 11 2306 1823",
       qualification: "IAS / Public Health Policy",
       hospitalOrClinic: "Ministry of Health & Family Welfare",
+      isEmailVerified: true,
     });
 
     const doctor1 = await User.create({
@@ -50,6 +51,7 @@ const seedDatabase = async () => {
       qualification: "MD Internal Medicine, DNB Epidemiology",
       hospitalOrClinic: "Sassoon General Hospital & Medical College",
       createdBy: admin._id,
+      isEmailVerified: true,
     });
 
     const doctor2 = await User.create({
@@ -64,6 +66,7 @@ const seedDatabase = async () => {
       qualification: "MD Infectious Diseases",
       hospitalOrClinic: "Civil Hospital Ahmedabad",
       createdBy: admin._id,
+      isEmailVerified: true,
     });
 
     const healthAssistant1 = await User.create({
@@ -78,6 +81,7 @@ const seedDatabase = async () => {
       qualification: "Auxiliary Nurse Midwife (ANM / ASHA Lead)",
       hospitalOrClinic: "Hadapsar Primary Health Centre (PHC)",
       createdBy: doctor1._id,
+      isEmailVerified: true,
     });
 
     const healthAssistant2 = await User.create({
@@ -92,6 +96,7 @@ const seedDatabase = async () => {
       qualification: "Certified Sanitary Inspector",
       hospitalOrClinic: "BMC Ward Health Post K-East",
       createdBy: doctor1._id,
+      isEmailVerified: true,
     });
 
     const citizenUser = await User.create({
@@ -103,6 +108,7 @@ const seedDatabase = async () => {
       district: "Pune",
       city: "Kothrud",
       phone: "+91 97654 32100",
+      isEmailVerified: true,
     });
 
     console.log("✅ Created 6 seed user accounts across all 4 roles.");

@@ -122,9 +122,9 @@ export const LocationFilter = ({
       : ["All"];
 
   return (
-    <div className={`flex flex-wrap items-center gap-3 p-3 rounded-2xl glass-panel border border-emerald-500/20 ${className}`}>
-      <div className="flex items-center gap-2 text-emerald-400 font-medium text-xs uppercase tracking-wider pl-1">
-        <MapPin className="w-4 h-4 text-emerald-400 animate-pulse" />
+    <div className={`flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm ${className}`}>
+      <div className="flex items-center gap-2 text-teal-700 font-semibold text-xs uppercase tracking-wider pl-1">
+        <MapPin className="w-4 h-4 text-teal-600 animate-pulse" />
         <span>Jurisdiction:</span>
       </div>
 
@@ -133,7 +133,7 @@ export const LocationFilter = ({
         <select
           value={state}
           onChange={handleStateChange}
-          className="w-full bg-slate-800/90 text-white text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer transition-all"
+          className="w-full bg-slate-50 text-slate-800 text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer transition-all"
         >
           {allowAllState && <option value="All">All States (Pan-India)</option>}
           {Object.keys(locations).map((st) => (
@@ -150,7 +150,7 @@ export const LocationFilter = ({
         <select
           value={district}
           onChange={handleDistrictChange}
-          className="w-full bg-slate-800/90 text-white text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer transition-all"
+          className="w-full bg-slate-50 text-slate-800 text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer transition-all"
         >
           <option value="All">All Districts</option>
           {availableDistricts.map((dst) => (
@@ -168,7 +168,7 @@ export const LocationFilter = ({
           <select
             value={city}
             onChange={handleCityChange}
-            className="w-full bg-slate-800/90 text-white text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer transition-all"
+            className="w-full bg-slate-50 text-slate-800 text-xs md:text-sm font-medium rounded-xl px-3 py-2 pr-8 border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer transition-all"
           >
             <option value="All">All Cities / Taluks</option>
             {availableCities
@@ -185,4 +185,5 @@ export const LocationFilter = ({
     </div>
   );
 };
+
 export default LocationFilter;

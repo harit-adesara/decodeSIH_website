@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 export const loginValidator = [
   body("email")
@@ -32,12 +32,26 @@ export const registerValidator = [
     .withMessage("Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long"),
-  body("role")
-    .optional()
-    .isIn(["user", "health_assistant", "doctor", "admin"])
-    .withMessage("Invalid user role specified"),
   body("state").optional().trim(),
   body("district").optional().trim(),
   body("city").optional().trim(),
   body("phone").optional().trim(),
+];
+
+export const forgotPasswordValidator = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Must provide a valid email address"),
+];
+
+export const resetPasswordValidator = [
+  body("newPassword")
+    .trim()
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("New password must be at least 6 characters long"),
 ];

@@ -5,6 +5,7 @@ import { User } from "../models/User.js";
 import { Report } from "../models/Report.js";
 import { Advisory } from "../models/Advisory.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
+import { sendEmail, welcomeStaffEmailTemplate } from "../utils/mail.js";
 
 /**
  * @desc    Admin creates Doctor or Health Assistant account
@@ -46,6 +47,15 @@ export const createUserByAdmin = asyncHandler(async (req, res) => {
     qualification: qualification || "",
     hospitalOrClinic: hospitalOrClinic || "",
     createdBy: req.user._id,
+    isEmailVerified: true,
+  });
+
+  // Dispatch welcome email with login credentials
+  await sendEmail({
+    email: newUser.email,
+    subject: `Official ${role === "doctor" ? "Doctor" : "Health Assistant"} Account Created - Bharat Swasthya AI`,
+    html: welcomeStaffEmailTemplate(newUser.name, newUser.email, newUser.role, password),
+    text: `Namaste ${newUser.name},\n\nYour ${role} account has been created on Bharat Swasthya AI.\nLogin Email: ${newUser.email}\nPassword: ${password}`,
   });
 
   const responseUser = {
