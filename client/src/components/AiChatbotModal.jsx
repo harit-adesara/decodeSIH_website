@@ -14,7 +14,7 @@ import {
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 
-export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
+export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt = "" }) => {
   const { locationContext } = useAuth();
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -27,6 +27,12 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency }) => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen && initialPrompt) {
+      handleSendMessage(initialPrompt);
+    }
+  }, [isOpen, initialPrompt]);
 
   const quickPrompts = [
     "High fever with joint pain & headache",

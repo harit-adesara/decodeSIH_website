@@ -15,6 +15,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { indiaLocations } from "../data/indiaLocations";
 
 export const Login = ({ onLoginSuccess }) => {
   const {
@@ -397,36 +398,78 @@ export const Login = ({ onLoginSuccess }) => {
             </div>
           </div>
 
+          {/* Geographic Location Dropdowns (Pan-India) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">State</label>
-              <input
-                type="text"
+              <label className="block text-xs font-semibold text-slate-700 mb-1">State *</label>
+              <select
                 value={registerData.state}
-                onChange={(e) => setRegisterData({ ...registerData, state: e.target.value })}
-                placeholder="Maharashtra"
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
-              />
+                onChange={(e) => {
+                  const newState = e.target.value;
+                  const newDistricts = indiaLocations[newState]?.districts || [];
+                  const newDistrict = newDistricts[0] || "All";
+                  const newCities = (indiaLocations[newState]?.cities?.[newDistrict] || []).filter((c) => c !== "All");
+                  const newCity = newCities[0] || newDistrict;
+                  setRegisterData({
+                    ...registerData,
+                    state: newState,
+                    district: newDistrict,
+                    city: newCity,
+                  });
+                }}
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
+              >
+                {Object.keys(indiaLocations).map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
+                ))}
+              </select>
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">District</label>
-              <input
-                type="text"
+              <label className="block text-xs font-semibold text-slate-700 mb-1">District *</label>
+              <select
                 value={registerData.district}
-                onChange={(e) => setRegisterData({ ...registerData, district: e.target.value })}
-                placeholder="Pune"
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
-              />
+                onChange={(e) => {
+                  const newDistrict = e.target.value;
+                  const newCities = (indiaLocations[registerData.state]?.cities?.[newDistrict] || []).filter((c) => c !== "All");
+                  const newCity = newCities[0] || newDistrict;
+                  setRegisterData({
+                    ...registerData,
+                    district: newDistrict,
+                    city: newCity,
+                  });
+                }}
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
+              >
+                {(indiaLocations[registerData.state]?.districts || []).map((dst) => (
+                  <option key={dst} value={dst}>
+                    {dst}
+                  </option>
+                ))}
+              </select>
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">City / Town</label>
-              <input
-                type="text"
+              <label className="block text-xs font-semibold text-slate-700 mb-1">City / Taluk</label>
+              <select
                 value={registerData.city}
                 onChange={(e) => setRegisterData({ ...registerData, city: e.target.value })}
-                placeholder="Kothrud"
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
-              />
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
+              >
+                {(() => {
+                  const citiesList = (indiaLocations[registerData.state]?.cities?.[registerData.district] || []).filter((c) => c !== "All");
+                  if (citiesList.length === 0) {
+                    return <option value={registerData.district}>{registerData.district} Main</option>;
+                  }
+                  return citiesList.map((ct) => (
+                    <option key={ct} value={ct}>
+                      {ct}
+                    </option>
+                  ));
+                })()}
+              </select>
             </div>
           </div>
 

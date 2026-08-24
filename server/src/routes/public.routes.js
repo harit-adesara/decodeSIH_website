@@ -1,7 +1,9 @@
 import { Router } from "express";
 import {
   getViralDiseases,
+  getViralDiseaseDetails,
   getProactiveAlerts,
+  getProactiveAlertById,
   chatWithAiAssistant,
   getHelplineNumbers,
   getLocationsData,
@@ -13,7 +15,9 @@ const router = Router();
 
 // 3rd-party and Public Open Endpoints
 router.get("/viral-diseases", getViralDiseases);
+router.get("/viral-diseases/details", getViralDiseaseDetails);
 router.get("/proactive-alerts", getProactiveAlerts);
+router.get("/proactive-alerts/:id", getProactiveAlertById);
 router.get("/overview-stats", getPublicOverviewStats);
 router.get("/helplines", getHelplineNumbers);
 router.get("/locations", getLocationsData);
@@ -22,4 +26,5 @@ router.get("/locations", getLocationsData);
 router.post("/chatbot", verifyJWT, chatWithAiAssistant);
 
 export default router;
+
 

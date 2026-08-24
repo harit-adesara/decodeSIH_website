@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   PhoneCall,
   Ambulance,
@@ -15,9 +15,31 @@ import {
   PhoneForwarded,
   Info,
   CheckCircle2,
+  Bug,
+  Activity,
+  MapPin,
+  ChevronRight,
 } from "lucide-react";
+import axiosInstance from "../api/axiosInstance";
+import LocationFilter from "../components/LocationFilter";
+import ProactiveAlertCard from "../components/ProactiveAlertCard";
+import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
+import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 
-export const PublicLandingView = ({ onOpenEmergency, onOpenLogin }) => {
+export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWithPrompt }) => {
+  const [selectedLocation, setSelectedLocation] = useState({
+    state: "Maharashtra",
+    district: "Pune",
+    city: "All",
+  });
+  const [viralDiseases, setViralDiseases] = useState([]);
+  const [proactiveAlerts, setProactiveAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Detail Modal States
+  const [selectedViralDisease, setSelectedViralDisease] = useState(null);
+  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
+
   const helplines = [
     {
       name: "National Emergency Ambulance Dispatch",
@@ -75,8 +97,32 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin }) => {
     },
   ];
 
+  const fetchSurveillanceData = async () => {
+    setLoading(true);
+    try {
+      const [viralRes, proactiveRes] = await Promise.all([
+        axiosInstance.get(
+          `/public/viral-diseases?state=${selectedLocation.state}&district=${selectedLocation.district}&city=${selectedLocation.city}`
+        ),
+        axiosInstance.get(
+          `/public/proactive-alerts?state=${selectedLocation.state}&district=${selectedLocation.district}`
+        ),
+      ]);
+      setViralDiseases(viralRes.data?.data || []);
+      setProactiveAlerts(proactiveRes.data?.alerts || []);
+    } catch (err) {
+      console.error("Failed to load public landing data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSurveillanceData();
+  }, [selectedLocation.state, selectedLocation.district, selectedLocation.city]);
+
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-10 pb-16">
       {/* Hero Welcome Banner */}
       <div className="p-6 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="space-y-4 max-w-2xl">
@@ -133,6 +179,157 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin }) => {
         </div>
       </div>
 
+      {/* Regional Surveillance Feed & Location Filter */}
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-teal-600" />
+              Regional Disease Surveillance Radar
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Explore active viral outbreaks and AI outbreak forecasts across all Indian States & Districts.
+            </p>
+          </div>
+        </div>
+
+        <LocationFilter
+          selectedState={selectedLocation.state}
+          selectedDistrict={selectedLocation.district}
+          selectedCity={selectedLocation.city}
+          onChange={(newLoc) => setSelectedLocation(newLoc)}
+        />
+      </section>
+
+      {/* Active Viral Outbreaks Cards */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+              <Bug className="w-5 h-5 text-rose-600" />
+              Active Viral Pathogen Strains in {selectedLocation.district}, {selectedLocation.state}
+            </h3>
+            <p className="text-xs text-slate-500">
+              Click any viral disease card to inspect complete clinical presentation & doctor remarks
+            </p>
+          </div>
+          <span className="text-xs text-slate-500 font-semibold bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+            {viralDiseases.length} Active Strains
+          </span>
+        </div>
+
+        {viralDiseases.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {viralDiseases.map((disease, idx) => (
+              <div
+                key={idx}
+                onClick={() => setSelectedViralDisease(disease)}
+                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wider">
+                      Viral Transmission
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      📍 {disease.district}
+                    </span>
+                  </div>
+
+                  <h4 className="font-bold text-base text-slate-900 mb-2 group-hover:text-teal-700 transition-colors">
+                    {disease.diseaseName}
+                  </h4>
+
+                  <div className="grid grid-cols-2 gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+                    <div>
+                      <div className="text-[10px] text-slate-500 uppercase font-semibold">Cases Reported</div>
+                      <div className="font-bold text-teal-700 text-sm">
+                        {disease.totalCases} Patients
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 uppercase font-semibold">Severity</div>
+                      <div className="font-bold text-rose-600 capitalize text-sm">
+                        {disease.highestSeverity || "Moderate"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {disease.symptoms?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-3">
+                      {disease.symptoms.slice(0, 3).map((sym, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium"
+                        >
+                          {sym}
+                        </span>
+                      ))}
+                      {disease.symptoms.length > 3 && (
+                        <span className="text-[10px] text-teal-700 font-semibold px-1 py-0.5">
+                          +{disease.symptoms.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 text-[11px]">Click for Full Details</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedViralDisease(disease);
+                    }}
+                    className="text-teal-600 group-hover:text-teal-700 font-bold flex items-center gap-1"
+                  >
+                    <span>View Details</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm">
+            ✅ No critical viral outbreak spikes reported currently for {selectedLocation.district},{" "}
+            {selectedLocation.state}. Maintain regular hygiene.
+          </div>
+        )}
+      </section>
+
+      {/* Proactive Weather-Linked AI Forecasts */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              Proactive AI Weather-Linked Outbreak Forecasts
+            </h3>
+            <p className="text-xs text-slate-500">
+              Aggregated daily from meteorological indicators + medical observations. Click to view detailed forecast.
+            </p>
+          </div>
+        </div>
+
+        {proactiveAlerts.length > 0 ? (
+          <div className="space-y-4">
+            {proactiveAlerts.map((alert) => (
+              <ProactiveAlertCard
+                key={alert._id}
+                alert={alert}
+                onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm">
+            <Activity className="w-6 h-6 mx-auto mb-2 text-teal-600" />
+            No active high-risk alerts in this district. AI engine continuously monitoring.
+          </div>
+        )}
+      </section>
+
       {/* 24x7 Emergency Helplines Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -186,8 +383,31 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin }) => {
           })}
         </div>
       </div>
+
+      {/* Viral Disease Details Modal */}
+      {selectedViralDisease && (
+        <ViralDiseaseDetailsModal
+          disease={selectedViralDisease}
+          isOpen={Boolean(selectedViralDisease)}
+          onClose={() => setSelectedViralDisease(null)}
+          onOpenChatWithPrompt={onOpenLogin}
+          onOpenEmergency={onOpenEmergency}
+        />
+      )}
+
+      {/* Proactive Forecast Details Modal */}
+      {selectedProactiveAlert && (
+        <ProactiveAlertDetailsModal
+          alert={selectedProactiveAlert}
+          isOpen={Boolean(selectedProactiveAlert)}
+          onClose={() => setSelectedProactiveAlert(null)}
+          onOpenChatWithPrompt={onOpenLogin}
+          onOpenEmergency={onOpenEmergency}
+        />
+      )}
     </div>
   );
 };
 
 export default PublicLandingView;
+

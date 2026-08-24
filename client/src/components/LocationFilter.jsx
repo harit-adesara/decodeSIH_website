@@ -1,55 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MapPin, ChevronDown } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
-
-const fallbackLocations = {
-  Maharashtra: {
-    districts: ["Pune", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nashik", "Thane"],
-    cities: {
-      Pune: ["All", "Shivajinagar", "Hadapsar", "Kothrud", "Hinjawadi", "Pimpri", "Baramati"],
-      "Mumbai Suburban": ["All", "Andheri", "Bandra", "Borivali", "Goregaon", "Kurla"],
-      "Mumbai City": ["All", "Colaba", "Dadar", "Byculla", "Parel", "Worli"],
-      Nagpur: ["All", "Sitabuldi", "Dharampeth", "Ramdaspeth"],
-      Nashik: ["All", "Panchavati", "CIDCO", "Satpur"],
-      Thane: ["All", "Naupada", "Ghodbunder", "Kalyan", "Dombivli"],
-    },
-  },
-  Delhi: {
-    districts: ["Central Delhi", "New Delhi", "North Delhi", "South Delhi"],
-    cities: {
-      "Central Delhi": ["All", "Karol Bagh", "Pahar Ganj", "Rajinder Nagar"],
-      "New Delhi": ["All", "Connaught Place", "Chanakyapuri", "Vasant Vihar"],
-      "North Delhi": ["All", "Civil Lines", "Model Town", "Narela"],
-      "South Delhi": ["All", "Saket", "Hauz Khas", "Greater Kailash"],
-    },
-  },
-  "Uttar Pradesh": {
-    districts: ["Lucknow", "Varanasi", "Kanpur Nagar", "Gautam Buddha Nagar"],
-    cities: {
-      Lucknow: ["All", "Hazratganj", "Gomti Nagar", "Alambagh"],
-      Varanasi: ["All", "Lanka", "Sigra", "Godowlia"],
-      "Kanpur Nagar": ["All", "Civil Lines", "Kakadeo"],
-      "Gautam Buddha Nagar": ["All", "Noida Sector 18", "Noida Sector 62", "Greater Noida"],
-    },
-  },
-  Gujarat: {
-    districts: ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
-    cities: {
-      Ahmedabad: ["All", "Navrangpura", "Satellite", "Maninagar", "Vastrapur"],
-      Surat: ["All", "Adajan", "Athwa", "Varachha"],
-      Vadodara: ["All", "Alkapuri", "Fatehgunj"],
-      Rajkot: ["All", "Yagnik Road", "Kalawad Road"],
-    },
-  },
-  Karnataka: {
-    districts: ["Bengaluru Urban", "Mysuru", "Mangaluru"],
-    cities: {
-      "Bengaluru Urban": ["All", "Indiranagar", "Koramangala", "Whitefield", "Jayanagar"],
-      Mysuru: ["All", "Gokulam", "Jayalakshmipuram"],
-      Mangaluru: ["All", "Kadri", "Kankanady"],
-    },
-  },
-};
+import { indiaLocations } from "../data/indiaLocations";
 
 export const LocationFilter = ({
   selectedState = "Maharashtra",
@@ -60,7 +12,7 @@ export const LocationFilter = ({
   showCity = true,
   allowAllState = false,
 }) => {
-  const [locations, setLocations] = useState(fallbackLocations);
+  const [locations, setLocations] = useState(indiaLocations);
   const [state, setState] = useState(selectedState);
   const [district, setDistrict] = useState(selectedDistrict);
   const [city, setCity] = useState(selectedCity);

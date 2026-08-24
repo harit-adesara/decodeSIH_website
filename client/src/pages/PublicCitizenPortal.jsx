@@ -14,18 +14,25 @@ import {
   ExternalLink,
   ChevronRight,
   TrendingUp,
+  Info,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
 import ProactiveAlertCard from "../components/ProactiveAlertCard";
+import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
+import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 import { useAuth } from "../context/AuthContext";
 
-export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile }) => {
+export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile, onOpenChatWithPrompt }) => {
   const { user, locationContext, updateLocation } = useAuth();
   const [viralDiseases, setViralDiseases] = useState([]);
   const [proactiveAlerts, setProactiveAlerts] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Detail Modal States
+  const [selectedViralDisease, setSelectedViralDisease] = useState(null);
+  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
 
   const fetchPublicData = async () => {
     setLoading(true);
@@ -54,6 +61,14 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
     fetchPublicData();
   }, [locationContext.state, locationContext.district, locationContext.city]);
 
+  const handleChatTrigger = (promptText) => {
+    if (onOpenChatWithPrompt) {
+      onOpenChatWithPrompt(promptText);
+    } else if (onOpenChat) {
+      onOpenChat();
+    }
+  };
+
   return (
     <div className="space-y-8 pb-16">
       {/* Hero Section */}
@@ -81,7 +96,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
-              onClick={onOpenChat}
+              onClick={() => onOpenChat && onOpenChat()}
               className="px-5 py-3 rounded-2xl bg-white text-teal-900 hover:bg-teal-50 font-bold text-sm sm:text-base shadow-lg shadow-black/10 flex items-center gap-2.5 transition-all active:scale-95"
             >
               <Bot className="w-5 h-5 text-teal-700" />
@@ -153,7 +168,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
               Regional Disease Surveillance Feed
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
-              Select your State and District to see active contagion risks & proactive advisories.
+              Select any Indian State, District, and City to see active contagion risks & proactive advisories.
             </p>
           </div>
         </div>
@@ -169,11 +184,16 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
       {/* Active Viral Outbreaks Spread Section */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
-            <Bug className="w-5 h-5 text-rose-600" />
-            Contagious & Viral Diseases Spread in {locationContext.district}, {locationContext.state}
-          </h3>
-          <span className="text-xs text-slate-500 font-medium">
+          <div>
+            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+              <Bug className="w-5 h-5 text-rose-600" />
+              Contagious & Viral Diseases Spread in {locationContext.district}, {locationContext.state}
+            </h3>
+            <p className="text-xs text-slate-500">
+              Click any viral disease card to view in-depth symptoms, doctor remarks, and medical precautions
+            </p>
+          </div>
+          <span className="text-xs text-slate-500 font-semibold bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
             {viralDiseases.length} Active Strains Detected
           </span>
         </div>
@@ -183,7 +203,8 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             {viralDiseases.map((disease, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between"
+                onClick={() => setSelectedViralDisease(disease)}
+                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -195,7 +216,9 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
                     </span>
                   </div>
 
-                  <h4 className="font-bold text-base text-slate-900 mb-2">{disease.diseaseName}</h4>
+                  <h4 className="font-bold text-base text-slate-900 mb-2 group-hover:text-teal-700 transition-colors">
+                    {disease.diseaseName}
+                  </h4>
 
                   <div className="grid grid-cols-2 gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                     <div>
@@ -211,16 +234,38 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
                       </div>
                     </div>
                   </div>
+
+                  {/* Symptoms pill preview */}
+                  {disease.symptoms?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-3">
+                      {disease.symptoms.slice(0, 3).map((sym, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium"
+                        >
+                          {sym}
+                        </span>
+                      ))}
+                      {disease.symptoms.length > 3 && (
+                        <span className="text-[10px] text-teal-700 font-semibold px-1 py-0.5">
+                          +{disease.symptoms.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 text-[11px]">Status: Active Monitor</span>
+                  <span className="text-slate-500 text-[11px]">Click for Full Profile</span>
                   <button
-                    onClick={onOpenChat}
-                    className="text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedViralDisease(disease);
+                    }}
+                    className="text-teal-600 group-hover:text-teal-700 font-bold flex items-center gap-1"
                   >
-                    <span>Check Symptoms</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <span>View Details</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -243,7 +288,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
               Proactive AI Weather-Linked Outbreak Forecasts
             </h3>
             <p className="text-xs text-slate-500">
-              Aggregated daily from meteorological indicators + medical observations
+              Aggregated daily from meteorological indicators + medical observations. Click any forecast to see detailed action protocol.
             </p>
           </div>
         </div>
@@ -251,7 +296,11 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         {proactiveAlerts.length > 0 ? (
           <div className="space-y-4">
             {proactiveAlerts.map((alert) => (
-              <ProactiveAlertCard key={alert._id} alert={alert} />
+              <ProactiveAlertCard
+                key={alert._id}
+                alert={alert}
+                onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
+              />
             ))}
           </div>
         ) : (
@@ -277,14 +326,37 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         </div>
 
         <button
-          onClick={onOpenChat}
+          onClick={() => onOpenChat && onOpenChat()}
           className="px-6 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md shadow-teal-600/20 shrink-0 transition-all active:scale-95"
         >
           Launch Health Chatbot Now →
         </button>
       </section>
+
+      {/* Viral Disease Details Modal */}
+      {selectedViralDisease && (
+        <ViralDiseaseDetailsModal
+          disease={selectedViralDisease}
+          isOpen={Boolean(selectedViralDisease)}
+          onClose={() => setSelectedViralDisease(null)}
+          onOpenChatWithPrompt={handleChatTrigger}
+          onOpenEmergency={onOpenEmergency}
+        />
+      )}
+
+      {/* Proactive Forecast Details Modal */}
+      {selectedProactiveAlert && (
+        <ProactiveAlertDetailsModal
+          alert={selectedProactiveAlert}
+          isOpen={Boolean(selectedProactiveAlert)}
+          onClose={() => setSelectedProactiveAlert(null)}
+          onOpenChatWithPrompt={handleChatTrigger}
+          onOpenEmergency={onOpenEmergency}
+        />
+      )}
     </div>
   );
 };
 
 export default PublicCitizenPortal;
+

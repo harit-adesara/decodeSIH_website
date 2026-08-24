@@ -17,6 +17,7 @@ export function App() {
   const { role, isAuthenticated, user } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInitialPrompt, setChatInitialPrompt] = useState("");
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -41,6 +42,16 @@ export function App() {
     if (!isAuthenticated) {
       setActiveTab("login");
     } else {
+      setChatInitialPrompt("");
+      setIsChatOpen(true);
+    }
+  };
+
+  const handleOpenChatWithPrompt = (prompt) => {
+    if (!isAuthenticated) {
+      setActiveTab("login");
+    } else {
+      setChatInitialPrompt(prompt);
       setIsChatOpen(true);
     }
   };
@@ -63,6 +74,7 @@ export function App() {
       return (
         <PublicCitizenPortal
           onOpenChat={handleOpenChat}
+          onOpenChatWithPrompt={handleOpenChatWithPrompt}
           onOpenEmergency={() => setIsEmergencyOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
         />
@@ -75,6 +87,7 @@ export function App() {
       <PublicLandingView
         onOpenEmergency={() => setIsEmergencyOpen(true)}
         onOpenLogin={() => setActiveTab("login")}
+        onOpenChatWithPrompt={handleOpenChatWithPrompt}
       />
     );
   };
@@ -99,7 +112,11 @@ export function App() {
       {isAuthenticated && (
         <AiChatbotModal
           isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
+          initialPrompt={chatInitialPrompt}
+          onClose={() => {
+            setIsChatOpen(false);
+            setChatInitialPrompt("");
+          }}
           onOpenEmergency={() => {
             setIsChatOpen(false);
             setIsEmergencyOpen(true);

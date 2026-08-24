@@ -8,6 +8,7 @@ import {
   MapPin,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
+import { indiaLocations } from "../data/indiaLocations";
 
 export const CreateAdvisoryModal = ({ isOpen, onClose, onCreated }) => {
   const [formData, setFormData] = useState({
@@ -142,34 +143,67 @@ export const CreateAdvisoryModal = ({ isOpen, onClose, onCreated }) => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[11px] text-slate-500 mb-1">Target State *</label>
-                <input
-                  type="text"
+                <select
                   required
                   value={formData.targetState}
-                  onChange={(e) => setFormData({ ...formData, targetState: e.target.value })}
-                  placeholder="Maharashtra"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none"
-                />
+                  onChange={(e) => {
+                    const newState = e.target.value;
+                    const newDistricts = indiaLocations[newState]?.districts || [];
+                    const newDistrict = newDistricts[0] || "All";
+                    setFormData({
+                      ...formData,
+                      targetState: newState,
+                      targetDistrict: newDistrict,
+                      targetCity: "All",
+                    });
+                  }}
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
+                >
+                  <option value="All">All States (Pan-India)</option>
+                  {Object.keys(indiaLocations).map((st) => (
+                    <option key={st} value={st}>
+                      {st}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-[11px] text-slate-500 mb-1">Target District</label>
-                <input
-                  type="text"
+                <select
                   value={formData.targetDistrict}
-                  onChange={(e) => setFormData({ ...formData, targetDistrict: e.target.value })}
-                  placeholder="Pune or All"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none"
-                />
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      targetDistrict: e.target.value,
+                      targetCity: "All",
+                    });
+                  }}
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
+                >
+                  <option value="All">All Districts</option>
+                  {(indiaLocations[formData.targetState]?.districts || []).map((dst) => (
+                    <option key={dst} value={dst}>
+                      {dst}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-[11px] text-slate-500 mb-1">Target City / Taluk</label>
-                <input
-                  type="text"
+                <select
                   value={formData.targetCity}
                   onChange={(e) => setFormData({ ...formData, targetCity: e.target.value })}
-                  placeholder="Hadapsar or All"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none"
-                />
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
+                >
+                  <option value="All">All Cities / Taluks</option>
+                  {((indiaLocations[formData.targetState]?.cities?.[formData.targetDistrict]) || [])
+                    .filter((c) => c !== "All")
+                    .map((ct) => (
+                      <option key={ct} value={ct}>
+                        {ct}
+                      </option>
+                    ))}
+                </select>
               </div>
             </div>
           </div>

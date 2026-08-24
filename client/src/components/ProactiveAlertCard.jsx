@@ -10,9 +10,10 @@ import {
   CheckCircle2,
   Bug,
   Activity,
+  ChevronRight,
 } from "lucide-react";
 
-export const ProactiveAlertCard = ({ alert }) => {
+export const ProactiveAlertCard = ({ alert, onSelectAlert }) => {
   const isHighRisk = alert.riskLevel === "high" || alert.riskLevel === "severe";
 
   const getRiskBadge = (level) => {
@@ -30,10 +31,11 @@ export const ProactiveAlertCard = ({ alert }) => {
 
   return (
     <div
-      className={`rounded-3xl p-5 sm:p-6 transition-all bg-white border shadow-sm glass-card-hover ${
+      onClick={() => onSelectAlert && onSelectAlert(alert)}
+      className={`rounded-3xl p-5 sm:p-6 transition-all bg-white border shadow-sm glass-card-hover cursor-pointer group ${
         isHighRisk
-          ? "border-rose-200"
-          : "border-slate-200"
+          ? "border-rose-200 hover:border-rose-300"
+          : "border-slate-200 hover:border-teal-300"
       }`}
     >
       {/* Top Banner */}
@@ -57,12 +59,12 @@ export const ProactiveAlertCard = ({ alert }) => {
             </span>
           </div>
 
-          <h3 className="font-display font-bold text-lg sm:text-xl text-slate-900 flex items-center gap-2">
+          <h3 className="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-teal-700 transition-colors flex items-center gap-2">
             {alert.diseaseName}
           </h3>
         </div>
 
-        <div className="flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-semibold px-2.5 py-1 rounded-xl border border-teal-200">
+        <div className="flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-semibold px-2.5 py-1 rounded-xl border border-teal-200 group-hover:bg-teal-100 transition-colors">
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
           <span>AI Proactive Forecast</span>
         </div>
@@ -113,7 +115,7 @@ export const ProactiveAlertCard = ({ alert }) => {
         </div>
       )}
 
-      {/* Symptoms To Watch & Precautions */}
+      {/* Symptoms To Watch & Precautions Preview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
         {/* Symptoms */}
         {alert.symptomsToWatch?.length > 0 && (
@@ -123,7 +125,7 @@ export const ProactiveAlertCard = ({ alert }) => {
               Symptoms to Watch
             </h4>
             <div className="flex flex-wrap gap-1.5">
-              {alert.symptomsToWatch.map((sym, idx) => (
+              {alert.symptomsToWatch.slice(0, 3).map((sym, idx) => (
                 <span
                   key={idx}
                   className="text-xs bg-white text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-medium"
@@ -131,6 +133,11 @@ export const ProactiveAlertCard = ({ alert }) => {
                   {sym}
                 </span>
               ))}
+              {alert.symptomsToWatch.length > 3 && (
+                <span className="text-xs text-teal-700 font-semibold px-1 py-1">
+                  +{alert.symptomsToWatch.length - 3} more
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -143,10 +150,10 @@ export const ProactiveAlertCard = ({ alert }) => {
               Recommended Precautions
             </h4>
             <ul className="space-y-1.5 text-xs text-slate-700">
-              {alert.recommendedPrecautions.map((prec, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
+              {alert.recommendedPrecautions.slice(0, 2).map((prec, idx) => (
+                <li key={idx} className="flex items-start gap-1.5 truncate">
                   <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                  <span>{prec}</span>
+                  <span className="truncate">{prec}</span>
                 </li>
               ))}
             </ul>
@@ -154,18 +161,29 @@ export const ProactiveAlertCard = ({ alert }) => {
         )}
       </div>
 
-      {/* AI Insights footer */}
-      {alert.aiInsights && (
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-xs text-slate-500">
-          <Sparkles className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-          <span>
-            <strong className="text-slate-700 font-semibold">Epidemiological Analysis: </strong>
-            {alert.aiInsights}
+      {/* AI Insights & View Details Click CTA */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5 text-slate-500">
+          <Sparkles className="w-4 h-4 text-teal-600 shrink-0" />
+          <span className="truncate max-w-[280px] sm:max-w-md">
+            {alert.aiInsights || "Synthesized from multi-source epidemiological telemetry."}
           </span>
         </div>
-      )}
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onSelectAlert) onSelectAlert(alert);
+          }}
+          className="text-teal-700 group-hover:text-teal-800 font-bold flex items-center gap-1 shrink-0 ml-2"
+        >
+          <span>Full Details</span>
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      </div>
     </div>
   );
 };
 
 export default ProactiveAlertCard;
+
