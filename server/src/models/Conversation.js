@@ -12,6 +12,11 @@ const conversationSchema = new mongoose.Schema(
       default: "New Conversation",
       trim: true,
     },
+    location: {
+      state: { type: String, default: "All", trim: true },
+      district: { type: String, default: "All", trim: true },
+      city: { type: String, default: "All", trim: true },
+    },
     isActive: {
       type: Boolean,
       default: true,

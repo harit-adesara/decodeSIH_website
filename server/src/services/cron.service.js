@@ -1,3 +1,4 @@
+// Path: server\src\services\cron.service.js
 import cron from "node-cron";
 import { runProactiveOutbreakAnalysis } from "../controllers/proactiveEngine.controller.js";
 
@@ -19,3 +20,5 @@ export const initCronJobs = () => {
     }
   });
 };
+
+

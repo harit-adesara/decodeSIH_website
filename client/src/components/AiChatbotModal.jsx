@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
 import {
   X,
   Bot,
@@ -12,10 +13,21 @@ import {
   MessageSquarePlus,
   MessageSquare,
   ChevronLeft,
+  ChevronDown,
   Loader2,
+  Trash2,
+  Pencil,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+
+const INDIAN_STATES = [
+  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
+  "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
+  "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
+  "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
+  "Uttarakhand","West Bengal","Delhi","Jammu and Kashmir","Ladakh",
+];
 
 export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt = "" }) => {
   const { locationContext, user } = useAuth();
@@ -29,11 +41,19 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(() => {
+    if (typeof window !== "undefined") return window.innerWidth >= 768;
+    return true;
+  });
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [locState, setLocState] = useState("");
+  const [locDistrict, setLocDistrict] = useState("");
+  const [locCity, setLocCity] = useState("");
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
-  const scrollThresholdRef = useRef(null);
 
   const quickPrompts = [
     "High fever with joint pain & headache",
@@ -64,9 +84,6 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
       const res = await axiosInstance.get("/chat/conversations");
       const convs = res.data?.conversations || res.data || [];
       setConversations(convs);
-      if (convs.length > 0 && !activeConversation) {
-        selectConversation(convs[0]);
-      }
     } catch (err) {
       console.error("Failed to fetch conversations:", err);
     } finally {
@@ -126,6 +143,27 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
       }
     } catch (err) {
       console.error("Failed to create conversation:", err);
+    }
+  };
+
+  const handleDeleteConversation = async (convId, e) => {
+    e.stopPropagation();
+    if (deleteConfirmId === convId) {
+      try {
+        await axiosInstance.delete(`/chat/conversations/${convId}`);
+        setConversations((prev) => prev.filter((c) => c._id !== convId));
+        if (activeConversation?._id === convId) {
+          setActiveConversation(null);
+          setMessages([]);
+          setShowSidebar(true);
+        }
+      } catch (err) {
+        console.error("Failed to delete conversation:", err);
+      }
+      setDeleteConfirmId(null);
+    } else {
+      setDeleteConfirmId(convId);
+      setTimeout(() => setDeleteConfirmId(null), 3000);
     }
   };
 
@@ -224,9 +262,55 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
     }
   }, [page, hasMore, isLoadingMessages, activeConversation]);
 
+  const handleOpenLocationPicker = () => {
+    const convLoc = activeConversation?.location || {};
+    setLocState(convLoc.state === "All" ? "" : convLoc.state || "");
+    setLocDistrict(convLoc.district === "All" ? "" : convLoc.district || "");
+    setLocCity(convLoc.city === "All" ? "" : convLoc.city || "");
+    setShowLocationPicker(true);
+  };
+
+  const handleSaveLocation = async () => {
+    if (!activeConversation) return;
+    setIsUpdatingLocation(true);
+    try {
+      const payload = {};
+      if (locState.trim()) payload.state = locState.trim();
+      if (locDistrict.trim()) payload.district = locDistrict.trim();
+      if (locCity.trim()) payload.city = locCity.trim();
+
+      const res = await axiosInstance.put(
+        `/chat/conversations/${activeConversation._id}/location`,
+        payload
+      );
+      const updatedConv = res.data?.conversation || res.data?.data?.conversation;
+      if (updatedConv) {
+        setActiveConversation(updatedConv);
+        setConversations((prev) =>
+          prev.map((c) => (c._id === updatedConv._id ? updatedConv : c))
+        );
+      }
+      setShowLocationPicker(false);
+    } catch (err) {
+      console.error("Failed to update location:", err);
+    } finally {
+      setIsUpdatingLocation(false);
+    }
+  };
+
   const getConversationPreview = (conv) => {
     if (conv.title && conv.title !== "New Conversation") return conv.title;
     return "New Conversation";
+  };
+
+  const getConvLocationLabel = (conv) => {
+    const loc = conv?.location;
+    if (!loc) return null;
+    const parts = [loc.city, loc.district, loc.state].filter(
+      (p) => p && p !== "All"
+    );
+    if (parts.length === 0) return null;
+    return parts.join(", ");
   };
 
   if (!isOpen) return null;
@@ -260,9 +344,28 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
               </div>
               <div className="flex items-center gap-1 text-slate-500 text-xs mt-0.5">
                 <MapPin className="w-3 h-3 text-teal-600" />
-                <span>
-                  Regional Context: <strong className="text-slate-800">{locationContext.district}, {locationContext.state}</strong>
-                </span>
+                {activeConversation ? (
+                  <button
+                    onClick={handleOpenLocationPicker}
+                    className="flex items-center gap-1 hover:text-teal-700 transition-colors cursor-pointer"
+                    title="Change location for this conversation"
+                  >
+                    <span>
+                      <strong className="text-slate-800">
+                        {getConvLocationLabel(activeConversation) ||
+                          `${locationContext.district}, ${locationContext.state}`}
+                      </strong>
+                    </span>
+                    <Pencil className="w-2.5 h-2.5 text-slate-400" />
+                  </button>
+                ) : (
+                  <span>
+                    Regional Context:{" "}
+                    <strong className="text-slate-800">
+                      {locationContext.district}, {locationContext.state}
+                    </strong>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -309,21 +412,46 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
                   <button
                     key={conv._id}
                     onClick={() => selectConversation(conv)}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all ${
+                    className={`group w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all ${
                       activeConversation?._id === conv._id
                         ? "bg-teal-100 text-teal-800 border border-teal-200"
                         : "hover:bg-slate-100 text-slate-700 border border-transparent"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                      <span className="truncate">{getConversationPreview(conv)}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                        <span className="truncate">{getConversationPreview(conv)}</span>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteConversation(conv._id, e)}
+                        className={`shrink-0 p-1 rounded-lg transition-all ${
+                          deleteConfirmId === conv._id
+                            ? "bg-red-100 text-red-600"
+                            : "opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                        }`}
+                        title={
+                          deleteConfirmId === conv._id
+                            ? "Click again to confirm delete"
+                            : "Delete conversation"
+                        }
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-1 ml-5">
-                      {new Date(conv.updatedAt).toLocaleDateString([], {
-                        month: "short",
-                        day: "numeric",
-                      })}
+                    <div className="flex items-center gap-2 mt-1 ml-5">
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(conv.updatedAt).toLocaleDateString([], {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      {getConvLocationLabel(conv) && (
+                        <span className="text-[9px] text-slate-400 flex items-center gap-0.5">
+                          <MapPin className="w-2 h-2" />
+                          {getConvLocationLabel(conv)}
+                        </span>
+                      )}
                     </div>
                   </button>
                 ))
@@ -379,8 +507,12 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
                         : "bg-white text-slate-800 rounded-tl-none border border-slate-200 shadow-sm"
                     }`}
                   >
-                    <div className="whitespace-pre-line prose prose-sm">
-                      {msg.text}
+                    <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-li:my-0 prose-strong:text-inherit prose-strong:font-semibold">
+                      {msg.sender === "bot" ? (
+                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                      ) : (
+                        <span className="whitespace-pre-line">{msg.text}</span>
+                      )}
                     </div>
                     <div
                       className={`text-[10px] mt-2 font-mono flex items-center justify-between ${
@@ -471,6 +603,74 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
           </div>
         </div>
       </div>
+
+      {/* Location Picker Modal */}
+      {showLocationPicker && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm p-6 mx-4">
+            <h3 className="font-display font-bold text-slate-900 text-base mb-1">
+              Update Conversation Location
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              The AI will use this location for disease context in this chat.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">State</label>
+                <select
+                  value={locState}
+                  onChange={(e) => setLocState(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                >
+                  <option value="">Select State</option>
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">District</label>
+                <input
+                  type="text"
+                  value={locDistrict}
+                  onChange={(e) => setLocDistrict(e.target.value)}
+                  placeholder="e.g. Pune"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">City / Village</label>
+                <input
+                  type="text"
+                  value={locCity}
+                  onChange={(e) => setLocCity(e.target.value)}
+                  placeholder="e.g. Hadapsar"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 mt-5">
+              <button
+                onClick={() => setShowLocationPicker(false)}
+                className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveLocation}
+                disabled={isUpdatingLocation}
+                className="px-4 py-2 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold transition-all disabled:opacity-50"
+              >
+                {isUpdatingLocation ? (
+                  <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Saving...</span>
+                ) : "Save Location"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
