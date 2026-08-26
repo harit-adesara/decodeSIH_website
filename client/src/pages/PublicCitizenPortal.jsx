@@ -15,6 +15,8 @@ import {
   ChevronRight,
   TrendingUp,
   Info,
+  X,
+  Loader2,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
@@ -30,14 +32,23 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Immediate Alerts
+  const [immediateAlerts, setImmediateAlerts] = useState([]);
+
   // Detail Modal States
   const [selectedViralDisease, setSelectedViralDisease] = useState(null);
   const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
 
+  // Proactive Advisory from LLM
+  const [advisoryLoading, setAdvisoryLoading] = useState(false);
+  const [advisoryResult, setAdvisoryResult] = useState(null);
+  const [advisoryError, setAdvisoryError] = useState(null);
+  const [showAdvisoryModal, setShowAdvisoryModal] = useState(false);
+
   const fetchPublicData = async () => {
     setLoading(true);
     try {
-      const [viralRes, proactiveRes, statsRes] = await Promise.all([
+      const [viralRes, proactiveRes, statsRes, immediateRes] = await Promise.all([
         axiosInstance.get(
           `/public/viral-diseases?state=${locationContext.state}&district=${locationContext.district}&city=${locationContext.city}`
         ),
@@ -45,11 +56,13 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           `/public/proactive-alerts?state=${locationContext.state}&district=${locationContext.district}`
         ),
         axiosInstance.get("/public/overview-stats"),
+        axiosInstance.get("/immediate-alerts").catch(() => ({ data: { alerts: [] } })),
       ]);
 
       setViralDiseases(viralRes.data?.data || []);
       setProactiveAlerts(proactiveRes.data?.alerts || []);
       setStats(statsRes.data);
+      setImmediateAlerts(immediateRes.data?.alerts || []);
     } catch (err) {
       console.error("Failed to load public surveillance data:", err);
     } finally {
@@ -60,6 +73,25 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
   useEffect(() => {
     fetchPublicData();
   }, [locationContext.state, locationContext.district, locationContext.city]);
+
+  const handleFetchAdvisory = async () => {
+    setAdvisoryLoading(true);
+    setAdvisoryError(null);
+    setAdvisoryResult(null);
+    try {
+      const res = await axiosInstance.post("/public/proactive-advisory", {
+        state: locationContext.state,
+        city: locationContext.district,
+        area: locationContext.city,
+      });
+      setAdvisoryResult(res.data?.data || res.data);
+      setShowAdvisoryModal(true);
+    } catch (err) {
+      setAdvisoryError(err.response?.data?.message || "Failed to fetch advisory. Please try again.");
+    } finally {
+      setAdvisoryLoading(false);
+    }
+  };
 
   const handleChatTrigger = (promptText) => {
     if (onOpenChatWithPrompt) {
@@ -90,7 +122,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           </h1>
 
           <p className="text-teal-100/90 text-sm sm:text-base leading-relaxed">
-            Real-time seasonal contagion radar, contagious viral tracking across Indian states and districts, daily weather-correlated outbreak forecasts, and 24x7 AI tele-health symptom triage.
+            Real-time seasonal contagion radar, contagious viral tracking across Indian states and districts, AI-powered outbreak forecasts, and 24x7 AI tele-health symptom triage.
           </p>
 
           {/* Action Buttons */}
@@ -179,6 +211,31 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           selectedCity={locationContext.city}
           onChange={({ state, district, city }) => updateLocation(state, district, city)}
         />
+
+        <button
+          onClick={handleFetchAdvisory}
+          disabled={advisoryLoading}
+          className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-sm shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
+        >
+          {advisoryLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Fetching Advisory...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4" />
+              Get AI Advisory for {locationContext.city !== "All" ? locationContext.city : locationContext.district}, {locationContext.state}
+            </>
+          )}
+        </button>
+
+        {advisoryError && (
+          <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            {advisoryError}
+          </div>
+        )}
       </section>
 
       {/* Active Viral Outbreaks Spread Section */}
@@ -311,6 +368,67 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         )}
       </section>
 
+      {/* Immediate Viral Alerts */}
+      {immediateAlerts.length > 0 && (
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-rose-600" />
+              Immediate Health Alerts in Your Area
+            </h3>
+            <p className="text-xs text-slate-500">
+              Published by local Health Assistants and Doctors for instant community awareness.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {immediateAlerts.map((alert) => (
+              <div
+                key={alert._id}
+                className="p-5 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
+                      alert.severity === "critical"
+                        ? "bg-rose-100 text-rose-800 border-rose-300"
+                        : alert.severity === "high"
+                        ? "bg-orange-50 text-orange-700 border-orange-200"
+                        : "bg-amber-50 text-amber-700 border-amber-200"
+                    }`}>
+                      {alert.severity} Alert
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {alert.patientCount} case{alert.patientCount > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500">
+                    {alert.location?.city}, {alert.location?.district}
+                  </span>
+                </div>
+
+                <h4 className="font-bold text-base text-slate-900">{alert.title}</h4>
+
+                {alert.formattedAlert ? (
+                  <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs leading-relaxed">
+                    {alert.formattedAlert}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    {alert.description}
+                  </p>
+                )}
+
+                <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
+                  <span>Published by: {alert.publishedBy?.name || alert.publishedByRole} ({alert.publishedByRole})</span>
+                  <span>{new Date(alert.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Instant Symptom Triage Banner */}
       <section className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-50 via-emerald-50 to-cyan-50 border border-teal-200 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
         <div className="space-y-2 max-w-xl">
@@ -353,6 +471,47 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           onOpenChatWithPrompt={handleChatTrigger}
           onOpenEmergency={onOpenEmergency}
         />
+      )}
+
+      {/* AI Advisory Modal */}
+      {showAdvisoryModal && advisoryResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory</h3>
+                  <p className="text-xs text-slate-500">
+                    {advisoryResult.city !== "All" ? advisoryResult.city : ""}{" "}
+                    {advisoryResult.state}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAdvisoryModal(false)}
+                className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed">
+                {advisoryResult.advisory}
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setShowAdvisoryModal(false)}
+                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -63,6 +63,32 @@ export const DoctorPortal = ({ onOpenProfile }) => {
   const [reportImageFile, setReportImageFile] = useState(null);
   const [submittingReport, setSubmittingReport] = useState(false);
 
+  // Quick Alert Form State
+  const [quickAlertForm, setQuickAlertForm] = useState({
+    title: "",
+    diseaseName: "",
+    symptoms: "",
+    severity: "moderate",
+    patientCount: 1,
+    description: "",
+    state: user?.state || "Maharashtra",
+    district: user?.district || "Pune",
+    city: user?.city || "Shivajinagar",
+  });
+  const [quickAlertSubmitting, setQuickAlertSubmitting] = useState(false);
+  const [quickAlertSuccess, setQuickAlertSuccess] = useState(false);
+
+  const symptomPresets = [
+    "High Fever (>102\u00B0F)",
+    "Severe Joint / Bone Pain",
+    "Watery Loose Stools",
+    "Repeated Vomiting",
+    "Dry Barking Cough",
+    "Petechial Skin Rash",
+    "Sore Throat",
+    "Severe Headache",
+  ];
+
   const fetchReports = async () => {
     setLoading(true);
     try {
@@ -128,6 +154,59 @@ export const DoctorPortal = ({ onOpenProfile }) => {
       alert(err.message || "Failed to submit report.");
     } finally {
       setSubmittingReport(false);
+    }
+  };
+
+  const toggleQuickAlertSymptom = (sym) => {
+    const currentList = quickAlertForm.symptoms
+      ? quickAlertForm.symptoms.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    let updatedList;
+    if (currentList.includes(sym)) {
+      updatedList = currentList.filter((s) => s !== sym);
+    } else {
+      updatedList = [...currentList, sym];
+    }
+    setQuickAlertForm({ ...quickAlertForm, symptoms: updatedList.join(", ") });
+  };
+
+  const handleQuickAlertSubmit = async (e) => {
+    e.preventDefault();
+    setQuickAlertSubmitting(true);
+    setQuickAlertSuccess(false);
+
+    try {
+      await axiosInstance.post("/immediate-alerts", {
+        title: quickAlertForm.title,
+        description: quickAlertForm.description,
+        diseaseName: quickAlertForm.diseaseName,
+        symptoms: quickAlertForm.symptoms,
+        severity: quickAlertForm.severity,
+        patientCount: quickAlertForm.patientCount,
+        state: quickAlertForm.state,
+        district: quickAlertForm.district,
+        city: quickAlertForm.city,
+      });
+
+      setQuickAlertSuccess(true);
+      setQuickAlertForm({
+        title: "",
+        diseaseName: "",
+        symptoms: "",
+        severity: "moderate",
+        patientCount: 1,
+        description: "",
+        state: user?.state || "Maharashtra",
+        district: user?.district || "Pune",
+        city: user?.city || "Shivajinagar",
+      });
+
+      setTimeout(() => setQuickAlertSuccess(false), 3000);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to publish alert.");
+    } finally {
+      setQuickAlertSubmitting(false);
     }
   };
 
@@ -215,6 +294,18 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         >
           <Megaphone className="w-4 h-4" />
           Regional Bulletins & Advisories ({advisories.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("quick-alert")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+            activeTab === "quick-alert"
+              ? "bg-rose-600 text-white shadow-sm"
+              : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+          }`}
+        >
+          <AlertCircle className="w-4 h-4" />
+          Quick Viral Alert
         </button>
       </div>
 
@@ -440,6 +531,166 @@ export const DoctorPortal = ({ onOpenProfile }) => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Tab 4: Quick Viral Alert */}
+      {activeTab === "quick-alert" && (
+        <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-6">
+          <div>
+            <h3 className="text-xl font-bold font-display text-slate-900 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-rose-600" />
+              Publish Immediate Viral Alert
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Alert citizens instantly about disease outbreaks in your area. No approval needed — goes live immediately.
+            </p>
+          </div>
+
+          {quickAlertSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm text-emerald-700 flex items-center gap-2.5 animate-fadeIn">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <span>Alert published successfully! Citizens in your area can now see this alert.</span>
+            </div>
+          )}
+
+          <form onSubmit={handleQuickAlertSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Disease Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.diseaseName}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, diseaseName: e.target.value })}
+                  placeholder="e.g. Dengue Fever, Viral Flu"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Number of Cases *</label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={quickAlertForm.patientCount}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, patientCount: Number(e.target.value) })}
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Alert Title *</label>
+              <input
+                type="text"
+                required
+                value={quickAlertForm.title}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, title: e.target.value })}
+                placeholder="e.g. Dengue Surge in Shivajinagar - 8 Cases This Week"
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" /> Location
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.state}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, state: e.target.value })}
+                  placeholder="State"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.district}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, district: e.target.value })}
+                  placeholder="District"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.city}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, city: e.target.value })}
+                  placeholder="City / Area"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Symptoms (click to tag)</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {symptomPresets.map((sym, idx) => {
+                  const isSelected = quickAlertForm.symptoms.includes(sym);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => toggleQuickAlertSymptom(sym)}
+                      className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                        isSelected
+                          ? "bg-rose-50 text-rose-700 border-rose-300 font-semibold"
+                          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {isSelected ? "\u2713 " : "+ "}{sym}
+                    </button>
+                  );
+                })}
+              </div>
+              <input
+                type="text"
+                value={quickAlertForm.symptoms}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, symptoms: e.target.value })}
+                placeholder="High fever, Joint pain, Rash..."
+                className="w-full bg-white text-slate-800 text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Clinical Observations *</label>
+              <textarea
+                rows="3"
+                required
+                value={quickAlertForm.description}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, description: e.target.value })}
+                placeholder="Describe patient age range, onset duration, lab findings..."
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Severity</label>
+              <select
+                value={quickAlertForm.severity}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, severity: e.target.value })}
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none cursor-pointer"
+              >
+                <option value="low">Low (Mild)</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High (Urgent)</option>
+                <option value="critical">Critical (Emergency)</option>
+              </select>
+            </div>
+
+            <div className="pt-3">
+              <button
+                type="submit"
+                disabled={quickAlertSubmitting}
+                className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+              >
+                <AlertCircle className="w-4 h-4" />
+                <span>{quickAlertSubmitting ? "Publishing Alert..." : "Publish Alert to Citizens"}</span>
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

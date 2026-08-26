@@ -504,3 +504,50 @@ export const getPublicOverviewStats = asyncHandler(async (req, res) => {
     )
   );
 });
+
+const PROACTIVE_LLM_URL =
+  process.env.PROACTIVE_LLM_URL || "https://proactivellm.onrender.com/api/v1/proactive-advisory";
+
+/**
+ * @desc    Get proactive outbreak advisory for a specific location from external LLM
+ * @route   POST /api/v1/public/proactive-advisory
+ * @access  Public
+ */
+export const getProactiveAdvisory = asyncHandler(async (req, res) => {
+  const { state, city, area } = req.body;
+
+  if (!state) {
+    return res.status(400).json(new ApiResponse(400, null, "State is required."));
+  }
+
+  const llmResponse = await fetch(PROACTIVE_LLM_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      state,
+      city: city || "All",
+      area: area || "All",
+    }),
+    signal: AbortSignal.timeout(60000),
+  });
+
+  if (!llmResponse.ok) {
+    return res.status(502).json(new ApiResponse(502, null, "Proactive LLM service unavailable."));
+  }
+
+  const llmData = await llmResponse.json();
+  const llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        state,
+        city: city || "All",
+        area: area || "All",
+        advisory: llmOutput,
+      },
+      "Proactive advisory retrieved successfully."
+    )
+  );
+});
