@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Activity,
+  Home,
   PhoneCall,
   Bot,
   Shield,
@@ -79,6 +80,20 @@ export const Navbar = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Home Button */}
+          <button
+            onClick={() => setActiveTab("home")}
+            className={`flex items-center gap-1.5 text-xs sm:text-sm px-3.5 py-2 rounded-xl font-semibold transition-all ${
+              activeTab === "home"
+                ? "bg-teal-50 text-teal-800 border border-teal-200 shadow-sm"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent"
+            }`}
+            title="Go to Home"
+          >
+            <Home className="w-4 h-4 text-teal-600" />
+            <span>Home</span>
+          </button>
+
           {/* Emergency Helpline Button (Always Accessible To All) */}
           <button
             onClick={onOpenEmergency}

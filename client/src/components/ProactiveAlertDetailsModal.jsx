@@ -18,6 +18,7 @@ import {
   Brain,
   Info,
 } from "lucide-react";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 export const ProactiveAlertDetailsModal = ({
   alert,
@@ -180,9 +181,9 @@ export const ProactiveAlertDetailsModal = ({
                   <Brain className="w-4 h-4 text-amber-600" />
                   AI Epidemiological Risk Assessment
                 </div>
-                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed font-medium">
-                  {alert.aiInsights || alert.summary}
-                </p>
+                <div className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                  <MarkdownRenderer content={alert.aiInsights || alert.summary} />
+                </div>
               </div>
 
               {/* Telemetry Source Data */}

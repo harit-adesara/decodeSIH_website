@@ -495,9 +495,9 @@ export const getPublicOverviewStats = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        totalMonitoredCases: totalMonitoredCases[0]?.total || 1420,
-        activeOutbreaksCount: activeOutbreaksCount || 8,
-        totalSurveillanceDistricts: totalSurveillanceDistricts.length || 32,
+        totalMonitoredCases: totalMonitoredCases[0]?.total ?? 0,
+        activeOutbreaksCount: activeOutbreaksCount ?? 0,
+        totalSurveillanceDistricts: totalSurveillanceDistricts.length ?? 0,
         activeSurveillanceStates: Object.keys(indiaLocations).length,
       },
       "Public overview statistics retrieved."
@@ -528,7 +528,7 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
       district: district || "All",
       city: city || "All",
     }),
-    signal: AbortSignal.timeout(60000),
+    signal: AbortSignal.timeout(120000), // 2 min timeout
   });
 
   if (!llmResponse.ok) {
@@ -537,7 +537,7 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
 
   const llmData = await llmResponse.json();
   const rawOutput = llmData.llm_output || llmData.response || llmData.output || "";
-  const llmOutput = rawOutput.replace(/\*\*/g, "");
+  const llmOutput = rawOutput; // Keep authentic markdown intact for client MarkdownRenderer
 
   return res.status(200).json(
     new ApiResponse(

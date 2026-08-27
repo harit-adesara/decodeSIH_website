@@ -47,6 +47,7 @@ Instructions:
               },
             ],
           }),
+          signal: AbortSignal.timeout(120000), // 2 min timeout
         }
       );
 
@@ -192,7 +193,7 @@ Field notes: ${description}`;
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
         }),
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(120000), // 2 min timeout
       }
     );
 

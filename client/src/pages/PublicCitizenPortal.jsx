@@ -14,15 +14,13 @@ import {
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
-import ProactiveAlertCard from "../components/ProactiveAlertCard";
 import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
-import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 import { useAuth } from "../context/AuthContext";
 
 export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile, onOpenChatWithPrompt }) => {
   const { user, locationContext, updateLocation } = useAuth();
   const [viralDiseases, setViralDiseases] = useState([]);
-  const [proactiveAlerts, setProactiveAlerts] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +29,6 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
 
   // Detail Modal States
   const [selectedViralDisease, setSelectedViralDisease] = useState(null);
-  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
 
   // Proactive Advisory from LLM
   const [advisoryLoading, setAdvisoryLoading] = useState(false);
@@ -42,19 +39,15 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
   const fetchPublicData = async () => {
     setLoading(true);
     try {
-      const [viralRes, proactiveRes, statsRes, immediateRes] = await Promise.all([
+      const [viralRes, statsRes, immediateRes] = await Promise.all([
         axiosInstance.get(
           `/public/viral-diseases?state=${locationContext.state}&district=${locationContext.district}&city=${locationContext.city}`
-        ),
-        axiosInstance.get(
-          `/public/proactive-alerts?state=${locationContext.state}&district=${locationContext.district}`
         ),
         axiosInstance.get("/public/overview-stats"),
         axiosInstance.get("/immediate-alerts").catch(() => ({ data: { alerts: [] } })),
       ]);
 
       setViralDiseases(viralRes.data?.data || []);
-      setProactiveAlerts(proactiveRes.data?.alerts || []);
       setStats(statsRes.data);
       setImmediateAlerts(immediateRes.data?.alerts || []);
     } catch (err) {
@@ -153,7 +146,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
             <div className="text-xs text-teal-100/80 font-medium">Monitored Cases</div>
             <div className="text-xl sm:text-2xl font-bold text-white font-display mt-0.5">
-              {stats?.totalMonitoredCases || "1,420+"}
+              {stats?.totalMonitoredCases !== undefined ? stats.totalMonitoredCases.toLocaleString() : "0"}
             </div>
             <div className="text-[10px] text-teal-200/70">Across surveillance network</div>
           </div>
@@ -161,7 +154,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
             <div className="text-xs text-teal-100/80 font-medium">Active High Alerts</div>
             <div className="text-xl sm:text-2xl font-bold text-amber-300 font-display mt-0.5">
-              {stats?.activeOutbreaksCount || "8 Active"}
+              {stats?.activeOutbreaksCount !== undefined ? `${stats.activeOutbreaksCount} Active` : "0 Active"}
             </div>
             <div className="text-[10px] text-teal-200/70">Weather & vector risks</div>
           </div>
@@ -169,7 +162,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
             <div className="text-xs text-teal-100/80 font-medium">Surveillance Districts</div>
             <div className="text-xl sm:text-2xl font-bold text-white font-display mt-0.5">
-              {stats?.totalSurveillanceDistricts || "32+"}
+              {stats?.totalSurveillanceDistricts !== undefined ? stats.totalSurveillanceDistricts : "0"}
             </div>
             <div className="text-[10px] text-teal-200/70">Grassroots integration</div>
           </div>
@@ -184,8 +177,8 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         </div>
       </section>
 
-      {/* Location Filter Section */}
-      <section className="space-y-3">
+      {/* Location Filter & Locality AI Advisory Section */}
+      <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 flex items-center gap-2">
@@ -205,23 +198,40 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           onChange={({ state, district, city }) => updateLocation(state, district, city)}
         />
 
-        <button
-          onClick={handleFetchAdvisory}
-          disabled={advisoryLoading}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-sm shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
-        >
-          {advisoryLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Fetching Advisory...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              Get AI Advisory for {locationContext.city !== "All" ? locationContext.city : locationContext.district}, {locationContext.state}
-            </>
-          )}
-        </button>
+        {/* AI Advisory Callout Card */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50/50 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-800 text-[10px] font-extrabold uppercase tracking-wide">
+                <Sparkles className="w-3 h-3 text-amber-600" /> Regional Advisory Engine
+              </span>
+              <span className="text-xs font-semibold text-slate-700">
+                {locationContext.city !== "All" ? `${locationContext.city}, ` : ""}{locationContext.district}, {locationContext.state}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600">
+              Generate instant AI synthesis of local contagion risks, meteorological triggers & precaution protocols.
+            </p>
+          </div>
+
+          <button
+            onClick={handleFetchAdvisory}
+            disabled={advisoryLoading}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 shrink-0"
+          >
+            {advisoryLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating Advisory...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Get AI Advisory for {locationContext.city !== "All" ? locationContext.city : locationContext.district}</span>
+              </>
+            )}
+          </button>
+        </div>
 
         {advisoryError && (
           <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
@@ -329,38 +339,6 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         )}
       </section>
 
-      {/* Proactive Weather & AI Outbreak Alerts */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              Proactive AI Weather-Linked Outbreak Forecasts
-            </h3>
-            <p className="text-xs text-slate-500">
-              Aggregated daily from meteorological indicators + medical observations. Click any forecast to see detailed action protocol.
-            </p>
-          </div>
-        </div>
-
-        {proactiveAlerts.length > 0 ? (
-          <div className="space-y-4">
-            {proactiveAlerts.map((alert) => (
-              <ProactiveAlertCard
-                key={alert._id}
-                alert={alert}
-                onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm">
-            <Activity className="w-6 h-6 mx-auto mb-2 text-teal-600" />
-            No active high-risk alerts in this district. AI engine continuously monitoring.
-          </div>
-        )}
-      </section>
-
       {/* Immediate Viral Alerts */}
       {immediateAlerts.length > 0 && (
         <section className="space-y-4">
@@ -455,17 +433,6 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         />
       )}
 
-      {/* Proactive Forecast Details Modal */}
-      {selectedProactiveAlert && (
-        <ProactiveAlertDetailsModal
-          alert={selectedProactiveAlert}
-          isOpen={Boolean(selectedProactiveAlert)}
-          onClose={() => setSelectedProactiveAlert(null)}
-          onOpenChatWithPrompt={handleChatTrigger}
-          onOpenEmergency={onOpenEmergency}
-        />
-      )}
-
       {/* AI Advisory Modal */}
       {showAdvisoryModal && advisoryResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -490,10 +457,8 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <div className="p-5 overflow-y-auto flex-1">
-              <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {advisoryResult.advisory}
-              </div>
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+              <MarkdownRenderer content={advisoryResult.advisory} className="text-slate-800" />
             </div>
             <div className="p-4 border-t border-slate-200 flex justify-end">
               <button

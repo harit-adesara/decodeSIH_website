@@ -12,6 +12,13 @@ import {
   MapPin,
   Bug,
   RefreshCw,
+  Sparkles,
+  Brain,
+  ShieldCheck,
+  Thermometer,
+  ShieldAlert,
+  Loader2,
+  X,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
@@ -19,15 +26,26 @@ import ReportLabelModal from "../components/ReportLabelModal";
 import CreateAdvisoryModal from "../components/CreateAdvisoryModal";
 import CreateStaffModal from "../components/CreateStaffModal";
 import AnalyticsView from "../components/AnalyticsView";
+import ProactiveAlertCard from "../components/ProactiveAlertCard";
+import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 import { useAuth } from "../context/AuthContext";
 
 export const DoctorPortal = ({ onOpenProfile }) => {
   const { user, locationContext, updateLocation } = useAuth();
-  const [activeTab, setActiveTab] = useState("review"); // 'review', 'analytics', 'advisories'
+  const [activeTab, setActiveTab] = useState("review"); // 'review', 'analytics', 'advisories', 'quick-alert', 'proactive'
   const [reports, setReports] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [advisories, setAdvisories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Proactive AI Early Warning State
+  const [proactiveAlerts, setProactiveAlerts] = useState([]);
+  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
+  const [loadingProactive, setLoadingProactive] = useState(false);
+  const [doctorAdvisoryResult, setDoctorAdvisoryResult] = useState(null);
+  const [generatingAdvisory, setGeneratingAdvisory] = useState(false);
+  const [showDoctorAdvisoryModal, setShowDoctorAdvisoryModal] = useState(false);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("pending_review");
@@ -121,10 +139,42 @@ export const DoctorPortal = ({ onOpenProfile }) => {
     }
   };
 
+  const fetchProactiveAlerts = async () => {
+    setLoadingProactive(true);
+    try {
+      const res = await axiosInstance.get(
+        `/public/proactive-alerts?state=${locationContext.state}&district=${locationContext.district}`
+      );
+      setProactiveAlerts(res.data?.alerts || []);
+    } catch (err) {
+      console.error("Failed to load doctor proactive alerts:", err);
+    } finally {
+      setLoadingProactive(false);
+    }
+  };
+
+  const handleGenerateDoctorAdvisory = async () => {
+    setGeneratingAdvisory(true);
+    try {
+      const res = await axiosInstance.post("/public/proactive-advisory", {
+        state: locationContext.state,
+        district: locationContext.district,
+        city: locationContext.city,
+      });
+      setDoctorAdvisoryResult(res.data?.data || res.data);
+      setShowDoctorAdvisoryModal(true);
+    } catch (err) {
+      alert("Failed to generate proactive advisory: " + (err.response?.data?.message || err.message));
+    } finally {
+      setGeneratingAdvisory(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "review") fetchReports();
     else if (activeTab === "analytics") fetchAnalytics();
     else if (activeTab === "advisories") fetchAdvisories();
+    else if (activeTab === "proactive") fetchProactiveAlerts();
   }, [activeTab, locationContext.state, locationContext.district, statusFilter]);
 
   const handleCreateDoctorReport = async (e) => {
@@ -290,6 +340,18 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         >
           <Megaphone className="w-4 h-4" />
           Regional Bulletins & Advisories ({advisories.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("proactive")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+            activeTab === "proactive"
+              ? "bg-amber-600 text-white shadow-sm"
+              : "text-amber-800 hover:text-amber-900 hover:bg-amber-50"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          Proactive AI Outbreak Radar ({proactiveAlerts.length})
         </button>
 
         <button
@@ -517,9 +579,9 @@ export const DoctorPortal = ({ onOpenProfile }) => {
                   </span>
                 </div>
                 <h4 className="font-bold text-slate-900 text-base">{advisory.title}</h4>
-                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                  {advisory.message}
-                </p>
+                <div className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <MarkdownRenderer content={advisory.message} />
+                </div>
                 <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
                   <span>Issued by: {advisory.doctor?.name || "Medical Officer"}</span>
                   <span>{new Date(advisory.createdAt).toLocaleDateString()}</span>
@@ -687,6 +749,174 @@ export const DoctorPortal = ({ onOpenProfile }) => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Tab 5: Proactive AI Outbreak Radar for Medical Doctors */}
+      {activeTab === "proactive" && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-900 via-teal-900 to-slate-900 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                Doctor Pre-Surge Early Warning Radar
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-display text-white tracking-tight">
+                Meteorological & Vector Outbreak Intelligence
+              </h2>
+              <p className="text-amber-100/90 text-xs sm:text-sm leading-relaxed">
+                Anticipate patient influx in <strong>{locationContext.district}, {locationContext.state}</strong> by correlating meteorological parameters (humidity, rainfall) with vector transmission cycles.
+              </p>
+            </div>
+
+            <button
+              onClick={handleGenerateDoctorAdvisory}
+              disabled={generatingAdvisory}
+              className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
+            >
+              {generatingAdvisory ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Synthesizing Regional Intelligence...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate Regional AI Advisory</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Doctor Pre-Outbreak Clinical Action Checklist */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-3xl bg-white border border-amber-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
+                <Thermometer className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Pre-Surge Facility Stocking</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Ensure adequate stock of NS/RL IV fluids, ORS packets, Paracetamol 650mg, and rapid NS1/IgM antigen test kits at primary care centers.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs">
+                <ShieldAlert className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Strict NSAID Contraindication</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Flag all primary medical staff to strictly withhold Aspirin, Ibuprofen, and Diclofenac in febrile patients during active Dengue risk windows.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white border border-teal-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs">
+                <Brain className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Grassroots Triage Protocol</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Direct ASHA workers in your jurisdiction to perform active door-to-door febrile case logging and prompt early referral of high-risk patients.
+              </p>
+            </div>
+          </div>
+
+          {/* Active Proactive Forecasts List */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                Active Proactive Alerts for {locationContext.district}, {locationContext.state}
+              </h3>
+              <button
+                onClick={fetchProactiveAlerts}
+                className="text-xs text-teal-700 font-bold hover:underline flex items-center gap-1"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingProactive ? "animate-spin" : ""}`} />
+                Refresh Alerts
+              </button>
+            </div>
+
+            {loadingProactive ? (
+              <div className="flex items-center justify-center py-12 bg-white rounded-3xl border border-slate-200">
+                <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+              </div>
+            ) : proactiveAlerts.length > 0 ? (
+              <div className="space-y-4">
+                {proactiveAlerts.map((alert) => (
+                  <ProactiveAlertCard
+                    key={alert._id}
+                    alert={alert}
+                    onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm space-y-2">
+                <ShieldCheck className="w-8 h-8 mx-auto text-teal-600 opacity-60" />
+                <p className="font-bold text-slate-700">No high-risk environmental alerts currently logged.</p>
+                <p className="text-xs">Click "Generate Regional AI Advisory" above to synthesize an instant predictive assessment.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Proactive Forecast Modal */}
+      {selectedProactiveAlert && (
+        <ProactiveAlertDetailsModal
+          alert={selectedProactiveAlert}
+          isOpen={Boolean(selectedProactiveAlert)}
+          onClose={() => setSelectedProactiveAlert(null)}
+        />
+      )}
+
+      {/* Doctor Regional AI Advisory Modal */}
+      {showDoctorAdvisoryModal && doctorAdvisoryResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center text-white">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory & Action Protocol</h3>
+                  <p className="text-xs text-slate-500">
+                    Jurisdiction: {doctorAdvisoryResult.district !== "All" ? doctorAdvisoryResult.district : ""}{" "}
+                    {doctorAdvisoryResult.state}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDoctorAdvisoryModal(false)}
+                className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+              <MarkdownRenderer content={doctorAdvisoryResult.advisory} className="text-slate-800" />
+            </div>
+            <div className="p-4 border-t border-slate-200 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setShowDoctorAdvisoryModal(false);
+                  setShowAdvisoryModal(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <Megaphone className="w-3.5 h-3.5" /> Broadcast to Citizens & ASHA
+              </button>
+              <button
+                onClick={() => setShowDoctorAdvisoryModal(false)}
+                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

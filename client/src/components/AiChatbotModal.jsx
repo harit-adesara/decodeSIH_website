@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt = "" }) => {
   const { locationContext, user } = useAuth();
@@ -373,17 +374,21 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
                   )}
 
                   <div
-                    className={`max-w-[75%] rounded-2xl p-4 text-sm leading-relaxed ${
+                    className={`max-w-[78%] sm:max-w-[75%] rounded-2xl p-4 text-sm leading-relaxed ${
                       msg.sender === "user"
                         ? "bg-teal-600 text-white rounded-tr-none shadow-sm"
                         : "bg-white text-slate-800 rounded-tl-none border border-slate-200 shadow-sm"
                     }`}
                   >
-                    <div className="whitespace-pre-line prose prose-sm">
-                      {msg.text}
-                    </div>
+                    {msg.sender === "user" ? (
+                      <div className="whitespace-pre-line text-sm leading-relaxed">
+                        {msg.text}
+                      </div>
+                    ) : (
+                      <MarkdownRenderer content={msg.text} className="text-slate-800" />
+                    )}
                     <div
-                      className={`text-[10px] mt-2 font-mono flex items-center justify-between ${
+                      className={`text-[10px] mt-2.5 font-mono flex items-center justify-between ${
                         msg.sender === "user" ? "text-teal-100" : "text-slate-400"
                       }`}
                     >
@@ -409,9 +414,13 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
                   <div className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4 text-teal-700" />
                   </div>
-                  <div className="bg-white rounded-2xl rounded-tl-none p-3 border border-slate-200 flex items-center gap-2 text-slate-500 text-xs shadow-sm">
-                    <RefreshCw className="w-4 h-4 animate-spin text-teal-600" />
-                    <span>Evaluating symptoms & cross-referencing disease records...</span>
+                  <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 border border-slate-200 flex items-center gap-2.5 text-slate-700 text-xs shadow-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-teal-600 animate-bounce" />
+                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:0.15s]" />
+                      <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce [animation-delay:0.3s]" />
+                    </div>
+                    <span className="font-semibold text-teal-900 tracking-wide text-xs">thinking...</span>
                   </div>
                 </div>
               )}

@@ -20,6 +20,7 @@ import {
   HeartPulse,
   Info,
 } from "lucide-react";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 export const ViralDiseaseDetailsModal = ({
   disease,
@@ -324,9 +325,9 @@ export const ViralDiseaseDetailsModal = ({
                   <Stethoscope className="w-4 h-4 text-blue-600" />
                   Recommended Treatment & Medication Protocol
                 </div>
-                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed font-medium">
-                  {disease.clinicalProtocol || "Maintain oral hydration with ORS and monitor vital signs. Consult certified medical doctor for prescriptions."}
-                </p>
+                <div className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                  <MarkdownRenderer content={disease.clinicalProtocol || "Maintain oral hydration with ORS and monitor vital signs. Consult certified medical doctor for prescriptions."} />
+                </div>
               </div>
 
               {/* Attending Doctor Remarks */}

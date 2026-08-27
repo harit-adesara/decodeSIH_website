@@ -47,7 +47,7 @@ const processLocations = async (locations, reports, advisories) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ state, city, area }),
-        signal: AbortSignal.timeout(60000),
+        signal: AbortSignal.timeout(120000), // 2 min timeout for Proactive Engine
       });
 
       if (!llmResponse.ok) {
