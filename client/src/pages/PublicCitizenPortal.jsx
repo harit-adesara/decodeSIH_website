@@ -163,7 +163,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             <div className="text-xl sm:text-2xl font-bold text-amber-300 font-display mt-0.5">
               {stats?.activeOutbreaksCount || "8 Active"}
             </div>
-            <div className="text-[10px] text-teal-200/70">Weather & vector risks</div>
+            <div className="text-[10px] text-teal-200/70">Active outbreak risks</div>
           </div>
 
           <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
@@ -335,10 +335,10 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
           <div>
             <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              Proactive AI Weather-Linked Outbreak Forecasts
+              Proactive AI Outbreak Forecasts
             </h3>
             <p className="text-xs text-slate-500">
-              Aggregated daily from meteorological indicators + medical observations. Click any forecast to see detailed action protocol.
+              AI-powered outbreak risk analysis based on field reports and clinical data. Click any forecast to see detailed action protocol.
             </p>
           </div>
         </div>

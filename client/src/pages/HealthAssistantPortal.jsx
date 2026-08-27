@@ -13,6 +13,9 @@ import {
   Stethoscope,
   RefreshCw,
   Send,
+  Sparkles,
+  X,
+  Loader2,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import AnalyticsView from "../components/AnalyticsView";
@@ -25,6 +28,12 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
   const [advisories, setAdvisories] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Proactive Advisory from LLM
+  const [advisoryLoading, setAdvisoryLoading] = useState(false);
+  const [advisoryResult, setAdvisoryResult] = useState(null);
+  const [advisoryError, setAdvisoryError] = useState(null);
+  const [showAdvisoryModal, setShowAdvisoryModal] = useState(false);
 
   // Field Report Form State
   const [reportForm, setReportForm] = useState({
@@ -105,6 +114,25 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
     else if (activeTab === "advisories") fetchAdvisories();
     else if (activeTab === "analytics") fetchAnalytics();
   }, [activeTab]);
+
+  const handleFetchAdvisory = async () => {
+    setAdvisoryLoading(true);
+    setAdvisoryError(null);
+    setAdvisoryResult(null);
+    try {
+      const res = await axiosInstance.post("/public/proactive-advisory", {
+        state: user?.state || "Maharashtra",
+        district: user?.district || "Pune",
+        city: user?.city || "Hadapsar",
+      });
+      setAdvisoryResult(res.data?.data || res.data);
+      setShowAdvisoryModal(true);
+    } catch (err) {
+      setAdvisoryError(err.response?.data?.message || "Failed to fetch advisory. Please try again.");
+    } finally {
+      setAdvisoryLoading(false);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -260,6 +288,18 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
             className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm active:scale-95 transition-all"
           >
             <PlusCircle className="w-4 h-4" /> Submit Field Report
+          </button>
+          <button
+            onClick={handleFetchAdvisory}
+            disabled={advisoryLoading}
+            className="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
+          >
+            {advisoryLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">{advisoryLoading ? "Fetching..." : "AI Advisory"}</span>
           </button>
         </div>
       </div>
@@ -870,6 +910,57 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* AI Advisory Modal */}
+      {showAdvisoryModal && advisoryResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory</h3>
+                  <p className="text-xs text-slate-500">
+                    {advisoryResult.district !== "All" ? advisoryResult.district : ""}{" "}
+                    {advisoryResult.state}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAdvisoryModal(false)}
+                className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed">
+                {advisoryResult.advisory}
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setShowAdvisoryModal(false)}
+                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {advisoryError && !showAdvisoryModal && (
+        <div className="fixed bottom-4 right-4 z-50 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-2 shadow-lg">
+          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span>{advisoryError}</span>
+          <button onClick={() => setAdvisoryError(null)} className="ml-2 text-rose-500 hover:text-rose-700">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

@@ -31,6 +31,25 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
   const [hasMore, setHasMore] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
 
+  const loadingMessages = [
+    "Analyzing your symptoms...",
+    "Cross-referencing disease patterns...",
+    "Checking health advisories...",
+    "Preparing personalized guidance...",
+  ];
+  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMsgIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadingMsgIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const scrollThresholdRef = useRef(null);
@@ -196,7 +215,7 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
       const errorReply = {
         id: (Date.now() + 1).toString(),
         sender: "bot",
-        text: "I encountered an issue connecting to the AI diagnostic engine. For immediate emergency advice, please call **108** or National Health Helpline **1075**.",
+        text: "I encountered an issue connecting to the AI diagnostic engine. For immediate emergency advice, please call 108 or National Health Helpline 1075.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, errorReply]);
@@ -411,7 +430,7 @@ export const AiChatbotModal = ({ isOpen, onClose, onOpenEmergency, initialPrompt
                   </div>
                   <div className="bg-white rounded-2xl rounded-tl-none p-3 border border-slate-200 flex items-center gap-2 text-slate-500 text-xs shadow-sm">
                     <RefreshCw className="w-4 h-4 animate-spin text-teal-600" />
-                    <span>Evaluating symptoms & cross-referencing disease records...</span>
+                    <span>{loadingMessages[loadingMsgIndex]}</span>
                   </div>
                 </div>
               )}

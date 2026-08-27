@@ -199,7 +199,7 @@ Field notes: ${description}`;
     if (response.ok) {
       const json = await response.json();
       const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) return text;
+      if (text) return text.replace(/\*\*/g, "");
     }
   } catch (err) {
     console.warn("Gemini formatting failed for immediate alert:", err.message);

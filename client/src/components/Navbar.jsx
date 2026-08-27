@@ -11,6 +11,7 @@ import {
   Code2,
   UserCheck,
   Edit3,
+  Home,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -79,6 +80,19 @@ export const Navbar = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Home Button */}
+          <button
+            onClick={() => setActiveTab("home")}
+            className={`flex items-center gap-1.5 text-xs sm:text-sm px-3 py-2 rounded-xl font-medium transition-all ${
+              activeTab === "home"
+                ? "bg-teal-50 text-teal-700 border border-teal-200 font-semibold"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent"
+            }`}
+          >
+            <Home className="w-4 h-4" />
+            <span className="hidden lg:inline">Home</span>
+          </button>
+
           {/* Emergency Helpline Button (Always Accessible To All) */}
           <button
             onClick={onOpenEmergency}

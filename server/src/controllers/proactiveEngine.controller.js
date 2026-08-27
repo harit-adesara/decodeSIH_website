@@ -56,7 +56,7 @@ const processLocations = async (locations, reports, advisories) => {
       }
 
       const llmData = await llmResponse.json();
-      const llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
+      const llmOutput = (llmData.llm_output || llmData.response || llmData.output || "").replace(/\*\*/g, "");
 
       if (!llmOutput) {
         console.warn(`Empty LLM output for: ${state}, ${city}, ${area}`);
