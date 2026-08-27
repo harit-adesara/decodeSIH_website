@@ -11,11 +11,8 @@ import {
   Image as ImageIcon,
   MapPin,
   Stethoscope,
-  Clock,
-  Sparkles,
   RefreshCw,
   Send,
-  Activity,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import AnalyticsView from "../components/AnalyticsView";
@@ -28,7 +25,6 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
   const [advisories, setAdvisories] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
-
 
   // Field Report Form State
   const [reportForm, setReportForm] = useState({
@@ -267,7 +263,6 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
           </button>
         </div>
       </div>
-
 
       {/* Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">

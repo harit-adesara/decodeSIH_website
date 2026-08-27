@@ -514,7 +514,7 @@ const PROACTIVE_LLM_URL =
  * @access  Public
  */
 export const getProactiveAdvisory = asyncHandler(async (req, res) => {
-  const { state, city, area } = req.body;
+  const { state, district, city } = req.body;
 
   if (!state) {
     return res.status(400).json(new ApiResponse(400, null, "State is required."));
@@ -525,8 +525,8 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       state,
+      district: district || "All",
       city: city || "All",
-      area: area || "All",
     }),
     signal: AbortSignal.timeout(60000),
   });
@@ -536,15 +536,16 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
   }
 
   const llmData = await llmResponse.json();
-  const llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
+  const rawOutput = llmData.llm_output || llmData.response || llmData.output || "";
+  const llmOutput = rawOutput.replace(/\*\*/g, "");
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
         state,
+        district: district || "All",
         city: city || "All",
-        area: area || "All",
         advisory: llmOutput,
       },
       "Proactive advisory retrieved successfully."

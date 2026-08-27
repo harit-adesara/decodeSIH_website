@@ -7,14 +7,8 @@ import {
   MapPin,
   Sparkles,
   Bug,
-  Droplets,
   AlertTriangle,
-  HeartPulse,
-  Search,
-  ExternalLink,
   ChevronRight,
-  TrendingUp,
-  Info,
   X,
   Loader2,
 } from "lucide-react";
@@ -81,8 +75,8 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
     try {
       const res = await axiosInstance.post("/public/proactive-advisory", {
         state: locationContext.state,
-        city: locationContext.district,
-        area: locationContext.city,
+        district: locationContext.district,
+        city: locationContext.city,
       });
       setAdvisoryResult(res.data?.data || res.data);
       setShowAdvisoryModal(true);
@@ -153,7 +147,6 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             )}
           </div>
         </div>
-
 
         {/* Overview Stats Counters */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-8 mt-6 border-t border-white/20">
@@ -485,7 +478,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
                 <div>
                   <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory</h3>
                   <p className="text-xs text-slate-500">
-                    {advisoryResult.city !== "All" ? advisoryResult.city : ""}{" "}
+                    {advisoryResult.district !== "All" ? advisoryResult.district : ""}{" "}
                     {advisoryResult.state}
                   </p>
                 </div>

@@ -1,3 +1,4 @@
+// Path: server\src\controllers\auth.controller.js
 import crypto from "crypto";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";

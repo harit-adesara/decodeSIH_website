@@ -10,12 +10,8 @@ import {
   ListFilter,
   Search,
   MapPin,
-  Calendar,
-  FileText,
   Bug,
-  Sparkles,
   RefreshCw,
-  Eye,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
