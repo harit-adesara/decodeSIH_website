@@ -21,9 +21,9 @@ const app = express();
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
@@ -52,7 +52,12 @@ app.use("/api/v1/immediate-alerts", immAlertRouter);
 
 // Catch-all 404 handler for undefined routes
 app.use((req, res, next) => {
-  next(new ApiError(404, `Route ${req.originalUrl} not found on Bharat Swasthya AI Server.`));
+  next(
+    new ApiError(
+      404,
+      `Route ${req.originalUrl} not found on Bharat Swasthya AI Server.`,
+    ),
+  );
 });
 
 // Global Error Handler Middleware
