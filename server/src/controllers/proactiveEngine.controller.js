@@ -13,8 +13,6 @@ const PROACTIVE_LLM_URL =
  * If not → extracts distinct states from reports and calls LLM per state.
  */
 export const runProactiveOutbreakAnalysis = async ({ state, city, area } = {}) => {
-  console.log("[PROACTIVE ENGINE] Fetching reports and advisories...");
-
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const reports = await Report.find({ createdAt: { $gte: thirtyDaysAgo } }).lean();
   const advisories = await Advisory.find({ isActive: true }).lean();
