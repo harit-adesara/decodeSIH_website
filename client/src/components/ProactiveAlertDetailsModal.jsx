@@ -9,10 +9,6 @@ import {
   Bot,
   PhoneCall,
   Calendar,
-  CloudRain,
-  Thermometer,
-  Droplets,
-  Wind,
   CheckCircle2,
   Copy,
   Check,
@@ -22,6 +18,7 @@ import {
   Brain,
   Info,
 } from "lucide-react";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 export const ProactiveAlertDetailsModal = ({
   alert,
@@ -67,15 +64,14 @@ export const ProactiveAlertDetailsModal = ({
   const riskBadge = getRiskBadge(alert.riskLevel);
 
   const handleCopyAlert = () => {
-    const text = `🚨 *Bharat Swasthya AI Proactive Outbreak Forecast*\n\n` +
-      `🦠 *Forecast Target*: ${alert.diseaseName}\n` +
-      `📍 *Location*: ${alert.city !== "All" ? `${alert.city}, ` : ""}${alert.district}, ${alert.state}\n` +
-      `⚠️ *Risk Level*: ${alert.riskLevel?.toUpperCase()} RISK\n\n` +
-      `🌡️ *Weather Telemetry*: Temp: ${alert.weatherFactors?.temperature || "N/A"}, Humidity: ${alert.weatherFactors?.humidity || "N/A"}, Rainfall: ${alert.weatherFactors?.rainfallRisk || "N/A"}, AQI: ${alert.weatherFactors?.airQualityIndex || "N/A"}\n\n` +
-      `📊 *AI Epidemiological Summary*: ${alert.summary}\n\n` +
-      `🩹 *Key Symptoms to Watch*: ${(alert.symptomsToWatch || []).join(", ")}\n\n` +
-      `🛡️ *Recommended Action*: ${(alert.recommendedPrecautions || []).join("; ")}\n\n` +
-      `📞 *Emergency Ambulance*: Dial 108.`;
+    const text = `\u{1F6A8} *Bharat Swasthya AI Proactive Outbreak Forecast*\n\n` +
+      `\u{1F9A0} *Forecast Target*: ${alert.diseaseName}\n` +
+      `\u{1F4CD} *Location*: ${alert.city !== "All" ? `${alert.city}, ` : ""}${alert.district}, ${alert.state}\n` +
+      `\u26A0\uFE0F *Risk Level*: ${alert.riskLevel?.toUpperCase()} RISK\n\n` +
+      `\u{1F4CA} *AI Epidemiological Summary*: ${alert.summary}\n\n` +
+      `\u{1FA79} *Key Symptoms to Watch*: ${(alert.symptomsToWatch || []).join(", ")}\n\n` +
+      `\u{1F6E1}\uFE0F *Recommended Action*: ${(alert.recommendedPrecautions || []).join("; ")}\n\n` +
+      `\u{1F4DE} *Emergency Ambulance*: Dial 108.`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -133,51 +129,6 @@ export const ProactiveAlertDetailsModal = ({
           <p className="text-amber-100/90 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
             {alert.summary}
           </p>
-
-          {/* Quick Weather Factors Header Strip */}
-          {alert.weatherFactors && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 pt-4 border-t border-white/15">
-              <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2">
-                <Thermometer className="w-4 h-4 text-amber-300 shrink-0" />
-                <div>
-                  <div className="text-[10px] uppercase font-semibold text-teal-200/80">Temperature</div>
-                  <div className="text-sm font-bold text-white">
-                    {alert.weatherFactors.temperature || "30°C"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2">
-                <Droplets className="w-4 h-4 text-blue-300 shrink-0" />
-                <div>
-                  <div className="text-[10px] uppercase font-semibold text-teal-200/80">Humidity</div>
-                  <div className="text-sm font-bold text-white">
-                    {alert.weatherFactors.humidity || "80%"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2">
-                <CloudRain className="w-4 h-4 text-cyan-300 shrink-0" />
-                <div>
-                  <div className="text-[10px] uppercase font-semibold text-teal-200/80">Rainfall Risk</div>
-                  <div className="text-xs font-bold text-white truncate max-w-[90px]">
-                    {alert.weatherFactors.rainfallRisk || "Moderate"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center gap-2">
-                <Wind className="w-4 h-4 text-indigo-300 shrink-0" />
-                <div>
-                  <div className="text-[10px] uppercase font-semibold text-teal-200/80">Air Quality</div>
-                  <div className="text-xs font-bold text-white truncate max-w-[90px]">
-                    {alert.weatherFactors.airQualityIndex || "Moderate"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Tab Navigation */}
@@ -192,18 +143,6 @@ export const ProactiveAlertDetailsModal = ({
           >
             <Brain className="w-3.5 h-3.5 text-amber-600" />
             AI Outbreak Intelligence
-          </button>
-
-          <button
-            onClick={() => setActiveTab("weather")}
-            className={`py-3 px-2 border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === "weather"
-                ? "border-teal-600 text-teal-800 font-extrabold"
-                : "border-transparent hover:text-slate-900"
-            }`}
-          >
-            <CloudRain className="w-3.5 h-3.5 text-teal-600" />
-            Climate Correlation Matrix
           </button>
 
           <button
@@ -242,9 +181,9 @@ export const ProactiveAlertDetailsModal = ({
                   <Brain className="w-4 h-4 text-amber-600" />
                   AI Epidemiological Risk Assessment
                 </div>
-                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed font-medium">
-                  {alert.aiInsights || alert.summary}
-                </p>
+                <div className="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                  <MarkdownRenderer content={alert.aiInsights || alert.summary} />
+                </div>
               </div>
 
               {/* Telemetry Source Data */}
@@ -289,64 +228,7 @@ export const ProactiveAlertDetailsModal = ({
             </div>
           )}
 
-          {/* TAB 2: CLIMATE MATRIX */}
-          {activeTab === "weather" && (
-            <div className="space-y-4 animate-fadeIn">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
-                  <CloudRain className="w-4 h-4 text-teal-600" />
-                  Meteorological Outbreak Triggers in {alert.district}
-                </h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Historical outbreak telemetry indicates sudden changes in relative humidity, stagnant water puddles after intermittent showers, and fluctuating ambient temperatures accelerate pathogen reproduction and vector breeding cycles.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <div className="flex items-center gap-2 text-xs font-bold text-amber-700">
-                      <Thermometer className="w-4 h-4 text-amber-500" />
-                      Ambient Temperature: {alert.weatherFactors?.temperature || "30°C"}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">
-                      Optimal range for mosquito viral replication and vector lifespan.
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
-                      <Droplets className="w-4 h-4 text-blue-500" />
-                      Relative Humidity: {alert.weatherFactors?.humidity || "82%"}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">
-                      High humidity increases mosquito feeding frequency & indoor survival.
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <div className="flex items-center gap-2 text-xs font-bold text-teal-700">
-                      <CloudRain className="w-4 h-4 text-teal-600" />
-                      Rainfall Factor: {alert.weatherFactors?.rainfallRisk || "Moderate"}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">
-                      Rainwater accumulation in drains and uncovered containers.
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-white border border-slate-200">
-                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-700">
-                      <Wind className="w-4 h-4 text-indigo-500" />
-                      Air Quality Index: {alert.weatherFactors?.airQualityIndex || "Moderate"}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1">
-                      Particulate matter exacerbates upper respiratory viral susceptibility.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: SYMPTOMS CHECKLIST */}
+          {/* TAB 2: SYMPTOMS CHECKLIST */}
           {activeTab === "symptoms" && (
             <div className="space-y-4 animate-fadeIn">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">

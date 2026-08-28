@@ -13,6 +13,7 @@ import doctorRouter from "./routes/doctor.routes.js";
 import healthAssistantRouter from "./routes/healthAssistant.routes.js";
 import publicRouter from "./routes/public.routes.js";
 import chatRouter from "./routes/chat.routes.js";
+import immAlertRouter from "./routes/immAlert.routes.js";
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api/v1/doctor", doctorRouter);
 app.use("/api/v1/health-assistant", healthAssistantRouter);
 app.use("/api/v1/public", publicRouter);
 app.use("/api/v1/chat", chatRouter);
+app.use("/api/v1/immediate-alerts", immAlertRouter);
 
 // Catch-all 404 handler for undefined routes
 app.use((req, res, next) => {

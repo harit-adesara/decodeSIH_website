@@ -3,83 +3,110 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Report } from "../models/Report.js";
 import { Advisory } from "../models/Advisory.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
-import { analyzeProactiveOutbreaks } from "../services/gemini.service.js";
+
+const PROACTIVE_LLM_URL =
+  process.env.PROACTIVE_LLM_URL || "https://proactivellm.onrender.com/api/v1/proactive-advisory";
 
 /**
- * Runs proactive outbreak analysis across active states and districts.
- * Aggregates all reports & advisories + simulated/real weather indices,
- * feeds into Gemini AI (or built-in rule engine) and saves ProactiveAlert models.
+ * Runs proactive outbreak analysis.
+ * If state/city/area provided in body → single LLM call.
+ * If not → extracts distinct states from reports and calls LLM per state.
  */
-export const runProactiveOutbreakAnalysis = async () => {
-  console.log("🔍 [PROACTIVE ENGINE] Aggregating doctor & health assistant reports with weather indicators...");
-
-  // Fetch recent reports from the last 30 days
+export const runProactiveOutbreakAnalysis = async ({ state, city, area } = {}) => {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const reports = await Report.find({ createdAt: { $gte: thirtyDaysAgo } }).lean();
   const advisories = await Advisory.find({ isActive: true }).lean();
 
-  // Distinct states in the dataset
+  // If state provided → single targeted call
+  if (state) {
+    const locations = [{ state, city: city || "All", area: area || "All" }];
+    return await processLocations(locations, reports, advisories);
+  }
+
+  // Otherwise → extract distinct states from reports
   const distinctStates = [...new Set(reports.map((r) => r.state).filter(Boolean))];
   if (distinctStates.length === 0) {
     distinctStates.push("Maharashtra", "Delhi", "Uttar Pradesh", "Karnataka");
   }
 
+  const locations = distinctStates.map((s) => ({ state: s, city: "All", area: "All" }));
+  return await processLocations(locations, reports, advisories);
+};
+
+/**
+ * Process a list of { state, city, area } → call LLM for each → upsert ProactiveAlert
+ */
+const processLocations = async (locations, reports, advisories) => {
   const generatedAlerts = [];
 
-  for (const state of distinctStates) {
-    const stateReports = reports.filter((r) => r.state === state);
-    const stateAdvisories = advisories.filter((a) => a.targetState === state || a.targetState === "All");
+  for (const { state, city, area } of locations) {
+    try {
+      const llmResponse = await fetch(PROACTIVE_LLM_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state, city, area }),
+        signal: AbortSignal.timeout(120000), // 2 min timeout for Proactive Engine
+      });
 
-    const weatherData = {
-      state,
-      temperature: "31°C",
-      humidity: "79%",
-      monsoonCondition: "Active South-West Monsoon",
-      rainfallRisk: "Moderate to Heavy Inundation",
-      season: "Monsoon",
-    };
+      if (!llmResponse.ok) {
+        console.warn(`LLM API returned ${llmResponse.status} for: ${state}, ${city}, ${area}`);
+        continue;
+      }
 
-    const aiAlerts = await analyzeProactiveOutbreaks({
-      reports: stateReports,
-      advisories: stateAdvisories,
-      weatherData,
-      state,
-      district: "All",
-    });
+      const llmData = await llmResponse.json();
+      const llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
 
-    for (const alertData of aiAlerts) {
-      // Upsert proactive alert in database
+      if (!llmOutput) {
+        console.warn(`Empty LLM output for: ${state}, ${city}, ${area}`);
+        continue;
+      }
+
+      // Build unique identifier for this location
+      const diseaseName = city !== "All"
+        ? `Outbreak Advisory - ${city}, ${state}`
+        : `Outbreak Advisory - ${state}`;
+
       const existingAlert = await ProactiveAlert.findOne({
-        diseaseName: alertData.diseaseName,
-        state: alertData.state,
+        diseaseName,
+        state,
       });
 
       if (existingAlert) {
-        existingAlert.riskLevel = alertData.riskLevel;
-        existingAlert.isViral = alertData.isViral;
-        existingAlert.summary = alertData.summary;
-        existingAlert.symptomsToWatch = alertData.symptomsToWatch;
-        existingAlert.recommendedPrecautions = alertData.recommendedPrecautions;
-        existingAlert.aiInsights = alertData.aiInsights;
-        existingAlert.weatherFactors = alertData.weatherFactors || weatherData;
+        existingAlert.summary = llmOutput;
+        existingAlert.aiInsights = llmOutput;
+        existingAlert.city = city;
         existingAlert.validUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         existingAlert.isActive = true;
+        existingAlert.sourceDataCount = {
+          reportsAnalyzed: reports.filter((r) => r.state === state).length,
+          advisoriesAnalyzed: advisories.filter((a) => a.targetState === state || a.targetState === "All").length,
+        };
         await existingAlert.save();
         generatedAlerts.push(existingAlert);
       } else {
         const newAlert = await ProactiveAlert.create({
-          ...alertData,
-          weatherFactors: alertData.weatherFactors || weatherData,
+          diseaseName,
+          isViral: true,
+          riskLevel: "moderate",
+          state,
+          district: "All",
+          city,
+          summary: llmOutput,
+          symptomsToWatch: [],
+          recommendedPrecautions: [],
+          aiInsights: llmOutput,
           sourceDataCount: {
-            reportsAnalyzed: stateReports.length,
-            advisoriesAnalyzed: stateAdvisories.length,
+            reportsAnalyzed: reports.filter((r) => r.state === state).length,
+            advisoriesAnalyzed: advisories.filter((a) => a.targetState === state || a.targetState === "All").length,
           },
-          generatedBy: process.env.GEMINI_API_KEY ? "gemini_ai" : "rule_engine",
+          generatedBy: "external_llm",
           validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           isActive: true,
         });
         generatedAlerts.push(newAlert);
       }
+    } catch (err) {
+      console.warn(`Failed to process ${state}, ${city}, ${area}:`, err.message);
     }
   }
 
@@ -87,12 +114,14 @@ export const runProactiveOutbreakAnalysis = async () => {
 };
 
 /**
- * @desc    Admin or Cron manually triggers proactive analysis
+ * @desc    Admin manually triggers proactive analysis
  * @route   POST /api/v1/admin/trigger-proactive-analysis
  * @access  Private (Admin only)
+ * @body    { state?, city?, area? } — optional, falls back to report-based discovery
  */
 export const triggerProactiveAnalysis = asyncHandler(async (req, res) => {
-  const alerts = await runProactiveOutbreakAnalysis();
+  const { state, city, area } = req.body || {};
+  const alerts = await runProactiveOutbreakAnalysis({ state, city, area });
   return res.status(200).json(
     new ApiResponse(
       200,

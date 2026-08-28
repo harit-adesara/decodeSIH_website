@@ -1,76 +1,145 @@
-import nodemailer from "nodemailer";
-import crypto from "crypto";
+import Mailgen from "mailgen";
+import { google } from "googleapis";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
- * Creates and returns a Nodemailer transporter.
- * Supports standard SMTP (e.g. Gmail / Brevo / SendGrid / Custom SMTP)
+ * Initialize Google OAuth2 Client for Gmail API
  */
-const createTransporter = () => {
-  const host = process.env.SMTP_HOST || process.env.GMAIL_HOST;
-  const port = parseInt(process.env.SMTP_PORT || process.env.GMAIL_PORT || "587");
-  const user = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const pass = process.env.SMTP_PASS || process.env.GMAIL_PASS;
+const getOAuth2Client = () => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (user && pass) {
-    if (host) {
-      return nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
-      });
-    }
-
-    // Default to Gmail service if host not explicitly provided
-    return nodemailer.createTransport({
-      service: "gmail",
-      auth: { user, pass },
-    });
+  if (!clientId || !clientSecret || !refreshToken) {
+    return null;
   }
 
-  return null;
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({
+    refresh_token: refreshToken,
+  });
+
+  return oauth2Client;
 };
 
 /**
- * Send an email with HTML & plain text content.
- * Gracefully falls back to console output if SMTP credentials are not configured in dev mode.
+ * Configure Mailgen Branding for Bharat Swasthya AI
  */
-export const sendEmail = async ({ email, subject, html, text }) => {
+const mailGenerator = new Mailgen({
+  theme: "default",
+  product: {
+    name: "Bharat Swasthya AI",
+    link: process.env.CLIENT_URL || "https://bharatswasthya.gov.in",
+  },
+});
+
+/**
+ * Send email using Google Gmail API (OAuth2)
+ * Supports both Mailgen content objects and raw HTML / Text templates.
+ */
+export const sendEmail = async (option) => {
+  let emailHtml = "";
+  let emailTextual = "";
+
+  if (option.mailgenContent) {
+    emailTextual = mailGenerator.generatePlaintext(option.mailgenContent);
+    emailHtml = mailGenerator.generate(option.mailgenContent);
+  } else {
+    emailHtml = option.html || "";
+    emailTextual = option.text || "Please view this email in an HTML-compatible client.";
+  }
+
+  const fromSender = process.env.GMAIL_USER || "no-reply@bharatswasthya.gov.in";
   const fromName = process.env.EMAIL_FROM_NAME || "Bharat Swasthya AI";
-  const fromAddress = process.env.EMAIL_FROM || process.env.GMAIL_USER || "no-reply@bharatswasthya.gov.in";
 
-  const transporter = createTransporter();
+  const message = [
+    `From: "${fromName}" <${fromSender}>`,
+    `To: ${option.email}`,
+    `Subject: ${option.subject}`,
+    "MIME-Version: 1.0",
+    "Content-Type: multipart/alternative; boundary=boundary123",
+    "",
+    "--boundary123",
+    "Content-Type: text/plain; charset=UTF-8",
+    "",
+    emailTextual,
+    "",
+    "--boundary123",
+    "Content-Type: text/html; charset=UTF-8",
+    "",
+    emailHtml,
+    "",
+    "--boundary123--",
+  ].join("\n");
 
-  if (!transporter) {
-    console.log("\n==================== 📧 DEV MAIL SERVICE (NO SMTP CONFIGURED) ====================");
-    console.log(`To: ${email}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`From: "${fromName}" <${fromAddress}>`);
-    if (text) console.log(`Text Body:\n${text}`);
-    console.log("===================================================================================\n");
-    return { devFallback: true, sent: true };
+  const encodedMessage = Buffer.from(message)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+  const oauth2Client = getOAuth2Client();
+
+  if (!oauth2Client) {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("\n==================== 📧 DEV MAIL SERVICE (NO GOOGLE API CONFIGURED) ====================");
+      console.log(`To: ${option.email}`);
+      console.log(`Subject: ${option.subject}`);
+      if (emailTextual) console.log(`Text Preview:\n${emailTextual.slice(0, 300)}...`);
+      console.log("=========================================================================================\n");
+      return { devFallback: true, sent: true };
+    }
+    throw new Error(
+      "Google OAuth2 credentials (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN) are missing in production."
+    );
   }
 
   try {
-    const info = await transporter.sendMail({
-      from: `"${fromName}" <${fromAddress}>`,
-      to: email,
-      subject,
-      text: text || "Please view this email in an HTML-compatible client.",
-      html,
+    const gmail = google.gmail({
+      version: "v1",
+      auth: oauth2Client,
     });
 
-    console.log(`✅ Email sent successfully to ${email} (MessageID: ${info.messageId})`);
-    return { success: true, messageId: info.messageId };
+    const response = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
+
+    console.log(`✅ Email sent successfully to ${option.email} via Google Gmail API (ID: ${response.data.id})`);
+    return { success: true, messageId: response.data.id };
   } catch (error) {
-    console.error(`❌ Failed to dispatch email to ${email}:`, error.message);
-    // In development mode, don't crash the request if SMTP fails
+    console.error(`❌ Google Gmail API Error for ${option.email}:`, error.message);
     if (process.env.NODE_ENV !== "production") {
-      console.warn("⚠️ Continuing request despite SMTP failure (Development Mode).");
+      console.warn("⚠️ Continuing request despite Gmail API error (Development Mode).");
       return { devFallback: true, sent: false, error: error.message };
     }
     throw error;
   }
+};
+
+/**
+ * Mailgen registration template helper
+ */
+export const registerEmail = (username, passwordSetUrl) => {
+  return {
+    body: {
+      name: username,
+      intro: "Welcome to Bharat Swasthya AI - National Outbreak Intelligence & Healthcare Platform.",
+      action: {
+        instructions: "To verify your account and activate your citizen health profile, please click below:",
+        button: {
+          color: "#0d9488",
+          text: "Verify Account",
+          link: passwordSetUrl,
+        },
+      },
+      outro: "This verification link is valid for 24 hours. If you did not create this account, please disregard this email.",
+    },
+  };
 };
 
 /**
@@ -123,6 +192,27 @@ export const registerEmailTemplate = (name, verifyUrl, token) => {
 };
 
 /**
+ * Mailgen Forgot Password Content Helper
+ */
+export const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
+  return {
+    body: {
+      name: username,
+      intro: "We received a request to reset the password of your Bharat Swasthya AI account.",
+      action: {
+        instructions: "To reset your password, click on the following button:",
+        button: {
+          color: "#0284c7",
+          text: "Reset Password",
+          link: passwordResetUrl,
+        },
+      },
+      outro: "This reset link is valid for 1 hour. If you did not request a password reset, you can safely ignore this email.",
+    },
+  };
+};
+
+/**
  * HTML Template for Password Reset
  */
 export const forgotPasswordEmailTemplate = (name, resetUrl, token) => {
@@ -172,7 +262,7 @@ export const forgotPasswordEmailTemplate = (name, resetUrl, token) => {
 };
 
 /**
- * HTML Template for Staff Welcome Credentials (Doctor/Health Assistant created by Admin or Doctor)
+ * HTML Template for Staff Welcome Credentials
  */
 export const welcomeStaffEmailTemplate = (name, email, role, tempPassword) => {
   const roleDisplay = role === "doctor" ? "Medical Doctor (Reviewing Officer)" : "Health Assistant (ASHA Field Worker)";

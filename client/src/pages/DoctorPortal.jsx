@@ -10,12 +10,15 @@ import {
   ListFilter,
   Search,
   MapPin,
-  Calendar,
-  FileText,
   Bug,
-  Sparkles,
   RefreshCw,
-  Eye,
+  Sparkles,
+  Brain,
+  ShieldCheck,
+  Thermometer,
+  ShieldAlert,
+  Loader2,
+  X,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
@@ -23,15 +26,26 @@ import ReportLabelModal from "../components/ReportLabelModal";
 import CreateAdvisoryModal from "../components/CreateAdvisoryModal";
 import CreateStaffModal from "../components/CreateStaffModal";
 import AnalyticsView from "../components/AnalyticsView";
+import ProactiveAlertCard from "../components/ProactiveAlertCard";
+import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 import { useAuth } from "../context/AuthContext";
 
 export const DoctorPortal = ({ onOpenProfile }) => {
   const { user, locationContext, updateLocation } = useAuth();
-  const [activeTab, setActiveTab] = useState("review"); // 'review', 'analytics', 'advisories'
+  const [activeTab, setActiveTab] = useState("review"); // 'review', 'analytics', 'advisories', 'quick-alert', 'proactive'
   const [reports, setReports] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [advisories, setAdvisories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Proactive AI Early Warning State
+  const [proactiveAlerts, setProactiveAlerts] = useState([]);
+  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
+  const [loadingProactive, setLoadingProactive] = useState(false);
+  const [doctorAdvisoryResult, setDoctorAdvisoryResult] = useState(null);
+  const [generatingAdvisory, setGeneratingAdvisory] = useState(false);
+  const [showDoctorAdvisoryModal, setShowDoctorAdvisoryModal] = useState(false);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("pending_review");
@@ -62,6 +76,32 @@ export const DoctorPortal = ({ onOpenProfile }) => {
   });
   const [reportImageFile, setReportImageFile] = useState(null);
   const [submittingReport, setSubmittingReport] = useState(false);
+
+  // Quick Alert Form State
+  const [quickAlertForm, setQuickAlertForm] = useState({
+    title: "",
+    diseaseName: "",
+    symptoms: "",
+    severity: "moderate",
+    patientCount: 1,
+    description: "",
+    state: user?.state || "Maharashtra",
+    district: user?.district || "Pune",
+    city: user?.city || "Shivajinagar",
+  });
+  const [quickAlertSubmitting, setQuickAlertSubmitting] = useState(false);
+  const [quickAlertSuccess, setQuickAlertSuccess] = useState(false);
+
+  const symptomPresets = [
+    "High Fever (>102\u00B0F)",
+    "Severe Joint / Bone Pain",
+    "Watery Loose Stools",
+    "Repeated Vomiting",
+    "Dry Barking Cough",
+    "Petechial Skin Rash",
+    "Sore Throat",
+    "Severe Headache",
+  ];
 
   const fetchReports = async () => {
     setLoading(true);
@@ -99,10 +139,42 @@ export const DoctorPortal = ({ onOpenProfile }) => {
     }
   };
 
+  const fetchProactiveAlerts = async () => {
+    setLoadingProactive(true);
+    try {
+      const res = await axiosInstance.get(
+        `/public/proactive-alerts?state=${locationContext.state}&district=${locationContext.district}`
+      );
+      setProactiveAlerts(res.data?.alerts || []);
+    } catch (err) {
+      console.error("Failed to load doctor proactive alerts:", err);
+    } finally {
+      setLoadingProactive(false);
+    }
+  };
+
+  const handleGenerateDoctorAdvisory = async () => {
+    setGeneratingAdvisory(true);
+    try {
+      const res = await axiosInstance.post("/public/proactive-advisory", {
+        state: locationContext.state,
+        district: locationContext.district,
+        city: locationContext.city,
+      });
+      setDoctorAdvisoryResult(res.data?.data || res.data);
+      setShowDoctorAdvisoryModal(true);
+    } catch (err) {
+      alert("Failed to generate proactive advisory: " + (err.response?.data?.message || err.message));
+    } finally {
+      setGeneratingAdvisory(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "review") fetchReports();
     else if (activeTab === "analytics") fetchAnalytics();
     else if (activeTab === "advisories") fetchAdvisories();
+    else if (activeTab === "proactive") fetchProactiveAlerts();
   }, [activeTab, locationContext.state, locationContext.district, statusFilter]);
 
   const handleCreateDoctorReport = async (e) => {
@@ -128,6 +200,59 @@ export const DoctorPortal = ({ onOpenProfile }) => {
       alert(err.message || "Failed to submit report.");
     } finally {
       setSubmittingReport(false);
+    }
+  };
+
+  const toggleQuickAlertSymptom = (sym) => {
+    const currentList = quickAlertForm.symptoms
+      ? quickAlertForm.symptoms.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    let updatedList;
+    if (currentList.includes(sym)) {
+      updatedList = currentList.filter((s) => s !== sym);
+    } else {
+      updatedList = [...currentList, sym];
+    }
+    setQuickAlertForm({ ...quickAlertForm, symptoms: updatedList.join(", ") });
+  };
+
+  const handleQuickAlertSubmit = async (e) => {
+    e.preventDefault();
+    setQuickAlertSubmitting(true);
+    setQuickAlertSuccess(false);
+
+    try {
+      await axiosInstance.post("/immediate-alerts", {
+        title: quickAlertForm.title,
+        description: quickAlertForm.description,
+        diseaseName: quickAlertForm.diseaseName,
+        symptoms: quickAlertForm.symptoms,
+        severity: quickAlertForm.severity,
+        patientCount: quickAlertForm.patientCount,
+        state: quickAlertForm.state,
+        district: quickAlertForm.district,
+        city: quickAlertForm.city,
+      });
+
+      setQuickAlertSuccess(true);
+      setQuickAlertForm({
+        title: "",
+        diseaseName: "",
+        symptoms: "",
+        severity: "moderate",
+        patientCount: 1,
+        description: "",
+        state: user?.state || "Maharashtra",
+        district: user?.district || "Pune",
+        city: user?.city || "Shivajinagar",
+      });
+
+      setTimeout(() => setQuickAlertSuccess(false), 3000);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to publish alert.");
+    } finally {
+      setQuickAlertSubmitting(false);
     }
   };
 
@@ -215,6 +340,30 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         >
           <Megaphone className="w-4 h-4" />
           Regional Bulletins & Advisories ({advisories.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("proactive")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+            activeTab === "proactive"
+              ? "bg-amber-600 text-white shadow-sm"
+              : "text-amber-800 hover:text-amber-900 hover:bg-amber-50"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          Proactive AI Outbreak Radar ({proactiveAlerts.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("quick-alert")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+            activeTab === "quick-alert"
+              ? "bg-rose-600 text-white shadow-sm"
+              : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+          }`}
+        >
+          <AlertCircle className="w-4 h-4" />
+          Quick Viral Alert
         </button>
       </div>
 
@@ -430,15 +579,343 @@ export const DoctorPortal = ({ onOpenProfile }) => {
                   </span>
                 </div>
                 <h4 className="font-bold text-slate-900 text-base">{advisory.title}</h4>
-                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                  {advisory.message}
-                </p>
+                <div className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <MarkdownRenderer content={advisory.message} />
+                </div>
                 <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1">
                   <span>Issued by: {advisory.doctor?.name || "Medical Officer"}</span>
                   <span>{new Date(advisory.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Quick Viral Alert */}
+      {activeTab === "quick-alert" && (
+        <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-6">
+          <div>
+            <h3 className="text-xl font-bold font-display text-slate-900 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-rose-600" />
+              Publish Immediate Viral Alert
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Alert citizens instantly about disease outbreaks in your area. No approval needed — goes live immediately.
+            </p>
+          </div>
+
+          {quickAlertSuccess && (
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm text-emerald-700 flex items-center gap-2.5 animate-fadeIn">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <span>Alert published successfully! Citizens in your area can now see this alert.</span>
+            </div>
+          )}
+
+          <form onSubmit={handleQuickAlertSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Disease Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.diseaseName}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, diseaseName: e.target.value })}
+                  placeholder="e.g. Dengue Fever, Viral Flu"
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Number of Cases *</label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={quickAlertForm.patientCount}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, patientCount: Number(e.target.value) })}
+                  className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Alert Title *</label>
+              <input
+                type="text"
+                required
+                value={quickAlertForm.title}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, title: e.target.value })}
+                placeholder="e.g. Dengue Surge in Shivajinagar - 8 Cases This Week"
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none"
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" /> Location
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.state}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, state: e.target.value })}
+                  placeholder="State"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.district}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, district: e.target.value })}
+                  placeholder="District"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+                <input
+                  type="text"
+                  required
+                  value={quickAlertForm.city}
+                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, city: e.target.value })}
+                  placeholder="City / Area"
+                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Symptoms (click to tag)</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {symptomPresets.map((sym, idx) => {
+                  const isSelected = quickAlertForm.symptoms.includes(sym);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => toggleQuickAlertSymptom(sym)}
+                      className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                        isSelected
+                          ? "bg-rose-50 text-rose-700 border-rose-300 font-semibold"
+                          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {isSelected ? "\u2713 " : "+ "}{sym}
+                    </button>
+                  );
+                })}
+              </div>
+              <input
+                type="text"
+                value={quickAlertForm.symptoms}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, symptoms: e.target.value })}
+                placeholder="High fever, Joint pain, Rash..."
+                className="w-full bg-white text-slate-800 text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Clinical Observations *</label>
+              <textarea
+                rows="3"
+                required
+                value={quickAlertForm.description}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, description: e.target.value })}
+                placeholder="Describe patient age range, onset duration, lab findings..."
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Severity</label>
+              <select
+                value={quickAlertForm.severity}
+                onChange={(e) => setQuickAlertForm({ ...quickAlertForm, severity: e.target.value })}
+                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none cursor-pointer"
+              >
+                <option value="low">Low (Mild)</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High (Urgent)</option>
+                <option value="critical">Critical (Emergency)</option>
+              </select>
+            </div>
+
+            <div className="pt-3">
+              <button
+                type="submit"
+                disabled={quickAlertSubmitting}
+                className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+              >
+                <AlertCircle className="w-4 h-4" />
+                <span>{quickAlertSubmitting ? "Publishing Alert..." : "Publish Alert to Citizens"}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Tab 5: Proactive AI Outbreak Radar for Medical Doctors */}
+      {activeTab === "proactive" && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-900 via-teal-900 to-slate-900 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                Doctor Pre-Surge Early Warning Radar
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-display text-white tracking-tight">
+                Meteorological & Vector Outbreak Intelligence
+              </h2>
+              <p className="text-amber-100/90 text-xs sm:text-sm leading-relaxed">
+                Anticipate patient influx in <strong>{locationContext.district}, {locationContext.state}</strong> by correlating meteorological parameters (humidity, rainfall) with vector transmission cycles.
+              </p>
+            </div>
+
+            <button
+              onClick={handleGenerateDoctorAdvisory}
+              disabled={generatingAdvisory}
+              className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
+            >
+              {generatingAdvisory ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Synthesizing Regional Intelligence...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate Regional AI Advisory</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Doctor Pre-Outbreak Clinical Action Checklist */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-3xl bg-white border border-amber-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
+                <Thermometer className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Pre-Surge Facility Stocking</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Ensure adequate stock of NS/RL IV fluids, ORS packets, Paracetamol 650mg, and rapid NS1/IgM antigen test kits at primary care centers.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs">
+                <ShieldAlert className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Strict NSAID Contraindication</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Flag all primary medical staff to strictly withhold Aspirin, Ibuprofen, and Diclofenac in febrile patients during active Dengue risk windows.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-white border border-teal-200 shadow-sm space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs">
+                <Brain className="w-4 h-4" />
+              </div>
+              <h4 className="font-bold text-sm text-slate-900">Grassroots Triage Protocol</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Direct ASHA workers in your jurisdiction to perform active door-to-door febrile case logging and prompt early referral of high-risk patients.
+              </p>
+            </div>
+          </div>
+
+          {/* Active Proactive Forecasts List */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                Active Proactive Alerts for {locationContext.district}, {locationContext.state}
+              </h3>
+              <button
+                onClick={fetchProactiveAlerts}
+                className="text-xs text-teal-700 font-bold hover:underline flex items-center gap-1"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingProactive ? "animate-spin" : ""}`} />
+                Refresh Alerts
+              </button>
+            </div>
+
+            {loadingProactive ? (
+              <div className="flex items-center justify-center py-12 bg-white rounded-3xl border border-slate-200">
+                <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+              </div>
+            ) : proactiveAlerts.length > 0 ? (
+              <div className="space-y-4">
+                {proactiveAlerts.map((alert) => (
+                  <ProactiveAlertCard
+                    key={alert._id}
+                    alert={alert}
+                    onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm space-y-2">
+                <ShieldCheck className="w-8 h-8 mx-auto text-teal-600 opacity-60" />
+                <p className="font-bold text-slate-700">No high-risk environmental alerts currently logged.</p>
+                <p className="text-xs">Click "Generate Regional AI Advisory" above to synthesize an instant predictive assessment.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Proactive Forecast Modal */}
+      {selectedProactiveAlert && (
+        <ProactiveAlertDetailsModal
+          alert={selectedProactiveAlert}
+          isOpen={Boolean(selectedProactiveAlert)}
+          onClose={() => setSelectedProactiveAlert(null)}
+        />
+      )}
+
+      {/* Doctor Regional AI Advisory Modal */}
+      {showDoctorAdvisoryModal && doctorAdvisoryResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center text-white">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory & Action Protocol</h3>
+                  <p className="text-xs text-slate-500">
+                    Jurisdiction: {doctorAdvisoryResult.district !== "All" ? doctorAdvisoryResult.district : ""}{" "}
+                    {doctorAdvisoryResult.state}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDoctorAdvisoryModal(false)}
+                className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-900"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+              <MarkdownRenderer content={doctorAdvisoryResult.advisory} className="text-slate-800" />
+            </div>
+            <div className="p-4 border-t border-slate-200 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setShowDoctorAdvisoryModal(false);
+                  setShowAdvisoryModal(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <Megaphone className="w-3.5 h-3.5" /> Broadcast to Citizens & ASHA
+              </button>
+              <button
+                onClick={() => setShowDoctorAdvisoryModal(false)}
+                className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

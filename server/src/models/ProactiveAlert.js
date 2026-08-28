@@ -43,13 +43,6 @@ const proactiveAlertSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    weatherFactors: {
-      temperature: { type: String, default: "31°C" },
-      humidity: { type: String, default: "78%" },
-      rainfallRisk: { type: String, default: "Moderate to Heavy" },
-      airQualityIndex: { type: String, default: "Moderate" },
-      season: { type: String, default: "Monsoon" },
-    },
     aiInsights: {
       type: String,
       default: "",
@@ -60,7 +53,7 @@ const proactiveAlertSchema = new mongoose.Schema(
     },
     generatedBy: {
       type: String,
-      enum: ["gemini_ai", "rule_engine", "doctor_consensus"],
+      enum: ["gemini_ai", "rule_engine", "doctor_consensus", "external_llm"],
       default: "gemini_ai",
     },
     validUntil: {

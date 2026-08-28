@@ -1,229 +1,8 @@
+// Path: server\src\services\gemini.service.js
 /**
  * Bharat Swasthya AI - Gemini Intelligence Service
- * Synthesizes doctor & health assistant field notes + weather indices for proactive outbreak prediction,
- * and powers conversational tele-health symptom triage.
+ * Powers conversational tele-health symptom triage (fallback when Python chatbot is unavailable).
  */
-
-export const analyzeProactiveOutbreaks = async ({
-  reports = [],
-  advisories = [],
-  weatherData = {},
-  state = "All",
-  district = "All",
-}) => {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  const promptContext = `
-You are Bharat Swasthya AI's Epidemiological Intelligence Engine.
-Analyze the following grassroots field reports and doctor advisories from India:
-Region: State: ${state}, District: ${district}
-Reports Analyzed (${reports.length}): ${JSON.stringify(
-    reports.slice(0, 10).map((r) => ({
-      suspected: r.suspectedDisease,
-      confirmed: r.confirmedDisease,
-      symptoms: r.symptoms,
-      severity: r.severity,
-      patientCount: r.patientCount,
-      isViral: r.isViral,
-      desc: r.description,
-      doctorDiagnosis: r.doctorDiagnosis,
-      location: `${r.city}, ${r.district}, ${r.state}`,
-    }))
-  )}
-Doctor Advisories (${advisories.length}): ${JSON.stringify(
-    advisories.slice(0, 5).map((a) => ({
-      title: a.title,
-      msg: a.message,
-      category: a.diseaseCategory,
-      priority: a.priority,
-    }))
-  )}
-Weather Factors: ${JSON.stringify(weatherData)}
-
-Task: Identify upcoming contagious / viral outbreaks and produce proactive preventive guidelines.
-`;
-
-  // If Gemini API Key is available, invoke Google Gemini Generative API
-  if (apiKey) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `${promptContext}
-Please return a valid JSON object matching this schema:
-{
-  "alerts": [
-    {
-      "diseaseName": "string",
-      "isViral": true/false,
-      "riskLevel": "low"|"moderate"|"high"|"severe",
-      "state": "${state === "All" ? "Maharashtra" : state}",
-      "district": "${district === "All" ? "Pune" : district}",
-      "city": "All",
-      "summary": "concise alert summary",
-      "symptomsToWatch": ["symptom1", "symptom2"],
-      "recommendedPrecautions": ["precaution1", "precaution2"],
-      "aiInsights": "scientific epidemiological reasoning based on weather and reports"
-    }
-  ]
-}`,
-                  },
-                ],
-              },
-            ],
-            generationConfig: { responseMimeType: "application/json" },
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const json = await response.json();
-        const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const parsed = JSON.parse(rawText);
-          if (parsed.alerts && Array.isArray(parsed.alerts)) {
-            return parsed.alerts;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("⚠️ Gemini API call failed, falling back to built-in rule engine:", err.message);
-    }
-  }
-
-  // Built-in intelligent epidemiological rule engine (when API key is pending)
-  return generateRuleBasedOutbreakAlerts(reports, advisories, weatherData, state, district);
-};
-
-function generateRuleBasedOutbreakAlerts(reports, advisories, weatherData, state, district) {
-  const targetState = state === "All" ? "Maharashtra" : state;
-  const targetDistrict = district === "All" ? "Pune" : district;
-
-  // Aggregate symptoms and diseases from reports
-  const diseaseCounts = {};
-  let totalPatients = 0;
-  let hasViralReports = false;
-
-  reports.forEach((r) => {
-    const disease = r.confirmedDisease || r.suspectedDisease || "Viral Fever";
-    diseaseCounts[disease] = (diseaseCounts[disease] || 0) + (r.patientCount || 1);
-    totalPatients += r.patientCount || 1;
-    if (r.isViral) hasViralReports = true;
-  });
-
-  const alerts = [];
-
-  // Seasonal & report-driven outbreak detection
-  const dengueRisk = reports.some(r => /dengue|mosquito|platelet/i.test(r.suspectedDisease + r.description));
-  const fluRisk = reports.some(r => /influenza|flu|cough|h3n2/i.test(r.suspectedDisease + r.description)) || hasViralReports;
-  const gastroRisk = reports.some(r => /diarrhea|cholera|vomiting|typhoid|water/i.test(r.suspectedDisease + r.description));
-
-  if (dengueRisk || reports.length === 0) {
-    alerts.push({
-      diseaseName: "Dengue & Vector-Borne Fever",
-      isViral: true,
-      riskLevel: "high",
-      state: targetState,
-      district: targetDistrict,
-      city: "All",
-      summary: `Surge in vector-borne viral infections detected in ${targetDistrict}, ${targetState} due to recent humidity and stagnant water index.`,
-      symptomsToWatch: [
-        "High sudden fever (103°F-104°F)",
-        "Severe retro-orbital (behind eye) pain",
-        "Joint and muscle aches (Breakbone fever)",
-        "Skin rash appearing 2-5 days after onset",
-        "Nausea and low platelet symptoms",
-      ],
-      recommendedPrecautions: [
-        "Eliminate standing water in coolers, plant trays, and containers every 3 days.",
-        "Apply DEET/icaridin-based mosquito repellents and wear full-sleeve light clothing.",
-        "Use mosquito bed nets, especially for infants and senior citizens.",
-        "Seek immediate platelet monitoring (CBC test) if fever persists over 48 hours.",
-      ],
-      weatherFactors: {
-        temperature: "30°C",
-        humidity: "82%",
-        rainfallRisk: "Moderate to Heavy",
-        airQualityIndex: "Moderate (AQI 115)",
-        season: "Monsoon / Post-Monsoon",
-      },
-      aiInsights: "Correlated 14 field reports of severe arthralgia and platelet drops with 82% ambient humidity, indicating elevated Aedes aegypti breeding vectors.",
-    });
-  }
-
-  if (fluRisk) {
-    alerts.push({
-      diseaseName: "Viral Respiratory Influenza (H3N2 / Seasonal Flu)",
-      isViral: true,
-      riskLevel: "moderate",
-      state: targetState,
-      district: targetDistrict,
-      city: "All",
-      summary: `Elevated viral upper respiratory tract infections reported across ${targetDistrict} primary health centers.`,
-      symptomsToWatch: [
-        "Dry cough and sore throat",
-        "Body chills and headache",
-        "Runny or congested nose",
-        "Mild breathlessness in vulnerable groups",
-      ],
-      recommendedPrecautions: [
-        "Practice frequent hand hygiene with soap and water.",
-        "Wear masks in crowded public transit, clinics, and marketplaces.",
-        "Stay hydrated with warm fluids and electral/ORS.",
-        "Isolate at home during active febrile phase to halt community spread.",
-      ],
-      weatherFactors: {
-        temperature: "27°C",
-        humidity: "75%",
-        rainfallRisk: "Scattered Showers",
-        airQualityIndex: "Unhealthy for Sensitive Groups (AQI 142)",
-        season: "Transitional Season",
-      },
-      aiInsights: "Detected clustering of respiratory syndromic presentations matching seasonal influenza spikes across community clinics.",
-    });
-  }
-
-  if (gastroRisk) {
-    alerts.push({
-      diseaseName: "Acute Gastroenteritis & Water-Borne Risk",
-      isViral: false,
-      riskLevel: "high",
-      state: targetState,
-      district: targetDistrict,
-      city: "All",
-      summary: `Clustering of gastrointestinal distress and water contamination indicators observed in rural sectors of ${targetDistrict}.`,
-      symptomsToWatch: [
-        "Watery diarrhea and abdominal cramps",
-        "Repeated vomiting and dehydration",
-        "Low-grade fever and extreme lethargy",
-        "Sunken eyes and reduced urination (dehydration signs)",
-      ],
-      recommendedPrecautions: [
-        "Drink strictly boiled or certified RO filtered water.",
-        "Administer Oral Rehydration Solution (ORS) + Zinc tablets at first sign of loose stools.",
-        "Avoid raw street foods and unwashed produce.",
-        "Report municipal pipeline discoloration immediately to local health inspector.",
-      ],
-      weatherFactors: {
-        temperature: "32°C",
-        humidity: "70%",
-        rainfallRisk: "Localized Heavy Inundation",
-        airQualityIndex: "Satisfactory",
-        season: "Monsoon",
-      },
-      aiInsights: "Multiple primary health worker reports flagged turbidity in communal water storage tanks following heavy downpour.",
-    });
-  }
-
-  return alerts;
-}
 
 /**
  * AI Tele-Health Chatbot Triage
@@ -268,6 +47,7 @@ Instructions:
               },
             ],
           }),
+          signal: AbortSignal.timeout(120000), // 2 min timeout
         }
       );
 
@@ -277,7 +57,7 @@ Instructions:
         if (text) return { reply: text, source: "gemini_ai" };
       }
     } catch (err) {
-      console.warn("⚠️ Gemini chatbot request failed, fallback engine engaged:", err.message);
+      console.warn("Gemini chatbot request failed, fallback engine engaged:", err.message);
     }
   }
 
@@ -293,7 +73,7 @@ function generateSmartTriageResponse(message, state, district, city, activeAlert
   const alertNames = activeAlerts.map(a => a.diseaseName).join(", ") || "Seasonal Viral Fever & Dengue";
 
   if (lower.includes("fever") || lower.includes("temperature") || lower.includes("bukhar") || lower.includes("body pain")) {
-    return `### 🩺 Symptom Assessment for ${district}, ${state}
+    return `### Symptom Assessment for ${district}, ${state}
 
 **Active Alerts in your area:** ${alertNames}
 
@@ -309,8 +89,8 @@ Based on your symptoms of **fever and body discomfort**:
    - **Rest:** Complete physical rest in a well-ventilated room.
    - **Temperature Control:** Luke-warm sponge baths. Consult a doctor before taking medication. Avoid aspirin/NSAIDs if dengue is suspected.
 
-3. **🚨 Danger Signs (Visit Hospital Immediately):**
-   - Temperature exceeding 103°F (39.4°C) not responding to medication
+3. **Danger Signs (Visit Hospital Immediately):**
+   - Temperature exceeding 103F (39.4C) not responding to medication
    - Persistent vomiting, severe abdominal pain, or bleeding gums/skin patches
    - Extreme dizziness or difficulty breathing
 
@@ -318,7 +98,7 @@ Based on your symptoms of **fever and body discomfort**:
   }
 
   if (lower.includes("cough") || lower.includes("cold") || lower.includes("throat") || lower.includes("khansi") || lower.includes("breath")) {
-    return `### 🫁 Respiratory Symptom Guide (${district}, ${state})
+    return `### Respiratory Symptom Guide (${district}, ${state})
 
 **Active Air & Health Profile:** Viral Flu surveillance active in ${state}.
 
@@ -332,13 +112,13 @@ Based on your symptoms of **fever and body discomfort**:
    - **Honey & Ginger:** Soothes ticklish dry coughs.
    - **Masking:** Wear a 3-ply mask when around family members to prevent viral aerosol spread.
 
-3. **⚠️ Red Flags:**
+3. **Red Flags:**
    - Rapid breathing (>24 breaths/min) or chest tightness.
    - Blood in sputum or cough lasting longer than 10-14 days.`;
   }
 
   if (lower.includes("stomach") || lower.includes("vomit") || lower.includes("diarrhea") || lower.includes("loose") || lower.includes("pet")) {
-    return `### 💧 Gastrointestinal Distress Advice (${district}, ${state})
+    return `### Gastrointestinal Distress Advice (${district}, ${state})
 
 1. **Primary Concern:** Rapid fluid and electrolyte loss.
 
@@ -347,13 +127,13 @@ Based on your symptoms of **fever and body discomfort**:
    - **Dietary:** Follow the BRAT diet (Bananas, Rice, Applesauce, Toast) / light khichdi with curd.
    - **Strict Hygiene:** Wash hands with antiseptic soap before eating.
 
-3. **🚨 Emergency Red Flags:**
+3. **Emergency Red Flags:**
    - Inability to keep fluids down for over 8 hours.
    - High fever accompanied by blood in stool.
    - Extreme thirst, dark urine, or sunken eyes.`;
   }
 
-  return `### 🇮🇳 Bharat Swasthya AI - Health Guidance (${city}, ${district}, ${state})
+  return `### Bharat Swasthya AI - Health Guidance (${city}, ${district}, ${state})
 
 Thank you for reaching out. Based on your inquiry regarding *"**${message}**"*:
 
@@ -366,3 +146,66 @@ Thank you for reaching out. Based on your inquiry regarding *"**${message}**"*:
 - **1075** - National Health Portal Helpline
 - **14416** - Tele-MANAS (Mental Health Support)`;
 }
+
+/**
+ * Format an immediate viral alert into a polished public health card
+ * Returns markdown string or empty string if Gemini fails
+ */
+export const formatImmediateAlert = async ({
+  title,
+  diseaseName,
+  symptoms = [],
+  severity,
+  patientCount,
+  state,
+  district,
+  city,
+  description,
+}) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return "";
+
+  const prompt = `You are Bharat Swasthya AI's Public Health Alert Formatter.
+Format the following raw field report into a clear, actionable public health advisory card for citizens.
+Use markdown. Include these sections:
+- Disease Overview (1-2 sentences)
+- Symptoms to Watch (bullet list)
+- Immediate Precautions (bullet list)
+- Danger Signs - when to seek emergency help (bullet list)
+- Location & Case Count
+
+Keep it concise, citizen-friendly, and medically accurate. Do not hallucinate symptoms or precautions not mentioned below.
+
+Raw Data:
+Disease: ${diseaseName}
+Location: ${city}, ${district}, ${state}
+Cases: ${patientCount}
+Severity: ${severity}
+Symptoms observed: ${symptoms.join(", ")}
+Field notes: ${description}`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+        signal: AbortSignal.timeout(120000), // 2 min timeout
+      }
+    );
+
+    if (response.ok) {
+      const json = await response.json();
+      const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
+    }
+  } catch (err) {
+    console.warn("Gemini formatting failed for immediate alert:", err.message);
+  }
+
+  return "";
+};
+

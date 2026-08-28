@@ -22,9 +22,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
-import ProactiveAlertCard from "../components/ProactiveAlertCard";
 import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
-import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 
 export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWithPrompt }) => {
   const [selectedLocation, setSelectedLocation] = useState({
@@ -33,12 +31,10 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
     city: "All",
   });
   const [viralDiseases, setViralDiseases] = useState([]);
-  const [proactiveAlerts, setProactiveAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Detail Modal States
   const [selectedViralDisease, setSelectedViralDisease] = useState(null);
-  const [selectedProactiveAlert, setSelectedProactiveAlert] = useState(null);
 
   const helplines = [
     {
@@ -298,38 +294,6 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
         )}
       </section>
 
-      {/* Proactive Weather-Linked AI Forecasts */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              Proactive AI Weather-Linked Outbreak Forecasts
-            </h3>
-            <p className="text-xs text-slate-500">
-              Aggregated daily from meteorological indicators + medical observations. Click to view detailed forecast.
-            </p>
-          </div>
-        </div>
-
-        {proactiveAlerts.length > 0 ? (
-          <div className="space-y-4">
-            {proactiveAlerts.map((alert) => (
-              <ProactiveAlertCard
-                key={alert._id}
-                alert={alert}
-                onSelectAlert={(selected) => setSelectedProactiveAlert(selected)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center text-slate-500 text-sm shadow-sm">
-            <Activity className="w-6 h-6 mx-auto mb-2 text-teal-600" />
-            No active high-risk alerts in this district. AI engine continuously monitoring.
-          </div>
-        )}
-      </section>
-
       {/* 24x7 Emergency Helplines Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -390,17 +354,6 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
           disease={selectedViralDisease}
           isOpen={Boolean(selectedViralDisease)}
           onClose={() => setSelectedViralDisease(null)}
-          onOpenChatWithPrompt={onOpenLogin}
-          onOpenEmergency={onOpenEmergency}
-        />
-      )}
-
-      {/* Proactive Forecast Details Modal */}
-      {selectedProactiveAlert && (
-        <ProactiveAlertDetailsModal
-          alert={selectedProactiveAlert}
-          isOpen={Boolean(selectedProactiveAlert)}
-          onClose={() => setSelectedProactiveAlert(null)}
           onOpenChatWithPrompt={onOpenLogin}
           onOpenEmergency={onOpenEmergency}
         />

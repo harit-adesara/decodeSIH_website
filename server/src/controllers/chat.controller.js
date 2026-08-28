@@ -144,7 +144,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         mongo_id: id,
         query: message.trim(),
       }),
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(120000), // 2 min timeout for AI Chatbot
     });
 
     if (!chatResponse.ok) {

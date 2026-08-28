@@ -1,8 +1,12 @@
 import axios from "axios";
 
+const apiBaseUrl = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/api/v1`
+  : "/api/v1";
+
 const axiosInstance = axios.create({
-  baseURL: "/api/v1",
-  timeout: 30000,
+  baseURL: apiBaseUrl,
+  timeout: 120000, // 2 minutes (120s) for AI chat & proactive analysis
   headers: {
     "Content-Type": "application/json",
   },

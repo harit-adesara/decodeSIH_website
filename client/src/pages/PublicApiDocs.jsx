@@ -38,7 +38,7 @@ export const PublicApiDocs = () => {
       title: "Get Proactive AI Outbreak Forecasts",
       method: "GET",
       path: "/api/v1/public/proactive-alerts?state=Maharashtra",
-      description: "Retrieve daily proactive AI disease forecasts correlated with meteorological weather factors (humidity, rainfall, heatwave indices).",
+      description: "Retrieve daily proactive AI disease outbreak forecasts powered by epidemiological analysis of field reports and clinical data.",
       icon: Sparkles,
       params: [
         { name: "state", type: "string", desc: "Indian State (e.g. Maharashtra, Delhi)" },

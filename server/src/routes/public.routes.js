@@ -8,6 +8,7 @@ import {
   getHelplineNumbers,
   getLocationsData,
   getPublicOverviewStats,
+  getProactiveAdvisory,
 } from "../controllers/public.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
@@ -24,6 +25,9 @@ router.get("/locations", getLocationsData);
 
 // Protected AI Chatbot Endpoint (Authenticated Users Only)
 router.post("/chatbot", verifyJWT, chatWithAiAssistant);
+
+// Proactive Advisory from External LLM
+router.post("/proactive-advisory", getProactiveAdvisory);
 
 export default router;
 

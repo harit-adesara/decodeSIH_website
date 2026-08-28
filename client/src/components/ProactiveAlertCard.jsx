@@ -1,10 +1,6 @@
 import React from "react";
 import {
   AlertCircle,
-  CloudRain,
-  Thermometer,
-  Droplets,
-  Wind,
   Sparkles,
   ShieldCheck,
   CheckCircle2,
@@ -72,48 +68,6 @@ export const ProactiveAlertCard = ({ alert, onSelectAlert }) => {
 
       {/* Summary */}
       <p className="text-sm text-slate-600 leading-relaxed mb-4">{alert.summary}</p>
-
-      {/* Weather Factors Grid */}
-      {alert.weatherFactors && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200 mb-4">
-          <div className="flex items-center gap-2">
-            <Thermometer className="w-4 h-4 text-amber-500 shrink-0" />
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-semibold">Temp</div>
-              <div className="text-xs font-semibold text-slate-800">
-                {alert.weatherFactors.temperature || "30°C"}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Droplets className="w-4 h-4 text-blue-500 shrink-0" />
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-semibold">Humidity</div>
-              <div className="text-xs font-semibold text-slate-800">
-                {alert.weatherFactors.humidity || "80%"}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <CloudRain className="w-4 h-4 text-teal-600 shrink-0" />
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-semibold">Rainfall Risk</div>
-              <div className="text-xs font-semibold text-slate-800 truncate max-w-[100px]">
-                {alert.weatherFactors.rainfallRisk || "Moderate"}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Wind className="w-4 h-4 text-indigo-500 shrink-0" />
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-semibold">Air Quality</div>
-              <div className="text-xs font-semibold text-slate-800 truncate max-w-[100px]">
-                {alert.weatherFactors.airQualityIndex || "Moderate"}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Symptoms To Watch & Precautions Preview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
