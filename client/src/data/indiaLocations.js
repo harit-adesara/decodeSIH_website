@@ -277,13 +277,6 @@ export const indiaLocations = {
       "Kohima": ["All", "Main Town", "High School Colony", "Razhoo Point", "PR Hill", "Midland"],
     }
   },
-  "Goa": {
-    districts: ["North Goa", "South Goa"],
-    cities: {
-      "North Goa": ["All", "Panaji", "Mapusa", "Candolim", "Calangute", "Porvorim", "Bicholim", "Pernem", "Old Goa"],
-      "South Goa": ["All", "Margao", "Vasco da Gama", "Ponda", "Curchorem", "Fatorda", "Colva", "Benaulim"],
-    }
-  },
   "Sikkim": {
     districts: ["East Sikkim (Gangtok)", "West Sikkim (Gyalshing)", "North Sikkim (Mangan)", "South Sikkim (Namchi)", "Pakyong", "Soreng"],
     cities: {
@@ -314,7 +307,74 @@ export const indiaLocations = {
     cities: {
       "South Andaman (Port Blair)": ["All", "Aberdeen Bazaar", "Junglighat", "Garacharma", "Dollygunj", "Haddo", "Chatham"],
     }
+  },
+  "Dadra and Nagar Haveli and Daman and Diu": {
+    districts: ["Daman", "Diu", "Dadra and Nagar Haveli (Silvassa)"],
+    cities: {
+      "Daman": ["All", "Nani Daman", "Moti Daman", "Devka Beach Road", "Dabhel"],
+      "Diu": ["All", "Diu Town", "Ghoghla", "Nagoa", "Fudam"],
+      "Dadra and Nagar Haveli (Silvassa)": ["All", "Silvassa Town", "Amli", "Naroli", "Khanvel"],
+    }
+  },
+  "Lakshadweep": {
+    districts: ["Kavaratti", "Agatti", "Minicoy", "Amini", "Andrott"],
+    cities: {
+      "Kavaratti": ["All", "Kavaratti Main", "Admin Area", "Harbour View"],
+    }
   }
 };
 
 export const defaultLocationsList = Object.keys(indiaLocations);
+
+/**
+ * Returns array of available states
+ */
+export const getStatesList = (allowAll = false) => {
+  const states = Object.keys(indiaLocations);
+  return allowAll ? ["All", ...states] : states;
+};
+
+/**
+ * Returns array of districts for a given state
+ */
+export const getDistrictsList = (state, allowAll = false) => {
+  if (!state || state === "All" || !indiaLocations[state]) {
+    return allowAll ? ["All"] : [];
+  }
+  const districts = indiaLocations[state]?.districts || [];
+  return allowAll ? ["All", ...districts] : districts;
+};
+
+/**
+ * Returns array of cities/taluks for a given state and district
+ */
+export const getCitiesList = (state, district, allowAll = false) => {
+  if (!state || state === "All" || !district) {
+    return allowAll ? ["All"] : [];
+  }
+
+  if (district === "All") {
+    return allowAll ? ["All"] : [];
+  }
+
+  const configuredCities = (indiaLocations[state]?.cities?.[district] || []).filter(
+    (c) => c !== "All"
+  );
+
+  let result;
+  if (configuredCities.length > 0) {
+    result = configuredCities;
+  } else {
+    // Generates sensible subdivisions so that the dropdown is never empty
+    result = [
+      `${district} Main`,
+      `${district} North`,
+      `${district} South`,
+      `${district} East`,
+      `${district} West`,
+      `${district} Rural`,
+    ];
+  }
+
+  return allowAll ? ["All", ...result] : result;
+};

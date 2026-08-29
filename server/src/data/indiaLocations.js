@@ -307,5 +307,19 @@ export const indiaLocations = {
     cities: {
       "South Andaman (Port Blair)": ["All", "Aberdeen Bazaar", "Junglighat", "Garacharma", "Dollygunj", "Haddo", "Chatham"],
     }
+  },
+  "Dadra and Nagar Haveli and Daman and Diu": {
+    districts: ["Daman", "Diu", "Dadra and Nagar Haveli (Silvassa)"],
+    cities: {
+      "Daman": ["All", "Nani Daman", "Moti Daman", "Devka Beach Road", "Dabhel"],
+      "Diu": ["All", "Diu Town", "Ghoghla", "Nagoa", "Fudam"],
+      "Dadra and Nagar Haveli (Silvassa)": ["All", "Silvassa Town", "Amli", "Naroli", "Khanvel"],
+    }
+  },
+  "Lakshadweep": {
+    districts: ["Kavaratti", "Agatti", "Minicoy", "Amini", "Andrott"],
+    cities: {
+      "Kavaratti": ["All", "Kavaratti Main", "Admin Area", "Harbour View"],
+    }
   }
 };

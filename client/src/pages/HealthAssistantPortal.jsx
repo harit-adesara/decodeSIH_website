@@ -26,6 +26,7 @@ import AnalyticsView from "../components/AnalyticsView";
 import ProactiveAlertCard from "../components/ProactiveAlertCard";
 import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import LocationDropdowns from "../components/LocationDropdowns";
 import { useAuth } from "../context/AuthContext";
 
 export const HealthAssistantPortal = ({ onOpenProfile }) => {
@@ -460,43 +461,24 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
               </div>
             </div>
 
-            {/* Location Hierarchy: State -> District -> City */}
+            {/* Location Hierarchy: State -> District -> City Dropdowns */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
               <div className="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5" /> Geographic Location (State &gt; District &gt; City)
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[11px] text-slate-500 mb-1">State *</label>
-                  <input
-                    type="text"
-                    required
-                    value={reportForm.state}
-                    onChange={(e) => setReportForm({ ...reportForm, state: e.target.value })}
-                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-500 mb-1">District *</label>
-                  <input
-                    type="text"
-                    required
-                    value={reportForm.district}
-                    onChange={(e) => setReportForm({ ...reportForm, district: e.target.value })}
-                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-500 mb-1">City / Taluk / Village *</label>
-                  <input
-                    type="text"
-                    required
-                    value={reportForm.city}
-                    onChange={(e) => setReportForm({ ...reportForm, city: e.target.value })}
-                    className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                  />
-                </div>
-              </div>
+              <LocationDropdowns
+                state={reportForm.state}
+                district={reportForm.district}
+                city={reportForm.city}
+                onChange={({ state, district, city }) =>
+                  setReportForm({ ...reportForm, state, district, city })
+                }
+                theme="teal"
+                stateLabel="State"
+                districtLabel="District"
+                cityLabel="City / Taluk / Village"
+                required
+              />
             </div>
 
             {/* Symptom Preset Tagger */}
@@ -834,35 +816,22 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="text-xs font-semibold text-teal-700 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" /> Location
+              <div className="text-xs font-semibold text-rose-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" /> Alert Location (State &gt; District &gt; City)
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input
-                  type="text"
-                  required
-                  value={quickAlertForm.state}
-                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, state: e.target.value })}
-                  placeholder="State"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                />
-                <input
-                  type="text"
-                  required
-                  value={quickAlertForm.district}
-                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, district: e.target.value })}
-                  placeholder="District"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                />
-                <input
-                  type="text"
-                  required
-                  value={quickAlertForm.city}
-                  onChange={(e) => setQuickAlertForm({ ...quickAlertForm, city: e.target.value })}
-                  placeholder="City / Area"
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none"
-                />
-              </div>
+              <LocationDropdowns
+                state={quickAlertForm.state}
+                district={quickAlertForm.district}
+                city={quickAlertForm.city}
+                onChange={({ state, district, city }) =>
+                  setQuickAlertForm({ ...quickAlertForm, state, district, city })
+                }
+                theme="rose"
+                stateLabel="State"
+                districtLabel="District"
+                cityLabel="City / Area"
+                required
+              />
             </div>
 
             <div>

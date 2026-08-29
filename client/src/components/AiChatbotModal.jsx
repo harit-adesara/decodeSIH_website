@@ -21,40 +21,8 @@ import {
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import MarkdownRenderer from "./MarkdownRenderer";
+import LocationDropdowns from "./LocationDropdowns";
 
-const INDIAN_STATES = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Delhi",
-  "Jammu and Kashmir",
-  "Ladakh",
-];
 
 export const AiChatbotModal = ({
   isOpen,
@@ -313,9 +281,21 @@ export const AiChatbotModal = ({
 
   const handleOpenLocationPicker = () => {
     const convLoc = activeConversation?.location || {};
-    setLocState(convLoc.state === "All" ? "" : convLoc.state || "");
-    setLocDistrict(convLoc.district === "All" ? "" : convLoc.district || "");
-    setLocCity(convLoc.city === "All" ? "" : convLoc.city || "");
+    setLocState(
+      convLoc.state && convLoc.state !== "All"
+        ? convLoc.state
+        : locationContext.state || "Maharashtra"
+    );
+    setLocDistrict(
+      convLoc.district && convLoc.district !== "All"
+        ? convLoc.district
+        : locationContext.district || "Pune"
+    );
+    setLocCity(
+      convLoc.city && convLoc.city !== "All"
+        ? convLoc.city
+        : locationContext.city || "Shivajinagar"
+    );
     setShowLocationPicker(true);
   };
 
@@ -686,47 +666,22 @@ export const AiChatbotModal = ({
             </p>
 
             <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">
-                  State
-                </label>
-                <select
-                  value={locState}
-                  onChange={(e) => setLocState(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                >
-                  <option value="">Select State</option>
-                  {INDIAN_STATES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">
-                  District
-                </label>
-                <input
-                  type="text"
-                  value={locDistrict}
-                  onChange={(e) => setLocDistrict(e.target.value)}
-                  placeholder="e.g. Pune"
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">
-                  City / Village
-                </label>
-                <input
-                  type="text"
-                  value={locCity}
-                  onChange={(e) => setLocCity(e.target.value)}
-                  placeholder="e.g. Hadapsar"
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                />
-              </div>
+              <LocationDropdowns
+                state={locState}
+                district={locDistrict}
+                city={locCity}
+                onChange={({ state, district, city }) => {
+                  setLocState(state);
+                  setLocDistrict(district);
+                  setLocCity(city);
+                }}
+                layout="vertical"
+                theme="teal"
+                stateLabel="State"
+                districtLabel="District"
+                cityLabel="City / Village / Area"
+                required
+              />
             </div>
 
             <div className="flex items-center justify-end gap-2 mt-5">

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import LocationDropdowns from "./LocationDropdowns";
 import { indiaLocations } from "../data/indiaLocations";
 
 export const CreateStaffModal = ({ isOpen, onClose, onCreated }) => {
@@ -210,80 +211,20 @@ export const CreateStaffModal = ({ isOpen, onClose, onCreated }) => {
           </div>
 
           {/* Location Assignment Dropdowns */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">State *</label>
-              <select
-                required
-                value={formData.state}
-                onChange={(e) => {
-                  const newState = e.target.value;
-                  const newDistricts = indiaLocations[newState]?.districts || [];
-                  const newDistrict = newDistricts[0] || "All";
-                  const newCities = (indiaLocations[newState]?.cities?.[newDistrict] || []).filter((c) => c !== "All");
-                  const newCity = newCities[0] || newDistrict;
-                  setFormData({
-                    ...formData,
-                    state: newState,
-                    district: newDistrict,
-                    city: newCity,
-                  });
-                }}
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
-              >
-                {Object.keys(indiaLocations).map((st) => (
-                  <option key={st} value={st}>
-                    {st}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">District *</label>
-              <select
-                required
-                value={formData.district}
-                onChange={(e) => {
-                  const newDistrict = e.target.value;
-                  const newCities = (indiaLocations[formData.state]?.cities?.[newDistrict] || []).filter((c) => c !== "All");
-                  const newCity = newCities[0] || newDistrict;
-                  setFormData({
-                    ...formData,
-                    district: newDistrict,
-                    city: newCity,
-                  });
-                }}
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
-              >
-                {(indiaLocations[formData.state]?.districts || []).map((dst) => (
-                  <option key={dst} value={dst}>
-                    {dst}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">City / Taluk *</label>
-              <select
-                required
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all cursor-pointer"
-              >
-                {(() => {
-                  const citiesList = (indiaLocations[formData.state]?.cities?.[formData.district] || []).filter((c) => c !== "All");
-                  if (citiesList.length === 0) {
-                    return <option value={formData.district}>{formData.district} Main</option>;
-                  }
-                  return citiesList.map((ct) => (
-                    <option key={ct} value={ct}>
-                      {ct}
-                    </option>
-                  ));
-                })()}
-              </select>
-            </div>
-          </div>
+          <LocationDropdowns
+            state={formData.state}
+            district={formData.district}
+            city={formData.city}
+            onChange={({ state, district, city }) =>
+              setFormData({ ...formData, state, district, city })
+            }
+            theme="teal"
+            size="md"
+            stateLabel="State"
+            districtLabel="District"
+            cityLabel="City / Taluk"
+            required
+          />
 
           {/* Qualifications & Hospital */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

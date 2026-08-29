@@ -8,6 +8,7 @@ import {
   MapPin,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
+import LocationDropdowns from "./LocationDropdowns";
 import { indiaLocations } from "../data/indiaLocations";
 
 export const CreateAdvisoryModal = ({ isOpen, onClose, onCreated }) => {
@@ -140,72 +141,28 @@ export const CreateAdvisoryModal = ({ isOpen, onClose, onCreated }) => {
             <div className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-amber-600" /> Target Geographic Jurisdiction
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-[11px] text-slate-500 mb-1">Target State *</label>
-                <select
-                  required
-                  value={formData.targetState}
-                  onChange={(e) => {
-                    const newState = e.target.value;
-                    const newDistricts = indiaLocations[newState]?.districts || [];
-                    const newDistrict = newDistricts[0] || "All";
-                    setFormData({
-                      ...formData,
-                      targetState: newState,
-                      targetDistrict: newDistrict,
-                      targetCity: "All",
-                    });
-                  }}
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
-                >
-                  <option value="All">All States (Pan-India)</option>
-                  {Object.keys(indiaLocations).map((st) => (
-                    <option key={st} value={st}>
-                      {st}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[11px] text-slate-500 mb-1">Target District</label>
-                <select
-                  value={formData.targetDistrict}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      targetDistrict: e.target.value,
-                      targetCity: "All",
-                    });
-                  }}
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
-                >
-                  <option value="All">All Districts</option>
-                  {(indiaLocations[formData.targetState]?.districts || []).map((dst) => (
-                    <option key={dst} value={dst}>
-                      {dst}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[11px] text-slate-500 mb-1">Target City / Taluk</label>
-                <select
-                  value={formData.targetCity}
-                  onChange={(e) => setFormData({ ...formData, targetCity: e.target.value })}
-                  className="w-full bg-white text-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-amber-500 outline-none cursor-pointer"
-                >
-                  <option value="All">All Cities / Taluks</option>
-                  {((indiaLocations[formData.targetState]?.cities?.[formData.targetDistrict]) || [])
-                    .filter((c) => c !== "All")
-                    .map((ct) => (
-                      <option key={ct} value={ct}>
-                        {ct}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
+            <LocationDropdowns
+              state={formData.targetState}
+              district={formData.targetDistrict}
+              city={formData.targetCity}
+              onChange={({ state, district, city }) =>
+                setFormData({
+                  ...formData,
+                  targetState: state,
+                  targetDistrict: district,
+                  targetCity: city,
+                })
+              }
+              allowAllState
+              allowAllDistrict
+              allowAllCity
+              theme="amber"
+              size="sm"
+              stateLabel="Target State"
+              districtLabel="Target District"
+              cityLabel="Target City / Taluk"
+              required={false}
+            />
           </div>
 
           {/* Message Text */}

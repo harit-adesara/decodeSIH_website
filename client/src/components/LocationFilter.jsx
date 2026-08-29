@@ -68,10 +68,20 @@ export const LocationFilter = ({
   };
 
   const availableDistricts = state !== "All" && locations[state] ? locations[state].districts : [];
-  const availableCities =
-    state !== "All" && district !== "All" && locations[state]?.cities?.[district]
-      ? locations[state].cities[district]
-      : ["All"];
+  const availableCities = (() => {
+    if (state === "All" || district === "All") return ["All"];
+    const conf = (locations[state]?.cities?.[district] || []).filter((c) => c !== "All");
+    if (conf.length > 0) return ["All", ...conf];
+    return [
+      "All",
+      `${district} Main`,
+      `${district} North`,
+      `${district} South`,
+      `${district} East`,
+      `${district} West`,
+      `${district} Rural`,
+    ];
+  })();
 
   return (
     <div className={`flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm ${className}`}>
