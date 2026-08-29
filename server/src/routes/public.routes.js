@@ -10,7 +10,9 @@ import {
   getPublicOverviewStats,
   getProactiveAdvisory,
 } from "../controllers/public.controller.js";
+import { handleGuideChat, handleGuideSTT } from "../controllers/guide.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
+import { uploadAudio } from "../middleware/upload.middleware.js";
 
 const router = Router();
 
@@ -29,6 +31,11 @@ router.post("/chatbot", verifyJWT, chatWithAiAssistant);
 // Proactive Advisory from External LLM
 router.post("/proactive-advisory", getProactiveAdvisory);
 
+// Website Guide LLM Chat & Sarvam STT Transcription
+router.post("/guide", handleGuideChat);
+router.post("/guide/stt", uploadAudio.any(), handleGuideSTT);
+
 export default router;
+
 
 

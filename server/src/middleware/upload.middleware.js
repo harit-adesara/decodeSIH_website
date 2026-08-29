@@ -41,3 +41,14 @@ export const uploadReportImage = multer({
   },
   fileFilter: fileFilter,
 });
+
+/**
+ * In-memory upload middleware for audio processing / STT transcription
+ */
+export const uploadAudio = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 25 * 1024 * 1024, // 25MB audio limit
+  },
+});
+
