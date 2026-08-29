@@ -25,12 +25,25 @@ export const PublicApiDocs = () => {
       title: "Get Active Viral Diseases",
       method: "GET",
       path: "/api/v1/public/viral-diseases?state=Maharashtra&district=Pune",
-      description: "Allows external hospital management and health telemetry services to retrieve active viral disease outbreaks filtered by state, district, or city.",
+      description:
+        "Allows external hospital management and health telemetry services to retrieve active viral disease outbreaks filtered by state, district, or city.",
       icon: Bug,
       params: [
-        { name: "state", type: "string", desc: "Filter by Indian State (e.g. Maharashtra)" },
-        { name: "district", type: "string", desc: "Filter by District (e.g. Pune)" },
-        { name: "city", type: "string", desc: "Filter by City / Village (optional)" },
+        {
+          name: "state",
+          type: "string",
+          desc: "Filter by Indian State (e.g. Maharashtra)",
+        },
+        {
+          name: "district",
+          type: "string",
+          desc: "Filter by District (e.g. Pune)",
+        },
+        {
+          name: "city",
+          type: "string",
+          desc: "Filter by City / Village (optional)",
+        },
       ],
       samplePayload: null,
     },
@@ -38,11 +51,20 @@ export const PublicApiDocs = () => {
       title: "Get Proactive AI Outbreak Forecasts",
       method: "GET",
       path: "/api/v1/public/proactive-alerts?state=Maharashtra",
-      description: "Retrieve daily proactive AI disease outbreak forecasts powered by epidemiological analysis of field reports and clinical data.",
+      description:
+        "Retrieve daily proactive AI disease outbreak forecasts powered by epidemiological analysis of field reports and clinical data.",
       icon: Sparkles,
       params: [
-        { name: "state", type: "string", desc: "Indian State (e.g. Maharashtra, Delhi)" },
-        { name: "riskLevel", type: "string", desc: "Filter by 'high', 'severe', or 'moderate'" },
+        {
+          name: "state",
+          type: "string",
+          desc: "Indian State (e.g. Maharashtra, Delhi)",
+        },
+        {
+          name: "riskLevel",
+          type: "string",
+          desc: "Filter by 'high', 'severe', or 'moderate'",
+        },
       ],
       samplePayload: null,
     },
@@ -50,12 +72,21 @@ export const PublicApiDocs = () => {
       title: "Conversational Tele-Health Triage",
       method: "POST",
       path: "/api/v1/public/chatbot",
-      description: "AI-driven symptom checker endpoint with Indian regional outbreak awareness. Ready for Gemini API keys.",
+      description:
+        "AI-driven symptom checker endpoint with Indian regional outbreak awareness. Ready for Gemini API keys.",
       icon: Bot,
       params: [
-        { name: "message", type: "string", desc: "User query / symptom description" },
+        {
+          name: "message",
+          type: "string",
+          desc: "User query / symptom description",
+        },
         { name: "state", type: "string", desc: "User State location context" },
-        { name: "district", type: "string", desc: "User District location context" },
+        {
+          name: "district",
+          type: "string",
+          desc: "User District location context",
+        },
       ],
       samplePayload: {
         message: "High fever 103F and extreme bone pain behind eyes for 2 days",
@@ -67,7 +98,8 @@ export const PublicApiDocs = () => {
       title: "National Emergency Helpline Directory",
       method: "GET",
       path: "/api/v1/public/helplines",
-      description: "Returns pan-India emergency ambulance (108), maternal health (102), and tele-mental health numbers.",
+      description:
+        "Returns pan-India emergency ambulance (108), maternal health (102), and tele-mental health numbers.",
       icon: ExternalLink,
       params: [],
       samplePayload: null,
@@ -76,7 +108,8 @@ export const PublicApiDocs = () => {
       title: "Indian States & Districts Hierarchy",
       method: "GET",
       path: "/api/v1/public/locations",
-      description: "Returns the geographic hierarchy for Indian states, districts, and administrative taluks.",
+      description:
+        "Returns the geographic hierarchy for Indian states, districts, and administrative taluks.",
       icon: MapPin,
       params: [],
       samplePayload: null,
@@ -121,19 +154,24 @@ export const PublicApiDocs = () => {
       <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
-            <Code2 className="w-4 h-4 text-teal-600" /> Open Interoperability & 3rd-Party APIs
+            <Code2 className="w-4 h-4 text-teal-600" /> Open Interoperability &
+            3rd-Party APIs
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
             Bharat Swasthya AI Developer REST API
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5 max-w-2xl">
-            Integrate syndromic outbreak intelligence, proactive vector forecasts, and tele-triage endpoints directly into hospital management systems (HMIS) and public applications.
+            Integrate syndromic outbreak intelligence, proactive vector
+            forecasts, and tele-triage endpoints directly into hospital
+            management systems (HMIS) and public applications.
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
           <ShieldCheck className="w-4 h-4 text-teal-600" />
-          <span>Base URL: <strong>http://localhost:5000/api/v1</strong></span>
+          <span>
+            Base URL: <strong>https://decodesih-website.onrender.com</strong>
+          </span>
         </div>
       </div>
 
@@ -162,7 +200,9 @@ export const PublicApiDocs = () => {
               >
                 <div
                   className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                    isSelected ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"
+                    isSelected
+                      ? "bg-teal-600 text-white"
+                      : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   <IconComp className="w-4 h-4" />
@@ -178,9 +218,13 @@ export const PublicApiDocs = () => {
                     >
                       {ep.method}
                     </span>
-                    <span className="font-semibold text-xs text-slate-900 truncate">{ep.title}</span>
+                    <span className="font-semibold text-xs text-slate-900 truncate">
+                      {ep.title}
+                    </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono truncate">{ep.path}</div>
+                  <div className="text-[11px] text-slate-500 font-mono truncate">
+                    {ep.path}
+                  </div>
                 </div>
               </button>
             );
@@ -203,7 +247,9 @@ export const PublicApiDocs = () => {
                   >
                     {currentEp.method}
                   </span>
-                  <h3 className="font-bold text-slate-900 text-base sm:text-lg">{currentEp.title}</h3>
+                  <h3 className="font-bold text-slate-900 text-base sm:text-lg">
+                    {currentEp.title}
+                  </h3>
                 </div>
 
                 <button
@@ -216,7 +262,9 @@ export const PublicApiDocs = () => {
                   ) : (
                     <Play className="w-3.5 h-3.5 fill-current" />
                   )}
-                  <span>{loading ? "Sending Request..." : "Test Endpoint Live"}</span>
+                  <span>
+                    {loading ? "Sending Request..." : "Test Endpoint Live"}
+                  </span>
                 </button>
               </div>
 
@@ -226,11 +274,17 @@ export const PublicApiDocs = () => {
                   onClick={() => handleCopy(currentEp.path)}
                   className="text-slate-400 hover:text-slate-800 p-1"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? (
+                    <Check className="w-3.5 h-3.5 text-teal-600" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
                 </button>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed mt-2.5">{currentEp.description}</p>
+              <p className="text-xs text-slate-600 leading-relaxed mt-2.5">
+                {currentEp.description}
+              </p>
             </div>
 
             {/* Request Parameters */}
@@ -251,7 +305,9 @@ export const PublicApiDocs = () => {
                     <tbody className="divide-y divide-slate-100">
                       {currentEp.params.map((p, i) => (
                         <tr key={i}>
-                          <td className="py-2 px-3 font-mono font-semibold text-teal-700">{p.name}</td>
+                          <td className="py-2 px-3 font-mono font-semibold text-teal-700">
+                            {p.name}
+                          </td>
                           <td className="py-2 px-3 text-slate-500">{p.type}</td>
                           <td className="py-2 px-3 text-slate-700">{p.desc}</td>
                         </tr>
@@ -300,7 +356,8 @@ export const PublicApiDocs = () => {
                   </pre>
                 ) : (
                   <div className="text-slate-500 italic">
-                    Click &quot;Test Endpoint Live&quot; to invoke this API route and view real response data.
+                    Click &quot;Test Endpoint Live&quot; to invoke this API
+                    route and view real response data.
                   </div>
                 )}
               </div>
