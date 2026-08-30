@@ -14,14 +14,7 @@ export const transcribeAudioWithSarvam = async ({
 }) => {
   const apiKey = process.env.SARVAM_API_KEY;
 
-  console.log("--------------------------------------------------");
-  console.log("🎙️ [Sarvam STT Request]");
-  console.log(`🗣️ Target Language: ${language_code || "unknown (auto-detect)"}`);
-  console.log(`🤖 Model: ${model || "saarika:v2.5"}`);
-  console.log(`📦 Audio Size: ${audioBuffer?.length || 0} bytes (${mimetype})`);
-
   if (!apiKey || apiKey === "your_sarvam_api_key_here") {
-    console.warn("⚠️ SARVAM_API_KEY is not configured in server/.env");
     return {
       success: false,
       transcript: "",
@@ -52,8 +45,7 @@ export const transcribeAudioWithSarvam = async ({
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ [Sarvam STT API Error] HTTP ${response.status}:`, errorText);
+      const errorText = await response.text().catch(() => "");
       return {
         success: false,
         transcript: "",
@@ -62,7 +54,6 @@ export const transcribeAudioWithSarvam = async ({
     }
 
     const data = await response.json();
-    console.log(`✅ [Sarvam STT Success] Transcribed: "${data.transcript}" (Lang: ${data.language_code})`);
 
     return {
       success: true,
@@ -70,7 +61,6 @@ export const transcribeAudioWithSarvam = async ({
       language_code: data.language_code || language_code,
     };
   } catch (err) {
-    console.error("❌ [Sarvam STT Fetch Exception]:", err.message);
     return {
       success: false,
       transcript: "",
@@ -78,3 +68,4 @@ export const transcribeAudioWithSarvam = async ({
     };
   }
 };
+

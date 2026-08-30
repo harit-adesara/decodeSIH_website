@@ -49,7 +49,6 @@ const processLocations = async (locations, reports, advisories) => {
       });
 
       if (!llmResponse.ok) {
-        console.warn(`LLM API returned ${llmResponse.status} for: ${state}, ${city}, ${area}`);
         continue;
       }
 
@@ -57,7 +56,6 @@ const processLocations = async (locations, reports, advisories) => {
       const llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
 
       if (!llmOutput) {
-        console.warn(`Empty LLM output for: ${state}, ${city}, ${area}`);
         continue;
       }
 
@@ -105,8 +103,8 @@ const processLocations = async (locations, reports, advisories) => {
         });
         generatedAlerts.push(newAlert);
       }
-    } catch (err) {
-      console.warn(`Failed to process ${state}, ${city}, ${area}:`, err.message);
+    } catch {
+      // Continue to next location if one fails
     }
   }
 

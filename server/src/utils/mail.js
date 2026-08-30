@@ -84,11 +84,6 @@ export const sendEmail = async (option) => {
 
   if (!oauth2Client) {
     if (process.env.NODE_ENV !== "production") {
-      console.log("\n==================== 📧 DEV MAIL SERVICE (NO GOOGLE API CONFIGURED) ====================");
-      console.log(`To: ${option.email}`);
-      console.log(`Subject: ${option.subject}`);
-      if (emailTextual) console.log(`Text Preview:\n${emailTextual.slice(0, 300)}...`);
-      console.log("=========================================================================================\n");
       return { devFallback: true, sent: true };
     }
     throw new Error(
@@ -109,12 +104,9 @@ export const sendEmail = async (option) => {
       },
     });
 
-    console.log(`✅ Email sent successfully to ${option.email} via Google Gmail API (ID: ${response.data.id})`);
     return { success: true, messageId: response.data.id };
   } catch (error) {
-    console.error(`❌ Google Gmail API Error for ${option.email}:`, error.message);
     if (process.env.NODE_ENV !== "production") {
-      console.warn("⚠️ Continuing request despite Gmail API error (Development Mode).");
       return { devFallback: true, sent: false, error: error.message };
     }
     throw error;

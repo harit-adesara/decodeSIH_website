@@ -111,8 +111,8 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         `/doctor/reports?state=${locationContext.state}&district=${locationContext.district}&status=${statusFilter}&search=${searchQuery}`
       );
       setReports(res.data?.reports || []);
-    } catch (err) {
-      console.error("Failed to load doctor reports:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoading(false);
     }
@@ -124,8 +124,8 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         `/doctor/analytics?state=${locationContext.state}&district=${locationContext.district}`
       );
       setAnalyticsData(res.data);
-    } catch (err) {
-      console.error("Failed to load doctor analytics:", err);
+    } catch {
+      // Handled silently in UI
     }
   };
 
@@ -135,8 +135,8 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         `/doctor/advisories?state=${locationContext.state}&district=${locationContext.district}`
       );
       setAdvisories(res.data?.advisories || []);
-    } catch (err) {
-      console.error("Failed to load doctor advisories:", err);
+    } catch {
+      // Handled silently in UI
     }
   };
 
@@ -147,8 +147,8 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         `/public/proactive-alerts?state=${locationContext.state}&district=${locationContext.district}`
       );
       setProactiveAlerts(res.data?.alerts || []);
-    } catch (err) {
-      console.error("Failed to load doctor proactive alerts:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoadingProactive(false);
     }

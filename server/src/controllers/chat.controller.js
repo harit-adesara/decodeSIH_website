@@ -157,8 +157,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
     if (!botContent) {
       throw new Error("Empty response from Python chatbot");
     }
-  } catch (err) {
-    console.warn("⚠️ Python chatbot unavailable, using fallback engine:", err.message);
+  } catch {
     source = "fallback_engine";
 
     const fallbackResult = await triageUserSymptomQuery({

@@ -166,14 +166,7 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
   const filteredHistory = filterOneDayHistory(chat_history);
   const guideLlmUrl = process.env.GUIDE_LLM_URL;
 
-  console.log("--------------------------------------------------");
-  console.log("🧭 [Guide LLM Request]");
-  console.log(`📡 URL: ${guideLlmUrl || "NOT_SET (Missing in server/.env)"}`);
-  console.log(`💬 Message: "${trimmedMessage}"`);
-  console.log(`📜 Chat History (Filtered 1-Day): ${filteredHistory.length} message(s)`);
-
   if (!guideLlmUrl || !guideLlmUrl.trim()) {
-    console.error("❌ [Guide LLM Error] GUIDE_LLM_URL is not set in server/.env");
     return {
       success: false,
       response: "GUIDE_LLM_URL is not configured in server/.env. Please specify your Guide LLM API URL in server/.env file.",
@@ -186,8 +179,6 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
       message: trimmedMessage,
       chat_history: filteredHistory,
     };
-  
-    console.log("📤 Sending payload to Guide LLM:", JSON.stringify(payload, null, 2));
 
     const externalRes = await fetch(guideLlmUrl.trim(), {
       method: "POST",
@@ -196,11 +187,8 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
       signal: AbortSignal.timeout(120000), // 2 min timeout
     });
 
-    console.log(`📥 Guide LLM responded with HTTP status: ${externalRes.status} ${externalRes.statusText}`);
-
     if (!externalRes.ok) {
       const errorText = await externalRes.text().catch(() => "");
-      console.error(`❌ [Guide LLM Error] External service returned ${externalRes.status}:`, errorText);
       return {
         success: false,
         response: `Guide LLM service returned HTTP ${externalRes.status}: ${errorText || externalRes.statusText}`,
@@ -209,7 +197,6 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
     }
 
     const data = await externalRes.json();
-    console.log("✅ [Guide LLM Response Payload]:", data);
 
     const guideText =
       data?.response ??
@@ -232,8 +219,7 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
       response: JSON.stringify(data),
       source: "external_guide_llm",
     };
-  } catch (err) {
-    console.error("❌ [Guide LLM Fetch Exception]:", err.message);
+  } catch {
     return {
       success: false,
       response: `Failed to connect to Guide LLM`,
@@ -241,4 +227,5 @@ export const generateWebsiteGuideResponse = async ({ message, chat_history = [] 
     };
   }
 };
+
 

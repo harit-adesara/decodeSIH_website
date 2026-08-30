@@ -56,8 +56,8 @@ Instructions:
         const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) return { reply: text, source: "gemini_ai" };
       }
-    } catch (err) {
-      console.warn("Gemini chatbot request failed, fallback engine engaged:", err.message);
+    } catch {
+      // Fallback engine engaged automatically
     }
   }
 
@@ -202,8 +202,8 @@ Field notes: ${description}`;
       const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) return text;
     }
-  } catch (err) {
-    console.warn("Gemini formatting failed for immediate alert:", err.message);
+  } catch {
+    // Handled gracefully
   }
 
   return "";

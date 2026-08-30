@@ -105,8 +105,8 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
       } else {
         setMessages([]);
       }
-    } catch (e) {
-      console.warn("Failed to load guide chat history:", e);
+    } catch {
+      // Handled silently
     }
   }, [storageKey]);
 
@@ -115,8 +115,8 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
     if (messages.length > 0) {
       try {
         localStorage.setItem(storageKey, JSON.stringify(messages));
-      } catch (e) {
-        console.warn("Failed to persist guide history:", e);
+      } catch {
+        // Handled silently
       }
     }
   }, [messages, storageKey]);
@@ -222,7 +222,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
 
       setMessages([...newMessagesList, botMessage]);
     } catch (err) {
-      console.error("Guide LLM error:", err);
       const errorDetail =
         err.response?.data?.response ||
         err.response?.data?.message ||
@@ -287,8 +286,7 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
       timerRef.current = setInterval(() => {
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
-    } catch (err) {
-      console.error("Microphone access failed:", err);
+    } catch {
       alert("Microphone access was denied or is not supported in this browser.");
     }
   };
@@ -328,7 +326,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
         setInputText(msg);
       }
     } catch (err) {
-      console.error("Sarvam STT failed:", err);
       const errMsg = err.response?.data?.message || err.response?.data?.error || err.message || "Could not transcribe speech.";
       setInputText(`STT Error: ${errMsg}`);
     } finally {

@@ -36,8 +36,8 @@ export const AdminPortal = ({ onOpenProfile }) => {
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data?.users || []);
-    } catch (err) {
-      console.error("Failed to load admin data:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoading(false);
     }

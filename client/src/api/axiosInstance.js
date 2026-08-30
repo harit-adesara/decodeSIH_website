@@ -45,7 +45,6 @@ axiosInstance.interceptors.response.use(
 
     // Auto logout on 401 if token expired
     if (error.response?.status === 401 && localStorage.getItem("bharat_token")) {
-      console.warn("Session expired or unauthorized. Clearing local credentials.");
       localStorage.removeItem("bharat_token");
       localStorage.removeItem("bharat_user");
     }

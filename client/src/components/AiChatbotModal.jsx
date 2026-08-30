@@ -84,8 +84,8 @@ export const AiChatbotModal = ({
       const res = await axiosInstance.get("/chat/conversations");
       const convs = res.data?.conversations || res.data || [];
       setConversations(convs);
-    } catch (err) {
-      console.error("Failed to fetch conversations:", err);
+    } catch {
+      // Handled silently
     } finally {
       setIsLoadingConversations(false);
     }
@@ -126,8 +126,8 @@ export const AiChatbotModal = ({
 
       setHasMore(pageNum < (data.totalPages || 1));
       setPage(pageNum);
-    } catch (err) {
-      console.error("Failed to fetch messages:", err);
+    } catch {
+      // Handled silently
     } finally {
       setIsLoadingMessages(false);
     }
@@ -142,8 +142,8 @@ export const AiChatbotModal = ({
         setConversations((prev) => [newConv, ...prev]);
         selectConversation(newConv);
       }
-    } catch (err) {
-      console.error("Failed to create conversation:", err);
+    } catch {
+      // Handled silently
     }
   };
 
@@ -158,8 +158,8 @@ export const AiChatbotModal = ({
           setMessages([]);
           setShowSidebar(true);
         }
-      } catch (err) {
-        console.error("Failed to delete conversation:", err);
+      } catch {
+        // Handled silently
       }
       setDeleteConfirmId(null);
     } else {
@@ -185,8 +185,7 @@ export const AiChatbotModal = ({
           setConversations((prev) => [newConv, ...prev]);
           setShowSidebar(false);
         }
-      } catch (err) {
-        console.error("Failed to create conversation:", err);
+      } catch {
         return;
       }
     }
@@ -321,8 +320,8 @@ export const AiChatbotModal = ({
         );
       }
       setShowLocationPicker(false);
-    } catch (err) {
-      console.error("Failed to update location:", err);
+    } catch {
+      // Handled silently
     } finally {
       setIsUpdatingLocation(false);
     }

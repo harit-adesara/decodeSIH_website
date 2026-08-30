@@ -6,10 +6,9 @@ const connectDB = async () => {
     const connectionInstance = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
-    console.log(`\n✅ MongoDB Connected! DB Host: ${connectionInstance.connection.host}`);
+    console.log(`✅ MongoDB Connected (${connectionInstance.connection.host})`);
   } catch (error) {
     console.error("❌ MongoDB connection error:", error.message);
-    console.log("⚠️ Running in offline/fallback mode. Ensure MongoDB is active on", process.env.MONGODB_URI);
   }
 };
 

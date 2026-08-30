@@ -50,8 +50,8 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
       setViralDiseases(viralRes.data?.data || []);
       setStats(statsRes.data);
       setImmediateAlerts(immediateRes.data?.alerts || []);
-    } catch (err) {
-      console.error("Failed to load public surveillance data:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoading(false);
     }

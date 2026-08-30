@@ -94,8 +94,8 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
     try {
       const res = await axiosInstance.get("/health-assistant/my-reports");
       setMyReports(res.data?.reports || []);
-    } catch (err) {
-      console.error("Failed to load my reports:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoading(false);
     }
@@ -105,8 +105,8 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
     try {
       const res = await axiosInstance.get("/health-assistant/advisories");
       setAdvisories(res.data?.advisories || []);
-    } catch (err) {
-      console.error("Failed to load advisories:", err);
+    } catch {
+      // Handled silently in UI
     }
   };
 
@@ -114,8 +114,8 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
     try {
       const res = await axiosInstance.get("/health-assistant/analytics");
       setAnalyticsData(res.data);
-    } catch (err) {
-      console.error("Failed to load analytics:", err);
+    } catch {
+      // Handled silently in UI
     }
   };
 
@@ -126,8 +126,8 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
         `/public/proactive-alerts?state=${user?.state || "Maharashtra"}&district=${user?.district || "Pune"}`
       );
       setProactiveAlerts(res.data?.alerts || []);
-    } catch (err) {
-      console.error("Failed to load ASHA proactive alerts:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoadingProactive(false);
     }

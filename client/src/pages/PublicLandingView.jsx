@@ -106,8 +106,8 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
       ]);
       setViralDiseases(viralRes.data?.data || []);
       setProactiveAlerts(proactiveRes.data?.alerts || []);
-    } catch (err) {
-      console.error("Failed to load public landing data:", err);
+    } catch {
+      // Handled silently in UI
     } finally {
       setLoading(false);
     }

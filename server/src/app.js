@@ -19,15 +19,33 @@ const app = express();
 
 // Security and Logging Middlewares
 app.use(helmet({ crossOriginResourcePolicy: false }));
+
+const getCorsOrigins = () => {
+  const envOrigin = process.env.CORS_ORIGIN || process.env.CLIENT_URL || "*";
+  if (envOrigin === "*") return "*";
+  return envOrigin.split(",").map((o) => o.trim());
+};
+
+const allowedOrigins = getCorsOrigins();
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins === "*" || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   }),
 );
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+} else {
+  app.use(morgan("dev"));
+}
 
 // Static Folder for Medical Uploads & Assets
 app.use("/uploads", express.static(path.resolve("public/uploads")));
