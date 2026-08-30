@@ -9,8 +9,6 @@ import {
   Bot,
   User,
   RotateCcw,
-  Volume2,
-  VolumeX,
   Globe,
   Loader2,
   Radio,
@@ -80,7 +78,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState("unknown");
-  const [speakingMsgId, setSpeakingMsgId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -132,9 +129,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
   useEffect(() => {
     return () => {
       stopRecordingCleanup();
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
     };
   }, []);
 
@@ -157,10 +151,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
   const handleClearHistory = () => {
     setMessages([]);
     localStorage.removeItem(storageKey);
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    setSpeakingMsgId(null);
   };
 
   // 1-Day chat history builder for API call
@@ -243,11 +233,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
 
   // Start Audio Recording for Sarvam STT
   const startRecording = async () => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-    setSpeakingMsgId(null);
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
@@ -331,37 +316,6 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
     } finally {
       setIsTranscribing(false);
     }
-  };
-
-  // Text-To-Speech playback toggle for guide response
-  const toggleSpeak = (msg) => {
-    if (!("speechSynthesis" in window)) return;
-
-    if (speakingMsgId === msg.id) {
-      window.speechSynthesis.cancel();
-      setSpeakingMsgId(null);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    // Clean markdown characters for pleasant speech
-    const cleanText = msg.content
-      .replace(/[#*_`~>-]/g, " ")
-      .replace(/\[(.*?)\]\(.*?\)/g, "$1")
-      .trim();
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 0.95;
-
-    // Detect Hindi or English voice
-    const isHindi = /[\u0900-\u097F]/.test(cleanText);
-    utterance.lang = isHindi ? "hi-IN" : "en-IN";
-
-    utterance.onend = () => setSpeakingMsgId(null);
-    utterance.onerror = () => setSpeakingMsgId(null);
-
-    setSpeakingMsgId(msg.id);
-    window.speechSynthesis.speak(utterance);
   };
 
   const copyToClipboard = (text, id) => {
@@ -532,7 +486,7 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
                   <div>
                     <MarkdownRenderer content={msg.content} className="text-slate-800" />
 
-                    {/* Actions on Assistant reply: Speak, Copy */}
+                    {/* Actions on Assistant reply: Copy */}
                     <div className="flex items-center justify-between gap-3 mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-400">
                       <span className="flex items-center gap-1 font-mono text-[10px]">
                         {msg.timestamp
@@ -545,36 +499,14 @@ export const WebsiteGuideModal = ({ isOpen, onClose, onOpenEmergency, onOpenChat
 
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => toggleSpeak(msg)}
-                          className={`p-1 rounded hover:bg-slate-100 transition-colors flex items-center gap-1 text-[11px] ${
-                            speakingMsgId === msg.id
-                              ? "text-teal-600 font-bold bg-teal-50"
-                              : "text-slate-500"
-                          }`}
-                          title="Listen to response (TTS)"
-                        >
-                          {speakingMsgId === msg.id ? (
-                            <>
-                              <VolumeX className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-                              <span>Stop</span>
-                            </>
-                          ) : (
-                            <>
-                              <Volume2 className="w-3.5 h-3.5" />
-                              <span>Listen</span>
-                            </>
-                          )}
-                        </button>
-
-                        <button
                           onClick={() => copyToClipboard(msg.content, msg.id)}
-                          className="p-1 rounded hover:bg-slate-100 text-slate-500 transition-colors flex items-center gap-1 text-[11px]"
+                          className="p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 text-[11px]"
                           title="Copy response"
                         >
                           {copiedId === msg.id ? (
                             <>
                               <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              <span className="text-emerald-600">Copied</span>
+                              <span className="text-emerald-600 font-medium">Copied</span>
                             </>
                           ) : (
                             <>
