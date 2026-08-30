@@ -5,10 +5,11 @@ import { User } from "../models/User.js";
 import { Report } from "../models/Report.js";
 import { Advisory } from "../models/Advisory.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
+import { HospitalWard } from "../models/HospitalWard.js";
 import { sendEmail, welcomeStaffEmailTemplate } from "../utils/mail.js";
 
 /**
- * @desc    Admin creates Doctor or Health Assistant account
+ * @desc    Admin creates Doctor, Health Assistant, or Hospital account
  * @route   POST /api/v1/admin/create-user
  * @access  Private (Admin only)
  */
@@ -26,8 +27,8 @@ export const createUserByAdmin = asyncHandler(async (req, res) => {
     hospitalOrClinic,
   } = req.body;
 
-  if (!["doctor", "health_assistant"].includes(role)) {
-    throw new ApiError(400, "Admin can only create accounts with role 'doctor' or 'health_assistant'.");
+  if (!["doctor", "health_assistant", "hospital"].includes(role)) {
+    throw new ApiError(400, "Admin can only create accounts with role 'doctor', 'health_assistant', or 'hospital'.");
   }
 
   const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -45,15 +46,22 @@ export const createUserByAdmin = asyncHandler(async (req, res) => {
     city: city || "All",
     phone: phone || "",
     qualification: qualification || "",
-    hospitalOrClinic: hospitalOrClinic || "",
+    hospitalOrClinic: hospitalOrClinic || (role === "hospital" ? name : ""),
     createdBy: req.user._id,
     isEmailVerified: true,
   });
 
+  const roleTitle =
+    role === "doctor"
+      ? "Doctor"
+      : role === "hospital"
+      ? "Hospital / Healthcare Facility"
+      : "Health Assistant";
+
   // Dispatch welcome email with login credentials
   await sendEmail({
     email: newUser.email,
-    subject: `Official ${role === "doctor" ? "Doctor" : "Health Assistant"} Account Created - Bharat Swasthya AI`,
+    subject: `Official ${roleTitle} Account Created - Bharat Swasthya AI`,
     html: welcomeStaffEmailTemplate(newUser.name, newUser.email, newUser.role, password),
     text: `Namaste ${newUser.name},\n\nYour ${role} account has been created on Bharat Swasthya AI.\nLogin Email: ${newUser.email}\nPassword: ${password}`,
   });
@@ -76,7 +84,7 @@ export const createUserByAdmin = asyncHandler(async (req, res) => {
     new ApiResponse(
       201,
       { user: responseUser },
-      `${role === "doctor" ? "Doctor" : "Health Assistant"} account created successfully.`
+      `${roleTitle} account created successfully.`
     )
   );
 });
@@ -90,7 +98,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   const { role, state, district, search } = req.query;
 
   const query = {};
-  if (role) query.role = role;
+  if (role && role !== "All") query.role = role;
   if (state && state !== "All") query.state = state;
   if (district && district !== "All") query.district = district;
   if (search) {
@@ -98,6 +106,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
       { name: { $regex: search, $options: "i" } },
       { email: { $regex: search, $options: "i" } },
       { city: { $regex: search, $options: "i" } },
+      { hospitalOrClinic: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -120,6 +129,7 @@ export const getAdminSystemStats = asyncHandler(async (req, res) => {
   const [
     totalDoctors,
     totalHealthAssistants,
+    totalHospitals,
     totalUsers,
     totalReports,
     labeledReports,
@@ -127,9 +137,11 @@ export const getAdminSystemStats = asyncHandler(async (req, res) => {
     viralReports,
     activeAdvisories,
     activeAlerts,
+    wardStats,
   ] = await Promise.all([
     User.countDocuments({ role: "doctor" }),
     User.countDocuments({ role: "health_assistant" }),
+    User.countDocuments({ role: "hospital" }),
     User.countDocuments({ role: "user" }),
     Report.countDocuments(),
     Report.countDocuments({ status: "verified_labeled" }),
@@ -137,7 +149,21 @@ export const getAdminSystemStats = asyncHandler(async (req, res) => {
     Report.countDocuments({ isViral: true }),
     Advisory.countDocuments({ isActive: true }),
     ProactiveAlert.countDocuments({ isActive: true }),
+    HospitalWard.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: null,
+          totalWards: { $sum: 1 },
+          totalBeds: { $sum: "$totalBeds" },
+          vacantBeds: { $sum: "$vacantBeds" },
+        },
+      },
+    ]),
   ]);
+
+  const bedCapacity = wardStats[0] || { totalWards: 0, totalBeds: 0, vacantBeds: 0 };
+  bedCapacity.occupiedBeds = Math.max(0, bedCapacity.totalBeds - bedCapacity.vacantBeds);
 
   return res.status(200).json(
     new ApiResponse(
@@ -146,8 +172,9 @@ export const getAdminSystemStats = asyncHandler(async (req, res) => {
         users: {
           doctors: totalDoctors,
           healthAssistants: totalHealthAssistants,
+          hospitals: totalHospitals,
           citizens: totalUsers,
-          total: totalDoctors + totalHealthAssistants + totalUsers + 1,
+          total: totalDoctors + totalHealthAssistants + totalHospitals + totalUsers + 1,
         },
         reports: {
           total: totalReports,
@@ -159,6 +186,7 @@ export const getAdminSystemStats = asyncHandler(async (req, res) => {
           activeAdvisories,
           activeAlerts,
         },
+        beds: bedCapacity,
       },
       "Admin platform statistics retrieved."
     )

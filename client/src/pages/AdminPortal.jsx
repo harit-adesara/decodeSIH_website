@@ -13,11 +13,15 @@ import {
   UserCheck,
   UserX,
   Play,
+  Building2,
+  Bed,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import CreateStaffModal from "../components/CreateStaffModal";
+import HospitalBedExplorer from "../components/HospitalBedExplorer";
 
 export const AdminPortal = ({ onOpenProfile }) => {
+  const [activeAdminTab, setActiveAdminTab] = useState("users"); // 'users' | 'hospitals'
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +29,6 @@ export const AdminPortal = ({ onOpenProfile }) => {
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [triggeringAi, setTriggeringAi] = useState(false);
   const [aiMessage, setAiMessage] = useState("");
-
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -79,10 +82,10 @@ export const AdminPortal = ({ onOpenProfile }) => {
             <Shield className="w-4 h-4 text-purple-600" /> National Health Command Center
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
-            System Administration & Staff Management
+            System Administration & Hospital Operations
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
-            Ministry of Health & Family Welfare • National Disease Surveillance System
+            Ministry of Health & Family Welfare • National Disease Surveillance & Hospital Network
           </p>
         </div>
 
@@ -99,9 +102,8 @@ export const AdminPortal = ({ onOpenProfile }) => {
             onClick={() => setShowStaffModal(true)}
             className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm active:scale-95 transition-all"
           >
-            <UserPlus className="w-4 h-4" /> Provision Medical Staff
+            <UserPlus className="w-4 h-4" /> Provision Staff / Hospital
           </button>
-
 
           <button
             onClick={handleTriggerProactiveEngine}
@@ -122,10 +124,20 @@ export const AdminPortal = ({ onOpenProfile }) => {
       )}
 
       {/* Stats Counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-            <Stethoscope className="w-3.5 h-3.5 text-blue-600" /> Registered Doctors
+            <Building2 className="w-3.5 h-3.5 text-purple-600" /> Hospitals
+          </div>
+          <div className="text-2xl font-bold font-display text-slate-900 mt-1">
+            {stats?.users?.hospitals || 0}
+          </div>
+          <div className="text-[11px] text-purple-700 font-medium">Healthcare facilities</div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+            <Stethoscope className="w-3.5 h-3.5 text-blue-600" /> Doctors
           </div>
           <div className="text-2xl font-bold font-display text-slate-900 mt-1">
             {stats?.users?.doctors || 0}
@@ -135,22 +147,22 @@ export const AdminPortal = ({ onOpenProfile }) => {
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-            <HeartHandshake className="w-3.5 h-3.5 text-teal-600" /> Health Assistants
+            <HeartHandshake className="w-3.5 h-3.5 text-teal-600" /> ASHA Workers
           </div>
           <div className="text-2xl font-bold font-display text-slate-900 mt-1">
             {stats?.users?.healthAssistants || 0}
           </div>
-          <div className="text-[11px] text-teal-700 font-medium">Field ASHA workers</div>
+          <div className="text-[11px] text-teal-700 font-medium">Field assistants</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Verified Reports
+            <Bed className="w-3.5 h-3.5 text-emerald-600" /> Vacant Beds
           </div>
           <div className="text-2xl font-bold font-display text-emerald-700 mt-1">
-            {stats?.reports?.labeled || 0}
+            {stats?.beds?.vacantBeds || 0}
           </div>
-          <div className="text-[11px] text-slate-500">Of {stats?.reports?.total || 0} total cases</div>
+          <div className="text-[11px] text-slate-500">Of {stats?.beds?.totalBeds || 0} capacity</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
@@ -164,114 +176,154 @@ export const AdminPortal = ({ onOpenProfile }) => {
         </div>
       </div>
 
-      {/* Staff Management Table */}
-      <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-600" /> User Directory & RBAC Roles
-            </h3>
-            <p className="text-xs text-slate-500">
-              Manage Doctor, Health Assistant, and Citizen accounts in the database
-            </p>
-          </div>
+      {/* Admin Sub-Tabs Navigation */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-200/70 max-w-md text-xs font-bold">
+        <button
+          onClick={() => setActiveAdminTab("users")}
+          className={`flex-1 py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
+            activeAdminTab === "users"
+              ? "bg-white text-purple-700 shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>User Directory & Roles</span>
+        </button>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-semibold">Filter:</span>
-            {["All", "doctor", "health_assistant", "user"].map((r) => (
+        <button
+          onClick={() => setActiveAdminTab("hospitals")}
+          className={`flex-1 py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
+            activeAdminTab === "hospitals"
+              ? "bg-white text-teal-700 shadow-sm"
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Hospital Beds Explorer</span>
+        </button>
+      </div>
+
+      {/* TAB 1: USER & RBAC MANAGEMENT */}
+      {activeAdminTab === "users" && (
+        <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
+                <Users className="w-5 h-5 text-purple-600" /> User Directory & RBAC Roles
+              </h3>
+              <p className="text-xs text-slate-500">
+                Manage Hospital, Doctor, Health Assistant, and Citizen accounts in the national database
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-slate-500 font-semibold">Filter:</span>
+              {["All", "hospital", "doctor", "health_assistant", "user"].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRoleFilter(r)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all ${
+                    roleFilter === r
+                      ? "bg-purple-50 text-purple-700 border border-purple-300 font-bold"
+                      : "bg-slate-100 text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {r.replace("_", " ")}
+                </button>
+              ))}
               <button
-                key={r}
-                onClick={() => setRoleFilter(r)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all ${
-                  roleFilter === r
-                    ? "bg-purple-50 text-purple-700 border border-purple-300 font-bold"
-                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
-                }`}
+                onClick={fetchAdminData}
+                className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200"
               >
-                {r.replace("_", " ")}
+                <RefreshCw className="w-4 h-4" />
               </button>
-            ))}
-            <button
-              onClick={fetchAdminData}
-              className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
+            </div>
           </div>
-        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-3">Name & Email</th>
-                <th className="py-3 px-3">Role</th>
-                <th className="py-3 px-3">Jurisdiction</th>
-                <th className="py-3 px-3">Facility / Qualification</th>
-                <th className="py-3 px-3">Status</th>
-                <th className="py-3 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {users.map((u) => (
-                <tr key={u._id} className="hover:bg-slate-50/70">
-                  <td className="py-3 px-3">
-                    <div className="font-semibold text-slate-900">{u.name}</div>
-                    <div className="text-[11px] text-slate-500 font-mono">{u.email}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${
-                        u.role === "admin"
-                          ? "bg-purple-50 text-purple-700 border-purple-200"
-                          : u.role === "doctor"
-                          ? "bg-blue-50 text-blue-700 border-blue-200"
-                          : u.role === "health_assistant"
-                          ? "bg-teal-50 text-teal-700 border-teal-200"
-                          : "bg-slate-100 text-slate-700 border-slate-200"
-                      }`}
-                    >
-                      {u.role.replace("_", " ")}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-slate-700">
-                    📍 {u.city !== "All" ? `${u.city}, ` : ""}{u.district}, {u.state}
-                  </td>
-                  <td className="py-3 px-3 text-slate-600">
-                    <div>{u.hospitalOrClinic || "National Public Health"}</div>
-                    <div className="text-[11px] text-slate-400">{u.qualification}</div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        u.isActive
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-rose-50 text-rose-700 border-rose-200"
-                      }`}
-                    >
-                      {u.isActive ? "Active" : "Deactivated"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-right">
-                    {u.role !== "admin" && (
-                      <button
-                        onClick={() => handleToggleUser(u._id)}
-                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all ${
-                          u.isActive
-                            ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                            : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="text-slate-600 uppercase bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-3">Name & Email</th>
+                  <th className="py-3 px-3">Role</th>
+                  <th className="py-3 px-3">Jurisdiction</th>
+                  <th className="py-3 px-3">Facility / Qualification</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {users.map((u) => (
+                  <tr key={u._id} className="hover:bg-slate-50/70">
+                    <td className="py-3 px-3">
+                      <div className="font-semibold text-slate-900">{u.name}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">{u.email}</div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${
+                          u.role === "admin"
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : u.role === "hospital"
+                            ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                            : u.role === "doctor"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : u.role === "health_assistant"
+                            ? "bg-teal-50 text-teal-700 border-teal-200"
+                            : "bg-slate-100 text-slate-700 border-slate-200"
                         }`}
                       >
-                        {u.isActive ? "Deactivate" : "Activate"}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {u.role.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-slate-700">
+                      📍 {u.city !== "All" ? `${u.city}, ` : ""}{u.district}, {u.state}
+                    </td>
+                    <td className="py-3 px-3 text-slate-600">
+                      <div>{u.hospitalOrClinic || "National Public Health"}</div>
+                      <div className="text-[11px] text-slate-400">{u.qualification}</div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          u.isActive
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-rose-50 text-rose-700 border-rose-200"
+                        }`}
+                      >
+                        {u.isActive ? "Active" : "Deactivated"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      {u.role !== "admin" && (
+                        <button
+                          onClick={() => handleToggleUser(u._id)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all ${
+                            u.isActive
+                              ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                              : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                          }`}
+                        >
+                          {u.isActive ? "Deactivate" : "Activate"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* TAB 2: HOSPITAL BEDS & REGIONAL CAPACITY VIEWER */}
+      {activeAdminTab === "hospitals" && (
+        <HospitalBedExplorer
+          title="National Hospital Capacity & Ward Bed Surveillance"
+          subtitle="Inspect bed occupancy, ICU capacity, and pricing per ward across all Indian states, districts, and cities."
+          roleContext="admin"
+        />
+      )}
 
       {showStaffModal && (
         <CreateStaffModal
@@ -285,3 +337,4 @@ export const AdminPortal = ({ onOpenProfile }) => {
 };
 
 export default AdminPortal;
+

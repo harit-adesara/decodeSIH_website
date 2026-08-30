@@ -23,8 +23,8 @@ export const createUserValidator = [
     .trim()
     .notEmpty()
     .withMessage("Role is required")
-    .isIn(["doctor", "health_assistant"])
-    .withMessage("Created role must be either 'doctor' or 'health_assistant'"),
+    .isIn(["doctor", "health_assistant", "hospital"])
+    .withMessage("Created role must be either 'doctor', 'health_assistant', or 'hospital'"),
   body("state").trim().notEmpty().withMessage("State assignment is required"),
   body("district").trim().notEmpty().withMessage("District assignment is required"),
   body("city").trim().notEmpty().withMessage("City assignment is required"),

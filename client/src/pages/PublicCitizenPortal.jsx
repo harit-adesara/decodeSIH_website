@@ -17,6 +17,7 @@ import LocationFilter from "../components/LocationFilter";
 import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import LanguageSelectorButton from "../components/LanguageSelectorButton";
+import HospitalBedExplorer from "../components/HospitalBedExplorer";
 import { useAuth } from "../context/AuthContext";
 
 export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile, onOpenChatWithPrompt }) => {
@@ -348,6 +349,18 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             {locationContext.state}. Maintain regular hygiene.
           </div>
         )}
+      </section>
+
+      {/* Real-Time Hospital Bed & Ward Availability Section */}
+      <section className="space-y-4">
+        <HospitalBedExplorer
+          initialState={locationContext.state}
+          initialDistrict={locationContext.district}
+          initialCity={locationContext.city}
+          roleContext="citizen"
+          title={`Hospital Bed Availability in ${locationContext.district}, ${locationContext.state}`}
+          subtitle="Check real-time ward capacity, vacant ICU beds, and daily per-bed charges across public and private hospitals."
+        />
       </section>
 
       {/* Immediate Viral Alerts */}

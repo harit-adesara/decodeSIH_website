@@ -12,6 +12,7 @@ import {
   User,
   MapPin,
   Building,
+  Building2,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
@@ -127,48 +128,70 @@ export const CreateStaffModal = ({ isOpen, onClose, onCreated }) => {
               <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Account Role *
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "doctor" })}
-                  className={`p-3 rounded-xl border flex items-center gap-2.5 font-semibold text-xs transition-all ${
+                  className={`p-2.5 rounded-xl border flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 font-semibold text-xs transition-all ${
                     formData.role === "doctor"
                       ? "bg-blue-50 text-blue-700 border-blue-300 shadow-sm"
                       : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                   }`}
                 >
-                  <Stethoscope className="w-4 h-4 text-blue-600" />
-                  Medical Doctor
+                  <Stethoscope className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="truncate">Doctor</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "health_assistant" })}
-                  className={`p-3 rounded-xl border flex items-center gap-2.5 font-semibold text-xs transition-all ${
+                  className={`p-2.5 rounded-xl border flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 font-semibold text-xs transition-all ${
                     formData.role === "health_assistant"
                       ? "bg-teal-50 text-teal-700 border-teal-300 shadow-sm"
                       : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                   }`}
                 >
-                  <HeartHandshake className="w-4 h-4 text-teal-600" />
-                  Health Assistant (ASHA)
+                  <HeartHandshake className="w-4 h-4 text-teal-600 shrink-0" />
+                  <span className="truncate">ASHA Worker</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: "hospital" })}
+                  className={`p-2.5 rounded-xl border flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 font-semibold text-xs transition-all ${
+                    formData.role === "hospital"
+                      ? "bg-purple-50 text-purple-700 border-purple-300 shadow-sm"
+                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <Building2 className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span className="truncate">Hospital</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Full Name */}
+          {/* Full Name / Hospital Name */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              {formData.role === "hospital" ? "Hospital / Healthcare Facility Name *" : "Full Name *"}
+            </label>
             <div className="relative">
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g. Dr. Ramesh Joshi / Anita Shinde"
+                placeholder={
+                  formData.role === "hospital"
+                    ? "e.g. Sassoon Multi-Speciality Hospital / Apollo Trauma Center"
+                    : "e.g. Dr. Ramesh Joshi / Anita Shinde"
+                }
                 className="w-full bg-white text-slate-800 text-xs sm:text-sm pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
               />
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              {formData.role === "hospital" ? (
+                <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              ) : (
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              )}
             </div>
           </div>
 
@@ -230,26 +253,34 @@ export const CreateStaffModal = ({ isOpen, onClose, onCreated }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Hospital / Primary Health Centre (PHC)
+                {formData.role === "hospital" ? "Facility Address / Landmark" : "Hospital / Primary Health Centre (PHC)"}
               </label>
               <input
                 type="text"
                 value={formData.hospitalOrClinic}
                 onChange={(e) => setFormData({ ...formData, hospitalOrClinic: e.target.value })}
-                placeholder="Sassoon General Hospital / PHC Hadapsar"
+                placeholder={
+                  formData.role === "hospital"
+                    ? "e.g. Near Sassoon Road, Station Area"
+                    : "Sassoon General Hospital / PHC Hadapsar"
+                }
                 className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Medical Qualification / Designation
+                {formData.role === "hospital" ? "Accreditation / Reg No." : "Medical Qualification / Designation"}
               </label>
               <input
                 type="text"
                 value={formData.qualification}
                 onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                placeholder="MBBS, MD / ANM Worker"
+                placeholder={
+                  formData.role === "hospital"
+                    ? "NABH / ISO / Tertiary Care"
+                    : "MBBS, MD / ANM Worker"
+                }
                 className="w-full bg-white text-slate-800 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
               />
             </div>

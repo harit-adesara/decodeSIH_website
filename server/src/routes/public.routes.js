@@ -9,6 +9,8 @@ import {
   getLocationsData,
   getPublicOverviewStats,
   getProactiveAdvisory,
+  getPublicHospitalBeds,
+  getPublicHospitalDetails,
 } from "../controllers/public.controller.js";
 import { handleGuideChat, handleGuideSTT } from "../controllers/guide.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
@@ -24,6 +26,8 @@ router.get("/proactive-alerts/:id", getProactiveAlertById);
 router.get("/overview-stats", getPublicOverviewStats);
 router.get("/helplines", getHelplineNumbers);
 router.get("/locations", getLocationsData);
+router.get("/hospital-beds", getPublicHospitalBeds);
+router.get("/hospitals/:id/wards", getPublicHospitalDetails);
 
 // Protected AI Chatbot Endpoint (Authenticated Users Only)
 router.post("/chatbot", verifyJWT, chatWithAiAssistant);

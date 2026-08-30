@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Report } from "../models/Report.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
+import { HospitalWard } from "../models/HospitalWard.js";
 import { triageUserSymptomQuery, generateProactiveOutbreakAdvisory } from "../services/gemini.service.js";
 import { indiaLocations } from "../data/indiaLocations.js";
 
@@ -569,3 +570,186 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
     )
   );
 });
+
+/**
+ * @desc    Get public hospital bed availability with location & ward filters
+ * @route   GET /api/v1/public/hospital-beds
+ * @access  Public
+ */
+export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
+  const {
+    state,
+    district,
+    city,
+    wardType,
+    onlyAvailable,
+    search,
+    minPrice,
+    maxPrice,
+    sort,
+  } = req.query;
+
+  const query = { isActive: true };
+
+  if (state && state !== "All") query.state = state;
+  if (district && district !== "All") query.district = district;
+  if (city && city !== "All") query.city = city;
+  if (wardType && wardType !== "All") query.wardType = wardType;
+
+  if (onlyAvailable === "true" || onlyAvailable === true) {
+    query.vacantBeds = { $gt: 0 };
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    query.pricePerDay = {};
+    if (minPrice !== undefined && minPrice !== "") query.pricePerDay.$gte = Number(minPrice);
+    if (maxPrice !== undefined && maxPrice !== "") query.pricePerDay.$lte = Number(maxPrice);
+  }
+
+  if (search) {
+    query.$or = [
+      { hospitalName: { $regex: search, $options: "i" } },
+      { wardType: { $regex: search, $options: "i" } },
+      { customWardName: { $regex: search, $options: "i" } },
+      { city: { $regex: search, $options: "i" } },
+      { district: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  let sortOption = { vacantBeds: -1, createdAt: -1 };
+  if (sort === "price_asc") sortOption = { pricePerDay: 1 };
+  if (sort === "price_desc") sortOption = { pricePerDay: -1 };
+  if (sort === "beds_desc") sortOption = { vacantBeds: -1 };
+
+  const wards = await HospitalWard.find(query).sort(sortOption);
+
+  // Group wards by Hospital Facility
+  const hospitalMap = {};
+  let totalBeds = 0;
+  let totalVacantBeds = 0;
+  let icuVacantBeds = 0;
+
+  wards.forEach((w) => {
+    totalBeds += w.totalBeds || 0;
+    totalVacantBeds += w.vacantBeds || 0;
+
+    const isIcuType =
+      w.wardType.includes("ICU") ||
+      w.wardType.includes("ICCU") ||
+      w.wardType.includes("HDU") ||
+      w.wardType.includes("Emergency");
+    if (isIcuType) {
+      icuVacantBeds += w.vacantBeds || 0;
+    }
+
+    const hospKey = String(w.hospital);
+    if (!hospitalMap[hospKey]) {
+      hospitalMap[hospKey] = {
+        hospitalId: w.hospital,
+        hospitalName: w.hospitalName,
+        state: w.state,
+        district: w.district,
+        city: w.city,
+        address: w.address,
+        phone: w.phone,
+        totalBeds: 0,
+        vacantBeds: 0,
+        minPrice: w.pricePerDay,
+        maxPrice: w.pricePerDay,
+        wards: [],
+        hasVacantBeds: false,
+      };
+    }
+
+    const h = hospitalMap[hospKey];
+    h.totalBeds += w.totalBeds;
+    h.vacantBeds += w.vacantBeds;
+    h.minPrice = Math.min(h.minPrice, w.pricePerDay);
+    h.maxPrice = Math.max(h.maxPrice, w.pricePerDay);
+    if (w.vacantBeds > 0) h.hasVacantBeds = true;
+
+    h.wards.push({
+      _id: w._id,
+      wardType: w.wardType,
+      customWardName: w.customWardName,
+      displayName: w.displayName,
+      totalBeds: w.totalBeds,
+      vacantBeds: w.vacantBeds,
+      occupiedBeds: w.occupiedBeds,
+      pricePerDay: w.pricePerDay,
+      occupancyRate: w.occupancyRate,
+      amenities: w.amenities,
+      notes: w.notes,
+      updatedAt: w.updatedAt,
+    });
+  });
+
+  const hospitalsList = Object.values(hospitalMap);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        summary: {
+          totalHospitals: hospitalsList.length,
+          totalWards: wards.length,
+          totalBeds,
+          totalVacantBeds,
+          icuVacantBeds,
+          location: {
+            state: state || "All",
+            district: district || "All",
+            city: city || "All",
+          },
+        },
+        hospitals: hospitalsList,
+        wards,
+      },
+      "Hospital bed availability retrieved successfully."
+    )
+  );
+});
+
+/**
+ * @desc    Get detailed ward breakdown for a specific hospital
+ * @route   GET /api/v1/public/hospitals/:id/wards
+ * @access  Public
+ */
+export const getPublicHospitalDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const wards = await HospitalWard.find({ hospital: id, isActive: true }).sort({
+    wardType: 1,
+  });
+
+  if (wards.length === 0) {
+    return res.status(200).json(
+      new ApiResponse(200, { hospital: null, wards: [] }, "No wards registered for this hospital.")
+    );
+  }
+
+  const first = wards[0];
+  const hospitalInfo = {
+    hospitalId: first.hospital,
+    hospitalName: first.hospitalName,
+    state: first.state,
+    district: first.district,
+    city: first.city,
+    address: first.address,
+    phone: first.phone,
+    totalBeds: wards.reduce((s, w) => s + w.totalBeds, 0),
+    vacantBeds: wards.reduce((s, w) => s + w.vacantBeds, 0),
+  };
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        hospital: hospitalInfo,
+        wards,
+      },
+      "Hospital details and wards retrieved."
+    )
+  );
+});
+

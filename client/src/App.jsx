@@ -7,6 +7,7 @@ import { EditProfileModal } from "./components/EditProfileModal";
 import { PublicCitizenPortal } from "./pages/PublicCitizenPortal";
 import { DoctorPortal } from "./pages/DoctorPortal";
 import { HealthAssistantPortal } from "./pages/HealthAssistantPortal";
+import { HospitalPortal } from "./pages/HospitalPortal";
 import { AdminPortal } from "./pages/AdminPortal";
 import { PublicApiDocs } from "./pages/PublicApiDocs";
 import { PublicLandingView } from "./pages/PublicLandingView";
@@ -71,6 +72,7 @@ export function App() {
     // Role-based main workspace when authenticated
     if (isAuthenticated) {
       if (role === "admin") return <AdminPortal onOpenProfile={() => setIsProfileOpen(true)} />;
+      if (role === "hospital") return <HospitalPortal onOpenProfile={() => setIsProfileOpen(true)} />;
       if (role === "doctor") return <DoctorPortal onOpenProfile={() => setIsProfileOpen(true)} />;
       if (role === "health_assistant") return <HealthAssistantPortal onOpenProfile={() => setIsProfileOpen(true)} />;
       return (
@@ -94,7 +96,7 @@ export function App() {
     );
   };
 
-  const isStaffOrAdmin = isAuthenticated && ["doctor", "health_assistant", "admin"].includes(role);
+  const isStaffOrAdmin = isAuthenticated && ["doctor", "health_assistant", "admin", "hospital"].includes(role);
   const showGuide = !isStaffOrAdmin;
 
   return (

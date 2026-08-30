@@ -23,6 +23,7 @@ import {
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
 import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
+import HospitalBedExplorer from "../components/HospitalBedExplorer";
 
 export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWithPrompt }) => {
   const [selectedLocation, setSelectedLocation] = useState({
@@ -292,6 +293,18 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
             {selectedLocation.state}. Maintain regular hygiene.
           </div>
         )}
+      </section>
+
+      {/* Real-Time Hospital Bed & Ward Availability Section */}
+      <section className="space-y-4">
+        <HospitalBedExplorer
+          initialState={selectedLocation.state}
+          initialDistrict={selectedLocation.district}
+          initialCity={selectedLocation.city}
+          roleContext="citizen"
+          title={`Live Hospital Bed & Ward Availability (${selectedLocation.district}, ${selectedLocation.state})`}
+          subtitle="Check real-time ward capacity, vacant ICU units, and daily per-bed charges across public and private hospitals."
+        />
       </section>
 
       {/* 24x7 Emergency Helplines Section */}

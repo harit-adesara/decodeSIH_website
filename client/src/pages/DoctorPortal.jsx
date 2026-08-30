@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   Loader2,
   X,
+  Building2,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
@@ -31,6 +32,7 @@ import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import LocationDropdowns from "../components/LocationDropdowns";
 import LanguageSelectorButton from "../components/LanguageSelectorButton";
+import HospitalBedExplorer from "../components/HospitalBedExplorer";
 import { useAuth } from "../context/AuthContext";
 
 export const DoctorPortal = ({ onOpenProfile }) => {
@@ -309,10 +311,10 @@ export const DoctorPortal = ({ onOpenProfile }) => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab("review")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "review"
               ? "bg-teal-600 text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -324,7 +326,7 @@ export const DoctorPortal = ({ onOpenProfile }) => {
 
         <button
           onClick={() => setActiveTab("analytics")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "analytics"
               ? "bg-teal-600 text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -335,8 +337,20 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         </button>
 
         <button
+          onClick={() => setActiveTab("hospital-beds")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
+            activeTab === "hospital-beds"
+              ? "bg-purple-600 text-white shadow-sm"
+              : "text-purple-700 hover:text-purple-900 hover:bg-purple-50"
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          Hospital Beds & Referral
+        </button>
+
+        <button
           onClick={() => setActiveTab("advisories")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "advisories"
               ? "bg-teal-600 text-white shadow-sm"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -348,7 +362,7 @@ export const DoctorPortal = ({ onOpenProfile }) => {
 
         <button
           onClick={() => setActiveTab("proactive")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "proactive"
               ? "bg-amber-600 text-white shadow-sm"
               : "text-amber-800 hover:text-amber-900 hover:bg-amber-50"
@@ -360,7 +374,7 @@ export const DoctorPortal = ({ onOpenProfile }) => {
 
         <button
           onClick={() => setActiveTab("quick-alert")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
             activeTab === "quick-alert"
               ? "bg-rose-600 text-white shadow-sm"
               : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
@@ -553,6 +567,20 @@ export const DoctorPortal = ({ onOpenProfile }) => {
       {/* Tab 2: Analytics */}
       {activeTab === "analytics" && (
         <AnalyticsView analyticsData={analyticsData} title="Doctor Epidemiological Intelligence" />
+      )}
+
+      {/* Tab: Hospital Bed Availability & Inpatient Referral */}
+      {activeTab === "hospital-beds" && (
+        <div className="space-y-4">
+          <HospitalBedExplorer
+            initialState={locationContext.state || "Maharashtra"}
+            initialDistrict={locationContext.district || "Pune"}
+            initialCity={locationContext.city || "All"}
+            roleContext="doctor"
+            title={`Hospital Beds & Regional Inpatient Referral (${locationContext.district || "Your District"})`}
+            subtitle="Check real-time ward capacity, vacant ICU beds, and daily rates to coordinate emergency inpatient admissions and patient transfers."
+          />
+        </div>
       )}
 
       {/* Tab 3: Advisories */}

@@ -257,7 +257,12 @@ export const forgotPasswordEmailTemplate = (name, resetUrl, token) => {
  * HTML Template for Staff Welcome Credentials
  */
 export const welcomeStaffEmailTemplate = (name, email, role, tempPassword) => {
-  const roleDisplay = role === "doctor" ? "Medical Doctor (Reviewing Officer)" : "Health Assistant (ASHA Field Worker)";
+  const roleDisplay =
+    role === "doctor"
+      ? "Medical Doctor (Reviewing Officer)"
+      : role === "hospital"
+      ? "Hospital / Healthcare Facility"
+      : "Health Assistant (ASHA Field Worker)";
   return `
 <!DOCTYPE html>
 <html>

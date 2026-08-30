@@ -6,6 +6,7 @@ import { User } from "../models/User.js";
 import { Report } from "../models/Report.js";
 import { Advisory } from "../models/Advisory.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
+import { HospitalWard } from "../models/HospitalWard.js";
 
 const seedDatabase = async () => {
   try {
@@ -19,6 +20,7 @@ const seedDatabase = async () => {
       Report.deleteMany({}),
       Advisory.deleteMany({}),
       ProactiveAlert.deleteMany({}),
+      HospitalWard.deleteMany({}),
     ]);
     console.log("🧹 Cleared existing database records.");
 
@@ -105,13 +107,58 @@ const seedDatabase = async () => {
       password: "password123",
       role: "user",
       state: "Maharashtra",
-      district: "Pune",
+      
       city: "Kothrud",
       phone: "+91 97654 32100",
       isEmailVerified: true,
     });
 
-    console.log("✅ Created 6 seed user accounts across all 4 roles.");
+    const hospitalPune = await User.create({
+      name: "Sassoon Multi-Speciality Hospital & Trauma Care",
+      email: "hospital@bharatswasthya.gov.in",
+      password: "password123",
+      role: "hospital",
+      state: "Maharashtra",
+      district: "Pune",
+      city: "Shivajinagar",
+      phone: "+91 20 2612 8000",
+      qualification: "NABH Accredited Tertiary Care Hospital",
+      hospitalOrClinic: "Near Pune Railway Station, Sassoon Road, Pune - 411001",
+      createdBy: admin._id,
+      isEmailVerified: true,
+    });
+
+    const hospitalMumbai = await User.create({
+      name: "KEM Memorial Super Speciality Hospital",
+      email: "kem.hospital@bharatswasthya.gov.in",
+      password: "password123",
+      role: "hospital",
+      state: "Maharashtra",
+      district: "Mumbai Suburban",
+      city: "Andheri",
+      phone: "+91 22 2410 7000",
+      qualification: "ISO 9001:2015 Government Medical College & Hospital",
+      hospitalOrClinic: "Acharya Donde Marg, Parel / Andheri Link, Mumbai - 400012",
+      createdBy: admin._id,
+      isEmailVerified: true,
+    });
+
+    const hospitalAhmedabad = await User.create({
+      name: "Civil Hospital & Institute of Medical Sciences",
+      email: "civil.ahmedabad@bharatswasthya.gov.in",
+      password: "password123",
+      role: "hospital",
+      state: "Gujarat",
+      district: "Ahmedabad",
+      city: "Satellite",
+      phone: "+91 79 2268 0074",
+      qualification: "Asia's Largest Healthcare & Trauma Complex",
+      hospitalOrClinic: "Asarwa / Satellite Branch, Ahmedabad - 380016",
+      createdBy: admin._id,
+      isEmailVerified: true,
+    });
+
+    console.log("✅ Created 9 seed user accounts across all 5 roles (Admin, Doctor, Health Assistant, Citizen, Hospital).");
 
     // 2. Create Disease Reports (Grassroots Field Reports + Labeled Cases)
     console.log("📋 Seeding realistic Indian medical field reports...");
@@ -411,6 +458,258 @@ const seedDatabase = async () => {
     await ProactiveAlert.insertMany(proactiveAlertsData);
     console.log(`✅ Seeded ${proactiveAlertsData.length} proactive AI disease outbreak forecasts.`);
 
+    // 5. Seed Hospital Wards & Bed Availability
+    console.log("🏥 Seeding hospital wards and live bed capacity across India...");
+
+    const hospitalWardsData = [
+      // Sassoon General Hospital (Pune, Maharashtra)
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "ICU (Intensive Care Unit)",
+        customWardName: "",
+        totalBeds: 24,
+        vacantBeds: 6,
+        pricePerDay: 4500,
+        amenities: ["Ventilator Support", "Central Oxygen", "24/7 Intensivist", "Multi-Para Cardiac Monitor"],
+        notes: "Equipped with automated dialysis ports and dedicated crash carts.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "Emergency / Casualty",
+        customWardName: "",
+        totalBeds: 30,
+        vacantBeds: 11,
+        pricePerDay: 1800,
+        amenities: ["Triage Bay", "Immediate Resuscitation", "Point-of-Care Ultrasound"],
+        notes: "Direct ambulance bay ramp with 24x7 emergency surgeon on duty.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "General Ward",
+        customWardName: "",
+        totalBeds: 120,
+        vacantBeds: 38,
+        pricePerDay: 600,
+        amenities: ["Nutritional Diet", "Nursing Station", "Subsidized Pharmacy Access"],
+        notes: "Covered under Ayushman Bharat (PM-JAY) and MJPJAY schemes.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "Semi-Private Ward",
+        customWardName: "",
+        totalBeds: 40,
+        vacantBeds: 14,
+        pricePerDay: 2200,
+        amenities: ["Twin-Sharing", "Attached Washroom", "Attendant Couch", "Air Conditioning"],
+        notes: "Ideal for recovering post-fever and medical stabilization patients.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "Isolation Ward",
+        customWardName: "",
+        totalBeds: 20,
+        vacantBeds: 9,
+        pricePerDay: 2800,
+        amenities: ["Negative Pressure Airflow", "HEPA Filtration", "Dedicated PPE Antechamber"],
+        notes: "Strict contagion barrier protocol for active Dengue, H1N1, and Cholera cases.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "Neonatal ICU (NICU)",
+        customWardName: "",
+        totalBeds: 16,
+        vacantBeds: 4,
+        pricePerDay: 5200,
+        amenities: ["Radiant Warmers", "Neonatal CPAP", "Phototherapy Units", "Surfactant Therapy"],
+        notes: "Level-III tertiary neonatal intensive care.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalPune._id,
+        hospitalName: hospitalPune.name,
+        state: "Maharashtra",
+        district: "Pune",
+        city: "Shivajinagar",
+        address: hospitalPune.hospitalOrClinic,
+        phone: hospitalPune.phone,
+        wardType: "Other",
+        customWardName: "Post-Infection Pulmonary Rehab Ward",
+        totalBeds: 15,
+        vacantBeds: 7,
+        pricePerDay: 2400,
+        amenities: ["High-Flow Nasal Cannula", "Spirometry Monitoring", "Chest Physiotherapy"],
+        notes: "Specialized respiratory recovery unit for seasonal viral pneumonia convalescents.",
+        isActive: true,
+      },
+
+      // KEM Hospital (Mumbai, Maharashtra)
+      {
+        hospital: hospitalMumbai._id,
+        hospitalName: hospitalMumbai.name,
+        state: "Maharashtra",
+        district: "Mumbai Suburban",
+        city: "Andheri",
+        address: hospitalMumbai.hospitalOrClinic,
+        phone: hospitalMumbai.phone,
+        wardType: "ICCU (Intensive Cardiac Care Unit)",
+        customWardName: "",
+        totalBeds: 18,
+        vacantBeds: 3,
+        pricePerDay: 6000,
+        amenities: ["24/7 Cath Lab Backup", "Intra-Aortic Balloon Pump", "Continuous Invasive Hemodynamics"],
+        notes: "Advanced cardiac emergency and myocarditis management center.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalMumbai._id,
+        hospitalName: hospitalMumbai.name,
+        state: "Maharashtra",
+        district: "Mumbai Suburban",
+        city: "Andheri",
+        address: hospitalMumbai.hospitalOrClinic,
+        phone: hospitalMumbai.phone,
+        wardType: "Maternity / Obstetric Ward",
+        customWardName: "",
+        totalBeds: 35,
+        vacantBeds: 12,
+        pricePerDay: 1500,
+        amenities: ["Labor Delivery Recovery (LDR) Suites", "Cardiotocography (CTG)", "Obstetric Ultrasound"],
+        notes: "Emergency obstetric care team on 24-hour active roster.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalMumbai._id,
+        hospitalName: hospitalMumbai.name,
+        state: "Maharashtra",
+        district: "Mumbai Suburban",
+        city: "Andheri",
+        address: hospitalMumbai.hospitalOrClinic,
+        phone: hospitalMumbai.phone,
+        wardType: "Burns Ward",
+        customWardName: "",
+        totalBeds: 12,
+        vacantBeds: 5,
+        pricePerDay: 3200,
+        amenities: ["Sterile Laminar Airflow", "Skin Grafting Station", "Hydrotherapy Unit"],
+        notes: "Specialized antiseptic burn care unit with isolated dressing suites.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalMumbai._id,
+        hospitalName: hospitalMumbai.name,
+        state: "Maharashtra",
+        district: "Mumbai Suburban",
+        city: "Andheri",
+        address: hospitalMumbai.hospitalOrClinic,
+        phone: hospitalMumbai.phone,
+        wardType: "General Ward",
+        customWardName: "",
+        totalBeds: 150,
+        vacantBeds: 42,
+        pricePerDay: 500,
+        amenities: ["Ayushman Bharat Empaneled", "Central Oxygen Lines", "Regular Resident Doctor Rounds"],
+        notes: "Public municipal healthcare ward with full fee concessions for BPL cardholders.",
+        isActive: true,
+      },
+
+      // Civil Hospital (Ahmedabad, Gujarat)
+      {
+        hospital: hospitalAhmedabad._id,
+        hospitalName: hospitalAhmedabad.name,
+        state: "Gujarat",
+        district: "Ahmedabad",
+        city: "Satellite",
+        address: hospitalAhmedabad.hospitalOrClinic,
+        phone: hospitalAhmedabad.phone,
+        wardType: "HDU (High Dependency Unit)",
+        customWardName: "",
+        totalBeds: 25,
+        vacantBeds: 8,
+        pricePerDay: 3500,
+        amenities: ["Step-Down Monitoring", "Non-Invasive Ventilation (BiPAP)", "1:2 Nurse to Patient Ratio"],
+        notes: "Step-down care between ICU and General recovery.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalAhmedabad._id,
+        hospitalName: hospitalAhmedabad.name,
+        state: "Gujarat",
+        district: "Ahmedabad",
+        city: "Satellite",
+        address: hospitalAhmedabad.hospitalOrClinic,
+        phone: hospitalAhmedabad.phone,
+        wardType: "Pediatric Ward",
+        customWardName: "",
+        totalBeds: 40,
+        vacantBeds: 15,
+        pricePerDay: 1200,
+        amenities: ["Pediatric Emergency Kit", "Child-Friendly Environment", "Mother Feeding Corner"],
+        notes: "Dedicated pediatric viral febrile surveillance wing.",
+        isActive: true,
+      },
+      {
+        hospital: hospitalAhmedabad._id,
+        hospitalName: hospitalAhmedabad.name,
+        state: "Gujarat",
+        district: "Ahmedabad",
+        city: "Satellite",
+        address: hospitalAhmedabad.hospitalOrClinic,
+        phone: hospitalAhmedabad.phone,
+        wardType: "Private Ward",
+        customWardName: "",
+        totalBeds: 20,
+        vacantBeds: 7,
+        pricePerDay: 4000,
+        amenities: ["Single Occupancy Deluxe", "Attached Washroom", "Sofa Bed for Attendant", "Smart TV & Wi-Fi"],
+        notes: "Individual climate-controlled rooms.",
+        isActive: true,
+      },
+    ];
+
+    await HospitalWard.insertMany(hospitalWardsData);
+    console.log(`✅ Seeded ${hospitalWardsData.length} hospital wards with diverse types, capacity & pricing.`);
+
     console.log(`
 ============================================================
 🎉 BHARAT SWASTHYA AI - SEED DATA POPULATED SUCCESSFULLY!
@@ -432,6 +731,14 @@ const seedDatabase = async () => {
 4. CITIZEN USER:
    Email:    user@bharatswasthya.gov.in
    Password: password123
+
+5. HOSPITAL FACILITY (Sassoon Hospital, Pune):
+   Email:    hospital@bharatswasthya.gov.in
+   Password: password123
+
+6. HOSPITAL FACILITY (KEM Memorial, Mumbai):
+   Email:    kem.hospital@bharatswasthya.gov.in
+   Password: password123
 ============================================================
     `);
 
@@ -445,3 +752,4 @@ const seedDatabase = async () => {
 };
 
 seedDatabase();
+

@@ -20,6 +20,7 @@ import {
   Activity,
   Loader2,
   X,
+  Building2,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import AnalyticsView from "../components/AnalyticsView";
@@ -28,6 +29,7 @@ import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import LocationDropdowns from "../components/LocationDropdowns";
 import LanguageSelectorButton from "../components/LanguageSelectorButton";
+import HospitalBedExplorer from "../components/HospitalBedExplorer";
 import { useAuth } from "../context/AuthContext";
 
 export const HealthAssistantPortal = ({ onOpenProfile }) => {
@@ -378,6 +380,18 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
         >
           <Sparkles className="w-4 h-4 text-amber-500" />
           Proactive AI Warnings ({proactiveAlerts.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("hospital-beds")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${
+            activeTab === "hospital-beds"
+              ? "bg-purple-600 text-white shadow-sm"
+              : "text-purple-700 hover:text-purple-900 hover:bg-purple-50"
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          Hospital Beds & Referral
         </button>
 
         <button
@@ -1022,6 +1036,20 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Tab: Hospital Bed Availability & Referral */}
+      {activeTab === "hospital-beds" && (
+        <div className="space-y-4">
+          <HospitalBedExplorer
+            initialState={user?.state || "Maharashtra"}
+            initialDistrict={user?.district || "Pune"}
+            initialCity={user?.city || "All"}
+            roleContext="health_assistant"
+            title={`Hospital Beds & Emergency Referrals (${user?.district || "Your District"})`}
+            subtitle="Look up vacant beds, ICU capacity, and per-day pricing in real-time to refer critical patients during field visits."
+          />
         </div>
       )}
 

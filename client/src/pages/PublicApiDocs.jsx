@@ -11,6 +11,8 @@ import {
   Bot,
   MapPin,
   RefreshCw,
+  Building2,
+  Bed,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 
@@ -21,6 +23,47 @@ export const PublicApiDocs = () => {
   const [copied, setCopied] = useState(false);
 
   const endpoints = [
+    {
+      title: "Hospital Bed & Ward Availability",
+      method: "GET",
+      path: "/api/v1/public/hospital-beds?state=Maharashtra&district=Pune&onlyAvailable=true",
+      description:
+        "Open API for healthcare aggregators, 108 emergency response units, and citizens to retrieve live hospital bed vacancy, ICU units, and daily per-bed charges across India.",
+      icon: Building2,
+      params: [
+        {
+          name: "state",
+          type: "string",
+          desc: "Filter by Indian State (e.g. Maharashtra)",
+        },
+        {
+          name: "district",
+          type: "string",
+          desc: "Filter by District (e.g. Pune)",
+        },
+        {
+          name: "city",
+          type: "string",
+          desc: "Filter by City / Taluk (optional)",
+        },
+        {
+          name: "wardType",
+          type: "string",
+          desc: "Filter by Ward Type (e.g. 'ICU (Intensive Care Unit)', 'General Ward', 'Maternity / Obstetric Ward')",
+        },
+        {
+          name: "onlyAvailable",
+          type: "boolean",
+          desc: "Set to 'true' to return only wards with vacantBeds > 0",
+        },
+        {
+          name: "search",
+          type: "string",
+          desc: "Search text across hospital name, ward name, or locality",
+        },
+      ],
+      samplePayload: null,
+    },
     {
       title: "Get Active Viral Diseases",
       method: "GET",

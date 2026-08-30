@@ -12,6 +12,7 @@ import {
   Code2,
   UserCheck,
   Edit3,
+  Building2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -28,6 +29,8 @@ export const Navbar = ({
     switch (roleName) {
       case "admin":
         return { label: "National Admin", icon: Shield, style: "bg-purple-50 text-purple-700 border-purple-200" };
+      case "hospital":
+        return { label: "Hospital Facility", icon: Building2, style: "bg-indigo-50 text-indigo-700 border-indigo-200" };
       case "doctor":
         return { label: "Medical Doctor", icon: Stethoscope, style: "bg-blue-50 text-blue-700 border-blue-200" };
       case "health_assistant":
