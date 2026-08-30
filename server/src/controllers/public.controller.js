@@ -593,7 +593,7 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
 
   if (state && state !== "All") query.state = state;
   if (district && district !== "All") query.district = district;
-  if (city && city !== "All") query.city = city;
+  if (city && city !== "All") query.city = new RegExp(city, "i");
   if (wardType && wardType !== "All") query.wardType = wardType;
 
   if (onlyAvailable === "true" || onlyAvailable === true) {
@@ -627,11 +627,18 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
   const hospitalMap = {};
   let totalBeds = 0;
   let totalVacantBeds = 0;
+  let totalOccupiedBeds = 0;
   let icuVacantBeds = 0;
+  let icuTotalBeds = 0;
 
   wards.forEach((w) => {
-    totalBeds += w.totalBeds || 0;
-    totalVacantBeds += w.vacantBeds || 0;
+    const wardTotal = w.totalBeds || 0;
+    const wardVacant = w.vacantBeds || 0;
+    const wardOccupied = Math.max(0, wardTotal - wardVacant);
+
+    totalBeds += wardTotal;
+    totalVacantBeds += wardVacant;
+    totalOccupiedBeds += wardOccupied;
 
     const isIcuType =
       w.wardType.includes("ICU") ||
@@ -639,7 +646,8 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
       w.wardType.includes("HDU") ||
       w.wardType.includes("Emergency");
     if (isIcuType) {
-      icuVacantBeds += w.vacantBeds || 0;
+      icuTotalBeds += wardTotal;
+      icuVacantBeds += wardVacant;
     }
 
     const hospKey = String(w.hospital);
@@ -654,6 +662,7 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
         phone: w.phone,
         totalBeds: 0,
         vacantBeds: 0,
+        occupiedBeds: 0,
         minPrice: w.pricePerDay,
         maxPrice: w.pricePerDay,
         wards: [],
@@ -662,20 +671,21 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
     }
 
     const h = hospitalMap[hospKey];
-    h.totalBeds += w.totalBeds;
-    h.vacantBeds += w.vacantBeds;
+    h.totalBeds += wardTotal;
+    h.vacantBeds += wardVacant;
+    h.occupiedBeds += wardOccupied;
     h.minPrice = Math.min(h.minPrice, w.pricePerDay);
     h.maxPrice = Math.max(h.maxPrice, w.pricePerDay);
-    if (w.vacantBeds > 0) h.hasVacantBeds = true;
+    if (wardVacant > 0) h.hasVacantBeds = true;
 
     h.wards.push({
       _id: w._id,
       wardType: w.wardType,
       customWardName: w.customWardName,
       displayName: w.displayName,
-      totalBeds: w.totalBeds,
-      vacantBeds: w.vacantBeds,
-      occupiedBeds: w.occupiedBeds,
+      totalBeds: wardTotal,
+      vacantBeds: wardVacant,
+      occupiedBeds: wardOccupied,
       pricePerDay: w.pricePerDay,
       occupancyRate: w.occupancyRate,
       amenities: w.amenities,
@@ -684,7 +694,13 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
     });
   });
 
-  const hospitalsList = Object.values(hospitalMap);
+  const hospitalsList = Object.values(hospitalMap).map((h) => ({
+    ...h,
+    occupancyRate: h.totalBeds > 0 ? Math.round((h.occupiedBeds / h.totalBeds) * 100) : 0,
+  }));
+
+  const overallOccupancyRate =
+    totalBeds > 0 ? Math.round((totalOccupiedBeds / totalBeds) * 100) : 0;
 
   return res.status(200).json(
     new ApiResponse(
@@ -695,6 +711,9 @@ export const getPublicHospitalBeds = asyncHandler(async (req, res) => {
           totalWards: wards.length,
           totalBeds,
           totalVacantBeds,
+          totalOccupiedBeds,
+          occupancyRate: overallOccupancyRate,
+          icuTotalBeds,
           icuVacantBeds,
           location: {
             state: state || "All",
