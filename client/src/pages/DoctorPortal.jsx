@@ -30,6 +30,7 @@ import ProactiveAlertCard from "../components/ProactiveAlertCard";
 import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import LocationDropdowns from "../components/LocationDropdowns";
+import LanguageSelectorButton from "../components/LanguageSelectorButton";
 import { useAuth } from "../context/AuthContext";
 
 export const DoctorPortal = ({ onOpenProfile }) => {
@@ -47,6 +48,7 @@ export const DoctorPortal = ({ onOpenProfile }) => {
   const [doctorAdvisoryResult, setDoctorAdvisoryResult] = useState(null);
   const [generatingAdvisory, setGeneratingAdvisory] = useState(false);
   const [showDoctorAdvisoryModal, setShowDoctorAdvisoryModal] = useState(false);
+  const [doctorAdvisoryLanguage, setDoctorAdvisoryLanguage] = useState("English");
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("pending_review");
@@ -161,6 +163,7 @@ export const DoctorPortal = ({ onOpenProfile }) => {
         state: locationContext.state,
         district: locationContext.district,
         city: locationContext.city,
+        language: doctorAdvisoryLanguage,
       });
       setDoctorAdvisoryResult(res.data?.data || res.data);
       setShowDoctorAdvisoryModal(true);
@@ -758,23 +761,30 @@ export const DoctorPortal = ({ onOpenProfile }) => {
               </p>
             </div>
 
-            <button
-              onClick={handleGenerateDoctorAdvisory}
-              disabled={generatingAdvisory}
-              className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
-            >
-              {generatingAdvisory ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Synthesizing Regional Intelligence...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Generate Regional AI Advisory</span>
-                </>
-              )}
-            </button>
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+              <LanguageSelectorButton
+                value={doctorAdvisoryLanguage}
+                onChange={setDoctorAdvisoryLanguage}
+                theme="dark"
+              />
+              <button
+                onClick={handleGenerateDoctorAdvisory}
+                disabled={generatingAdvisory}
+                className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
+              >
+                {generatingAdvisory ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Synthesizing Regional Intelligence...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Generate Regional AI Advisory</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Doctor Pre-Outbreak Clinical Action Checklist */}
@@ -871,10 +881,15 @@ export const DoctorPortal = ({ onOpenProfile }) => {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory & Action Protocol</h3>
-                  <p className="text-xs text-slate-500">
-                    Jurisdiction: {doctorAdvisoryResult.district !== "All" ? doctorAdvisoryResult.district : ""}{" "}
-                    {doctorAdvisoryResult.state}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-slate-500">
+                      Jurisdiction: {doctorAdvisoryResult.district !== "All" ? doctorAdvisoryResult.district : ""}{" "}
+                      {doctorAdvisoryResult.state}
+                    </p>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                      🌐 {doctorAdvisoryResult.language || doctorAdvisoryLanguage}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button

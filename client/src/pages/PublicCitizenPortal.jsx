@@ -16,6 +16,7 @@ import axiosInstance from "../api/axiosInstance";
 import LocationFilter from "../components/LocationFilter";
 import ViralDiseaseDetailsModal from "../components/ViralDiseaseDetailsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import LanguageSelectorButton from "../components/LanguageSelectorButton";
 import { useAuth } from "../context/AuthContext";
 
 export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile, onOpenChatWithPrompt }) => {
@@ -35,6 +36,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
   const [advisoryResult, setAdvisoryResult] = useState(null);
   const [advisoryError, setAdvisoryError] = useState(null);
   const [showAdvisoryModal, setShowAdvisoryModal] = useState(false);
+  const [advisoryLanguage, setAdvisoryLanguage] = useState("Hindi");
 
   const fetchPublicData = async () => {
     setLoading(true);
@@ -70,6 +72,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         state: locationContext.state,
         district: locationContext.district,
         city: locationContext.city,
+        language: advisoryLanguage,
       });
       setAdvisoryResult(res.data?.data || res.data);
       setShowAdvisoryModal(true);
@@ -214,23 +217,31 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             </p>
           </div>
 
-          <button
-            onClick={handleFetchAdvisory}
-            disabled={advisoryLoading}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 shrink-0"
-          >
-            {advisoryLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Generating Advisory...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                <span>Get AI Advisory for {locationContext.city !== "All" ? locationContext.city : locationContext.district}</span>
-              </>
-            )}
-          </button>
+          {/* Action Group: Language Selector on the Left + Proactive AI Button */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
+            <LanguageSelectorButton
+              value={advisoryLanguage}
+              onChange={setAdvisoryLanguage}
+              theme="amber"
+            />
+            <button
+              onClick={handleFetchAdvisory}
+              disabled={advisoryLoading}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 shrink-0"
+            >
+              {advisoryLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Generating Advisory...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Get AI Advisory for {locationContext.city !== "All" ? locationContext.city : locationContext.district}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {advisoryError && (
@@ -444,10 +455,15 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-lg">AI Outbreak Advisory</h3>
-                  <p className="text-xs text-slate-500">
-                    {advisoryResult.district !== "All" ? advisoryResult.district : ""}{" "}
-                    {advisoryResult.state}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-slate-500">
+                      {advisoryResult.district !== "All" ? advisoryResult.district : ""}{" "}
+                      {advisoryResult.state}
+                    </p>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                      🌐 {advisoryResult.language || advisoryLanguage}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button

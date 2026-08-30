@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Report } from "../models/Report.js";
 import { ProactiveAlert } from "../models/ProactiveAlert.js";
-import { triageUserSymptomQuery } from "../services/gemini.service.js";
+import { triageUserSymptomQuery, generateProactiveOutbreakAdvisory } from "../services/gemini.service.js";
 import { indiaLocations } from "../data/indiaLocations.js";
 
 /**
@@ -514,30 +514,46 @@ const PROACTIVE_LLM_URL =
  * @access  Public
  */
 export const getProactiveAdvisory = asyncHandler(async (req, res) => {
-  const { state, district, city } = req.body;
+  const { state, district, city, language } = req.body;
 
   if (!state) {
     return res.status(400).json(new ApiResponse(400, null, "State is required."));
   }
 
-  const llmResponse = await fetch(PROACTIVE_LLM_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  const selectedLanguage = language || "English";
+  let llmOutput = "";
+
+  // 1. Attempt external Proactive LLM endpoint
+  try {
+    const llmResponse = await fetch(PROACTIVE_LLM_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        state,
+        district: district || "All",
+        city: city || "All",
+        language: selectedLanguage,
+      }),
+      signal: AbortSignal.timeout(20000), // 20s timeout before fallback
+    });
+
+    if (llmResponse.ok) {
+      const llmData = await llmResponse.json();
+      llmOutput = llmData.llm_output || llmData.response || llmData.output || "";
+    }
+  } catch (err) {
+    console.warn("External proactive LLM unreachable or timed out:", err.message);
+  }
+
+  // 2. Fallback to Multi-lingual Gemini / Localized Smart Generator
+  if (!llmOutput) {
+    llmOutput = await generateProactiveOutbreakAdvisory({
       state,
       district: district || "All",
       city: city || "All",
-    }),
-    signal: AbortSignal.timeout(120000), // 2 min timeout
-  });
-
-  if (!llmResponse.ok) {
-    return res.status(502).json(new ApiResponse(502, null, "Proactive LLM service unavailable."));
+      language: selectedLanguage,
+    });
   }
-
-  const llmData = await llmResponse.json();
-  const rawOutput = llmData.llm_output || llmData.response || llmData.output || "";
-  const llmOutput = rawOutput; // Keep authentic markdown intact for client MarkdownRenderer
 
   return res.status(200).json(
     new ApiResponse(
@@ -546,6 +562,7 @@ export const getProactiveAdvisory = asyncHandler(async (req, res) => {
         state,
         district: district || "All",
         city: city || "All",
+        language: selectedLanguage,
         advisory: llmOutput,
       },
       "Proactive advisory retrieved successfully."

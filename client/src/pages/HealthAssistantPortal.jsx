@@ -27,6 +27,7 @@ import ProactiveAlertCard from "../components/ProactiveAlertCard";
 import ProactiveAlertDetailsModal from "../components/ProactiveAlertDetailsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import LocationDropdowns from "../components/LocationDropdowns";
+import LanguageSelectorButton from "../components/LanguageSelectorButton";
 import { useAuth } from "../context/AuthContext";
 
 export const HealthAssistantPortal = ({ onOpenProfile }) => {
@@ -44,6 +45,7 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
   const [ashaAdvisoryResult, setAshaAdvisoryResult] = useState(null);
   const [generatingAshaAdvisory, setGeneratingAshaAdvisory] = useState(false);
   const [showAshaAdvisoryModal, setShowAshaAdvisoryModal] = useState(false);
+  const [ashaAdvisoryLanguage, setAshaAdvisoryLanguage] = useState("Hindi");
 
   // Field Report Form State
   const [reportForm, setReportForm] = useState({
@@ -140,6 +142,7 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
         state: user?.state || "Maharashtra",
         district: user?.district || "Pune",
         city: user?.city || "All",
+        language: ashaAdvisoryLanguage,
       });
       setAshaAdvisoryResult(res.data?.data || res.data);
       setShowAshaAdvisoryModal(true);
@@ -922,23 +925,30 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
               </p>
             </div>
 
-            <button
-              onClick={handleGenerateAshaAdvisory}
-              disabled={generatingAshaAdvisory}
-              className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
-            >
-              {generatingAshaAdvisory ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Synthesizing Field Guidelines...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Get Locality Health Advisory</span>
-                </>
-              )}
-            </button>
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+              <LanguageSelectorButton
+                value={ashaAdvisoryLanguage}
+                onChange={setAshaAdvisoryLanguage}
+                theme="dark"
+              />
+              <button
+                onClick={handleGenerateAshaAdvisory}
+                disabled={generatingAshaAdvisory}
+                className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95 shrink-0"
+              >
+                {generatingAshaAdvisory ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Synthesizing Field Guidelines...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Get Locality Health Advisory</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* ASHA Field Action Protocols Checklist */}
@@ -1035,10 +1045,15 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-lg">ASHA Grassroots Health Guidance</h3>
-                  <p className="text-xs text-slate-500">
-                    Location: {ashaAdvisoryResult.district !== "All" ? ashaAdvisoryResult.district : ""}{" "}
-                    {ashaAdvisoryResult.state}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-slate-500">
+                      Location: {ashaAdvisoryResult.district !== "All" ? ashaAdvisoryResult.district : ""}{" "}
+                      {ashaAdvisoryResult.state}
+                    </p>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                      🌐 {ashaAdvisoryResult.language || ashaAdvisoryLanguage}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button
