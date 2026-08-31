@@ -62,12 +62,7 @@ export function App() {
   // Render view based on active tab and authenticated role
   const renderCurrentView = () => {
     if (activeTab === "api-docs") {
-      return (
-        <PublicApiDocs
-          onGoHome={() => setActiveTab("home")}
-          onGoLogin={() => setActiveTab("login")}
-        />
-      );
+      return <PublicApiDocs />;
     }
 
     if (activeTab === "login") {
