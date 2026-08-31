@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Conversation } from "../models/Conversation.js";
 import { ChatMessage } from "../models/ChatMessage.js";
 import { triageUserSymptomQuery } from "../services/gemini.service.js";
+import { transcribeAudioWithSarvam } from "../services/sarvam.service.js";
 
 const PYTHON_CHATBOT_URL =
   process.env.PYTHON_CHATBOT_URL || "https://chatbot-d6q1.onrender.com/chat";
@@ -300,4 +301,40 @@ export const updateBotLocation = asyncHandler(async (req, res) => {
       location: conversation.location,
     }, "Location saved.")
   );
+});
+
+/**
+ * @desc    Sarvam AI Speech-to-Text (STT) transcription endpoint for AI Health Chatbot
+ * @route   POST /api/v1/chat/stt
+ * @access  Private (JWT required)
+ * @payload multipart/form-data with `audio` or `file` and optional `language_code`
+ */
+export const handleChatSTT = asyncHandler(async (req, res) => {
+  const file = req.file || (req.files && req.files[0]);
+  const language_code = req.body?.language_code || "unknown";
+
+  if (!file || !file.buffer) {
+    throw new ApiError(400, "Audio file is required for Speech-to-Text transcription.");
+  }
+
+  const sttResult = await transcribeAudioWithSarvam({
+    audioBuffer: file.buffer,
+    mimetype: file.mimetype || "audio/webm",
+    originalname: file.originalname || "recording.webm",
+    language_code,
+  });
+
+  if (!sttResult.success) {
+    return res.status(200).json({
+      success: false,
+      transcript: "",
+      message: sttResult.message || sttResult.error || "STT transcription could not be completed.",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    transcript: sttResult.transcript,
+    language_code: sttResult.language_code,
+  });
 });

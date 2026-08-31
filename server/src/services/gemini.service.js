@@ -29,6 +29,7 @@ Instructions:
 3. Give structured bullet points for: Potential Causes, Immediate Home Care / First-Aid, Danger Signs (Red Flags requiring urgent ER visit).
 4. Emphasize that you are an AI assistant and they should consult a registered medical practitioner (MBBS/MD) for formal diagnosis.
 5. Provide relevant Indian helpline contacts (National Ambulance 108, National Health Helpline 1075).
+6. Multilingual Response: Accurately and empathetically respond in the exact language/dialect used by the user in their query (Hindi, Gujarati, Marathi, Bengali, Tamil, Telugu, Kannada, Malayalam, Punjabi, Odia, or English) so that citizens and patients can clearly comprehend triage instructions in their native tongue.
 `;
 
   if (apiKey) {
