@@ -144,10 +144,10 @@ export const Navbar = ({
                 ? "bg-teal-50 text-teal-700 border border-teal-200 font-semibold"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent"
             }`}
-            title={role === "admin" ? "Public REST API Explorer" : "Public API (Admin Only)"}
+            title={role === "admin" ? "APIs" : "APIs"}
           >
             <Code2 className="w-4 h-4 text-teal-600" />
-            <span>Public API</span>
+            <span>APIs</span>
             {role !== "admin" && (
               <Lock className="w-3 h-3 text-slate-400 ml-0.5" />
             )}
@@ -343,7 +343,7 @@ export const Navbar = ({
                     <Code2 className="w-4 h-4" />
                   </div>
                   <div className="text-left flex items-center gap-1.5">
-                    <span>Public REST API Explorer</span>
+                    <span>APIs</span>
                     {role !== "admin" && <Lock className="w-3 h-3 text-slate-400" />}
                   </div>
                 </div>

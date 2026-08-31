@@ -21,7 +21,7 @@ BharatSwasthya AI is India's National Epidemiological Outbreak Intelligence & Di
 - "Emergency 108" Button (Red with phone icon): Opens the 24x7 Emergency Helplines drawer from anywhere without requiring login.
 - "AI Health Chatbot" / "Chatbot" Button (Teal): Opens the AI Tele-Health Chatbot modal. (If not logged in, redirects to the Sign In page).
 - "Website Guide" Button (with Compass/Sparkles): Opens this Website Navigation Guide assistant.
-- "Public API" Button: Opens the Interactive Public REST API Explorer for health telemetry and developers.
+- "APIs" Button: Opens the Interactive Public REST API Explorer for health telemetry and developers.
 - "Sign In / Register" Button (When not logged in): Opens the Authentication portal.
 - "Profile & Avatar" Button (When logged in): Displays user name and "Citizen" badge. Clicking opens the Edit Profile modal.
 - "Sign Out" Icon Button: Logs out the user securely.
@@ -105,7 +105,7 @@ Modal Actions:
 ==================================================
 7. PUBLIC REST API EXPLORER
 ==================================================
-- Accessed via "Public API" in the top navbar or "Open APIs" in the footer.
+- Accessed via "APIs" in the top navbar or "Open APIs" in the footer.
 - Interactive API documentation for developers and third-party hospital management systems.
 - Allows testing live GET/POST requests for viral diseases, outbreak alerts, stats, and helplines.
 
