@@ -13,14 +13,96 @@ import {
   RefreshCw,
   Building2,
   Bed,
+  Lock,
+  ShieldAlert,
+  ArrowLeft,
+  LogIn,
+  AlertTriangle,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
 
-export const PublicApiDocs = () => {
+export const PublicApiDocs = ({ onGoHome, onGoLogin }) => {
+  const { user, role, isAuthenticated } = useAuth();
   const [selectedEndpoint, setSelectedEndpoint] = useState(0);
   const [liveResponse, setLiveResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // If user is not an Admin, show unauthorized screen
+  if (!isAuthenticated || role !== "admin") {
+    return (
+      <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto animate-fadeIn">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden text-center p-8 sm:p-12">
+          {/* Lock & Shield Icon */}
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="w-20 h-20 rounded-3xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-inner">
+              <ShieldAlert className="w-10 h-10" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
+              <Lock className="w-4 h-4 text-amber-400" />
+            </div>
+          </div>
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold uppercase tracking-wider mb-4">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            Access Restricted • Admin Only
+          </div>
+
+          {/* Main Heading */}
+          <h2 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 mb-3">
+            You are not authorized user to use this
+          </h2>
+
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto mb-8">
+            The <strong>Bharat Swasthya AI Developer REST API Explorer</strong> and telemetry consoles are strictly restricted to verified <strong>National System Administrators</strong>.
+          </p>
+
+          {/* User Status Details Box */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-left text-xs text-slate-600 space-y-2.5 max-w-md mx-auto mb-8">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Your Current Account:</span>
+              <span className="font-semibold text-slate-800">
+                {isAuthenticated && user?.name ? `${user.name} (${role || "citizen"})` : "Guest / Not Logged In"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t border-slate-200/80 pt-2">
+              <span className="text-slate-500 font-medium">Required Authorization:</span>
+              <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                National Admin (role: admin)
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t border-slate-200/80 pt-2">
+              <span className="text-slate-500 font-medium">HTTP Status:</span>
+              <span className="font-mono font-bold text-rose-600">403 Forbidden</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => (onGoHome ? onGoHome() : (window.location.href = "/"))}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
+
+            {(!isAuthenticated || role !== "admin") && (
+              <button
+                onClick={() => (onGoLogin ? onGoLogin() : (window.location.href = "/"))}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Sign In as Admin</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const endpoints = [
     {

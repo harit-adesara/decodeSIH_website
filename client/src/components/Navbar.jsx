@@ -13,6 +13,7 @@ import {
   UserCheck,
   Edit3,
   Building2,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -116,7 +117,7 @@ export const Navbar = ({
             <span className="hidden md:inline">AI Health</span> Chatbot
           </button>
 
-          {/* 3rd Party API Docs */}
+          {/* 3rd Party API Docs (Admin Protected) */}
           <button
             onClick={() => setActiveTab("api-docs")}
             className={`flex items-center gap-1.5 text-xs sm:text-sm px-3 py-2 rounded-xl font-medium transition-all ${
@@ -124,9 +125,13 @@ export const Navbar = ({
                 ? "bg-teal-50 text-teal-700 border border-teal-200 font-semibold"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent"
             }`}
+            title={role === "admin" ? "Public REST API Explorer" : "Public API (Admin Only)"}
           >
             <Code2 className="w-4 h-4 text-teal-600" />
             <span className="hidden lg:inline">Public API</span>
+            {role !== "admin" && (
+              <Lock className="w-3 h-3 text-slate-400 ml-0.5" />
+            )}
           </button>
 
           {/* User Profile / Auth Status */}
