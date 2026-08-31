@@ -236,15 +236,15 @@ export const PublicApiDocs = () => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 sm:space-y-6 pb-16">
       {/* Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
             <Code2 className="w-4 h-4 text-teal-600" /> Open Interoperability &
             3rd-Party APIs
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
+          <h1 className="text-xl sm:text-3xl font-extrabold font-display text-slate-900">
             Bharat Swasthya AI Developer REST API
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5 max-w-2xl">
@@ -254,73 +254,75 @@ export const PublicApiDocs = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
-          <ShieldCheck className="w-4 h-4 text-teal-600" />
-          <span>
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 self-start md:self-auto">
+          <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
+          <span className="truncate">
             Base URL: <strong>https://decodesih-website.onrender.com</strong>
           </span>
         </div>
       </div>
 
       {/* Main Documentation & Interactive Console */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Endpoint Selector Sidebar */}
         <div className="lg:col-span-4 space-y-2">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1 mb-2">
             Available Endpoints
           </div>
-          {endpoints.map((ep, idx) => {
-            const IconComp = ep.icon;
-            const isSelected = selectedEndpoint === idx;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  setSelectedEndpoint(idx);
-                  setLiveResponse(null);
-                }}
-                className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3 ${
-                  isSelected
-                    ? "bg-teal-50 border-teal-300 shadow-sm"
-                    : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+            {endpoints.map((ep, idx) => {
+              const IconComp = ep.icon;
+              const isSelected = selectedEndpoint === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setSelectedEndpoint(idx);
+                    setLiveResponse(null);
+                  }}
+                  className={`w-full text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-start gap-2.5 sm:gap-3 ${
                     isSelected
-                      ? "bg-teal-600 text-white"
-                      : "bg-slate-100 text-slate-600"
+                      ? "bg-teal-50 border-teal-300 shadow-sm"
+                      : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
                   }`}
                 >
-                  <IconComp className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span
-                      className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded font-mono ${
-                        ep.method === "GET"
-                          ? "bg-blue-50 text-blue-700 border border-blue-200"
-                          : "bg-teal-50 text-teal-700 border border-teal-200"
-                      }`}
-                    >
-                      {ep.method}
-                    </span>
-                    <span className="font-semibold text-xs text-slate-900 truncate">
-                      {ep.title}
-                    </span>
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                      isSelected
+                        ? "bg-teal-600 text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono truncate">
-                    {ep.path}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span
+                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded font-mono ${
+                          ep.method === "GET"
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : "bg-teal-50 text-teal-700 border border-teal-200"
+                        }`}
+                      >
+                        {ep.method}
+                      </span>
+                      <span className="font-semibold text-xs text-slate-900 truncate">
+                        {ep.title}
+                      </span>
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono truncate">
+                      {ep.path}
+                    </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Live Interactive Explorer Panel */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-5">
+          <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
             {/* Header */}
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2">

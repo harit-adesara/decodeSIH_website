@@ -95,32 +95,32 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
   return (
     <div className="space-y-8 pb-16">
       {/* Hero Section */}
-      <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 p-6 sm:p-10 text-white shadow-xl">
+      <section className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 p-4 sm:p-8 lg:p-10 text-white shadow-xl">
         <div className="absolute -right-16 -top-16 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -left-16 -bottom-16 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-teal-100 border border-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+        <div className="relative z-10 max-w-3xl space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-white/15 text-teal-100 border border-white/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             Bharat Swasthya AI • Citizen Health Radar ({user?.name || "Verified Citizen"})
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display text-white tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-display text-white tracking-tight leading-tight">
             Protecting Your Family with{" "}
             <span className="text-emerald-300">
               AI Disease Intelligence
             </span>
           </h1>
 
-          <p className="text-teal-100/90 text-sm sm:text-base leading-relaxed">
+          <p className="text-teal-100/90 text-xs sm:text-base leading-relaxed">
             Real-time seasonal contagion radar, contagious viral tracking across Indian states and districts, AI-powered outbreak forecasts, and 24x7 AI tele-health symptom triage.
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
             <button
               onClick={() => onOpenChat && onOpenChat()}
-              className="px-5 py-3 rounded-2xl bg-white text-teal-900 hover:bg-teal-50 font-bold text-sm sm:text-base shadow-lg shadow-black/10 flex items-center gap-2.5 transition-all active:scale-95"
+              className="px-5 py-3 rounded-xl sm:rounded-2xl bg-white text-teal-900 hover:bg-teal-50 font-bold text-xs sm:text-base shadow-lg shadow-black/10 flex items-center justify-center gap-2.5 transition-all active:scale-95"
             >
               <Bot className="w-5 h-5 text-teal-700" />
               <span>Talk to AI Health Assistant</span>
@@ -128,7 +128,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
 
             <button
               onClick={onOpenEmergency}
-              className="px-5 py-3 rounded-2xl bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/40 font-semibold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-md active:scale-95"
+              className="px-5 py-3 rounded-xl sm:rounded-2xl bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/40 font-semibold text-xs sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-95"
             >
               <PhoneCall className="w-5 h-5 text-rose-200" />
               <span>Emergency Help (108 Ambulance)</span>
@@ -137,7 +137,7 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
             {onOpenProfile && (
               <button
                 onClick={onOpenProfile}
-                className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold text-sm flex items-center gap-2 transition-all backdrop-blur-sm"
+                className="px-4 py-3 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all backdrop-blur-sm"
               >
                 <span>Edit Profile</span>
               </button>
@@ -146,37 +146,37 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
         </div>
 
         {/* Overview Stats Counters */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-8 mt-6 border-t border-white/20">
-          <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-            <div className="text-xs text-teal-100/80 font-medium">Monitored Cases</div>
-            <div className="text-xl sm:text-2xl font-bold text-white font-display mt-0.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-6 sm:pt-8 mt-6 border-t border-white/20">
+          <div className="p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+            <div className="text-[11px] sm:text-xs text-teal-100/80 font-medium">Monitored Cases</div>
+            <div className="text-lg sm:text-2xl font-bold text-white font-display mt-0.5">
               {stats?.totalMonitoredCases !== undefined ? stats.totalMonitoredCases.toLocaleString() : "0"}
             </div>
-            <div className="text-[10px] text-teal-200/70">Across surveillance network</div>
+            <div className="text-[9px] sm:text-[10px] text-teal-200/70">Across surveillance network</div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-            <div className="text-xs text-teal-100/80 font-medium">Active High Alerts</div>
-            <div className="text-xl sm:text-2xl font-bold text-amber-300 font-display mt-0.5">
+          <div className="p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+            <div className="text-[11px] sm:text-xs text-teal-100/80 font-medium">Active High Alerts</div>
+            <div className="text-lg sm:text-2xl font-bold text-amber-300 font-display mt-0.5">
               {stats?.activeOutbreaksCount !== undefined ? `${stats.activeOutbreaksCount} Active` : "0 Active"}
             </div>
-            <div className="text-[10px] text-teal-200/70">Weather & vector risks</div>
+            <div className="text-[9px] sm:text-[10px] text-teal-200/70">Weather & vector risks</div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-            <div className="text-xs text-teal-100/80 font-medium">Surveillance Districts</div>
-            <div className="text-xl sm:text-2xl font-bold text-white font-display mt-0.5">
+          <div className="p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+            <div className="text-[11px] sm:text-xs text-teal-100/80 font-medium">Districts</div>
+            <div className="text-lg sm:text-2xl font-bold text-white font-display mt-0.5">
               {stats?.totalSurveillanceDistricts !== undefined ? stats.totalSurveillanceDistricts : "0"}
             </div>
-            <div className="text-[10px] text-teal-200/70">Grassroots integration</div>
+            <div className="text-[9px] sm:text-[10px] text-teal-200/70">Grassroots integration</div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-            <div className="text-xs text-teal-100/80 font-medium">Emergency Hotlines</div>
-            <div className="text-xl sm:text-2xl font-bold text-rose-300 font-display mt-0.5">
+          <div className="p-3 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+            <div className="text-[11px] sm:text-xs text-teal-100/80 font-medium">Helplines</div>
+            <div className="text-lg sm:text-2xl font-bold text-rose-300 font-display mt-0.5">
               24x7 Free
             </div>
-            <div className="text-[10px] text-teal-200/70">108 / 102 / 1075 / 104</div>
+            <div className="text-[9px] sm:text-[10px] text-teal-200/70">108 / 102 / 1075 / 104</div>
           </div>
         </div>
       </section>
@@ -257,26 +257,26 @@ export const PublicCitizenPortal = ({ onOpenChat, onOpenEmergency, onOpenProfile
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 flex items-center gap-2">
               <Bug className="w-5 h-5 text-rose-600" />
-              Contagious & Viral Diseases Spread in {locationContext.district}, {locationContext.state}
+              Contagious Diseases in {locationContext.district}, {locationContext.state}
             </h3>
             <p className="text-xs text-slate-500">
               Click any viral disease card to view in-depth symptoms, doctor remarks, and medical precautions
             </p>
           </div>
           <span className="text-xs text-slate-500 font-semibold bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
-            {viralDiseases.length} Active Strains Detected
+            {viralDiseases.length} Active Strains
           </span>
         </div>
 
         {viralDiseases.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {viralDiseases.map((disease, idx) => (
               <div
                 key={idx}
                 onClick={() => setSelectedViralDisease(disease)}
-                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
+                className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">

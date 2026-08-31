@@ -111,7 +111,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {renderCurrentView()}
       </main>
 
@@ -160,10 +160,10 @@ export function App() {
 
       {/* Floating Website Guide Action Button (Fixed Bottom-Right - Only for Public Visitors & Citizens) */}
       {showGuide && (
-        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2">
           <button
             onClick={() => setIsGuideOpen(true)}
-            className="group relative flex items-center gap-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-slate-900 text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-2xl shadow-xl shadow-teal-900/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all border border-emerald-400/30"
+            className="group relative flex items-center gap-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-slate-900 text-white font-bold text-xs sm:text-sm px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-xl shadow-teal-900/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all border border-emerald-400/30"
             title="Open Website Navigation Guide (Voice & Multilingual AI)"
           >
             {/* Pulsing indicator ring */}
@@ -172,14 +172,14 @@ export function App() {
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
             </span>
 
-            <div className="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-emerald-200">
+            <div className="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-emerald-200 shrink-0">
               <Compass className="w-4 h-4 animate-spin-slow" />
             </div>
             <div className="flex flex-col text-left">
-              <span className="leading-none text-[13px] flex items-center gap-1">
+              <span className="leading-none text-xs sm:text-[13px] flex items-center gap-1">
                 Website Guide <Sparkles className="w-2.5 h-2.5 text-amber-300" />
               </span>
-              <span className="text-[10px] text-emerald-200 font-normal leading-tight">
+              <span className="text-[9px] sm:text-[10px] text-emerald-200 font-normal leading-tight hidden min-[360px]:block">
                 गाइड / Voice AI
               </span>
             </div>
@@ -188,28 +188,31 @@ export function App() {
       )}
 
       {/* Footer */}
-      <footer className="glass-panel border-t border-slate-200 py-8 px-4 sm:px-6 mt-auto bg-white/90">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-teal-600 flex items-center justify-center text-white">
-              <Activity className="w-3.5 h-3.5" />
+      <footer className="glass-panel border-t border-slate-200 py-6 sm:py-8 px-4 sm:px-6 mt-auto bg-white/90 pb-safe">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center md:text-left">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-teal-600 flex items-center justify-center text-white shrink-0">
+                <Activity className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-display font-bold text-slate-900">Bharat Swasthya AI</span>
             </div>
-            <span className="font-display font-bold text-slate-900">Bharat Swasthya AI</span>
-            <span>• Integrated Disease Surveillance & Outbreak Intelligence</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="text-slate-500 text-[11px] sm:text-xs">Integrated Disease Surveillance & Outbreak Intelligence</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-slate-600">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-slate-600 text-xs">
             {showGuide && (
-              <button onClick={() => setIsGuideOpen(true)} className="hover:text-emerald-700 font-medium flex items-center gap-1">
+              <button onClick={() => setIsGuideOpen(true)} className="hover:text-emerald-700 font-medium flex items-center gap-1 py-1">
                 <Compass className="w-3.5 h-3.5 text-emerald-600" />
-                Website Guide (गाइड)
+                <span>Guide (गाइड)</span>
               </button>
             )}
-            <button onClick={() => setActiveTab("api-docs")} className="hover:text-teal-700 font-medium">
+            <button onClick={() => setActiveTab("api-docs")} className="hover:text-teal-700 font-medium py-1">
               Open APIs
             </button>
-            <button onClick={() => setIsEmergencyOpen(true)} className="hover:text-rose-600 font-medium">
-              Emergency Hotlines (108)
+            <button onClick={() => setIsEmergencyOpen(true)} className="hover:text-rose-600 font-medium py-1">
+              Emergency 108
             </button>
             <button
               onClick={() => {
@@ -219,13 +222,13 @@ export function App() {
                   setActiveTab("login");
                 }
               }}
-              className="hover:text-teal-700 font-medium"
+              className="hover:text-teal-700 font-medium py-1"
             >
               {isAuthenticated ? "My Profile" : "Sign In / Register"}
             </button>
           </div>
 
-          <div className="flex items-center gap-1 text-slate-400">
+          <div className="flex items-center justify-center gap-1 text-slate-400 text-xs">
             <span>Built with</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-current" />
             <span>for National Healthcare</span>

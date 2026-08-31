@@ -283,14 +283,14 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 sm:space-y-6 pb-16">
       {/* Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
             <HeartHandshake className="w-4 h-4 text-teal-600" /> Grassroots Field Health Worker Portal
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
+          <h1 className="text-xl sm:text-3xl font-extrabold font-display text-slate-900">
             {user?.name || "Anita Deshmukh (ASHA / Field Lead)"}
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
@@ -306,22 +306,23 @@ export const HealthAssistantPortal = ({ onOpenProfile }) => {
           {onOpenProfile && (
             <button
               onClick={onOpenProfile}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all border border-slate-200"
+              className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all border border-slate-200"
             >
               Edit Profile
             </button>
           )}
           <button
             onClick={() => setActiveTab("submit")}
-            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm active:scale-95 transition-all"
+            className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm active:scale-95 transition-all"
           >
-            <PlusCircle className="w-4 h-4" /> Submit Field Report
+            <PlusCircle className="w-4 h-4" />
+            <span className="truncate">New Field Report</span>
           </button>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar touch-scroll">
         <button
           onClick={() => setActiveTab("submit")}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shrink-0 ${

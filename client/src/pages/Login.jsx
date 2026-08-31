@@ -204,26 +204,26 @@ export const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="max-w-lg mx-auto my-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-6">
+    <div className="max-w-lg mx-auto my-3 sm:my-6 p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-xl space-y-4 sm:space-y-6">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 mx-auto flex items-center justify-center shadow-md shadow-teal-600/20">
-          <Activity className="w-6 h-6 text-white" />
+      <div className="text-center space-y-1.5 sm:space-y-2">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 mx-auto flex items-center justify-center shadow-md shadow-teal-600/20">
+          <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
-        <h2 className="text-2xl font-bold font-display text-slate-900">
+        <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900">
           Bharat<span className="text-teal-600">Swasthya</span> AI
         </h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-[11px] sm:text-xs text-slate-500">
           Integrated Disease Surveillance & Outbreak Intelligence Portal
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="bg-slate-100 p-1.5 rounded-2xl grid grid-cols-3 gap-1 text-xs font-semibold">
+      <div className="bg-slate-100 p-1 rounded-xl sm:rounded-2xl grid grid-cols-3 gap-1 text-[11px] sm:text-xs font-semibold">
         <button
           type="button"
           onClick={() => { setActiveTab("signin"); clearAlerts(); }}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-lg sm:rounded-xl transition-all ${
             activeTab === "signin"
               ? "bg-white text-teal-700 shadow-sm font-bold"
               : "text-slate-600 hover:text-slate-900"
@@ -235,25 +235,25 @@ export const Login = ({ onLoginSuccess }) => {
         <button
           type="button"
           onClick={() => { setActiveTab("register"); clearAlerts(); }}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-lg sm:rounded-xl transition-all ${
             activeTab === "register"
               ? "bg-white text-teal-700 shadow-sm font-bold"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          Register Citizen
+          Register
         </button>
 
         <button
           type="button"
           onClick={() => { setActiveTab("verify"); clearAlerts(); }}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-lg sm:rounded-xl transition-all ${
             activeTab === "verify"
               ? "bg-white text-teal-700 shadow-sm font-bold"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          Verify Email
+          Verify
         </button>
       </div>
 

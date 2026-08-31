@@ -72,66 +72,66 @@ export const EmergencyNumbersDrawer = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-2xl max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-rose-50 to-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-rose-600 flex items-center justify-center shadow-md shadow-rose-600/20 text-white animate-pulse">
-              <PhoneCall className="w-6 h-6" />
+        <div className="p-3.5 sm:p-5 bg-gradient-to-r from-rose-50 to-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-600 flex items-center justify-center shadow-md shadow-rose-600/20 text-white animate-pulse shrink-0">
+              <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div>
-              <h3 className="font-display font-bold text-slate-900 text-lg">
+            <div className="min-w-0">
+              <h3 className="font-display font-bold text-slate-900 text-base sm:text-lg truncate">
                 Emergency Medical Helplines
               </h3>
-              <p className="text-slate-500 text-xs">
+              <p className="text-slate-500 text-[11px] sm:text-xs truncate">
                 Toll-Free 24x7 National & State Emergency Services (India)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all"
+            className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Directory Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5">
-          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-800">
-            <Info className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-            <p>
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-3.5 touch-scroll">
+          <div className="p-3 sm:p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-800">
+            <Info className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600 shrink-0 mt-0.5" />
+            <p className="text-[11px] sm:text-xs">
               In life-threatening situations (cardiac arrest, unconsciousness, severe hemorrhage, or trauma), immediately dial <strong>108</strong>. All calls are toll-free from any mobile or landline across India.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {helplineList.map((item, index) => {
               const IconComp = item.icon;
               return (
                 <div
                   key={index}
-                  className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+                  className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col justify-between ${
                     item.primary
                       ? "bg-rose-50/50 border-rose-300 shadow-sm"
                       : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                   }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}`}>
                         {item.category}
                       </span>
                       <IconComp className={`w-4 h-4 ${item.primary ? "text-rose-600" : "text-slate-400"}`} />
                     </div>
-                    <h4 className="font-semibold text-slate-900 text-sm mb-1">{item.name}</h4>
-                    <p className="text-slate-500 text-xs leading-relaxed mb-3">{item.description}</p>
+                    <h4 className="font-semibold text-slate-900 text-xs sm:text-sm mb-1">{item.name}</h4>
+                    <p className="text-slate-500 text-[11px] sm:text-xs leading-relaxed mb-3">{item.description}</p>
                   </div>
 
                   <a
                     href={`tel:${item.number}`}
-                    className={`w-full py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                    className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95 ${
                       item.primary
                         ? "bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
                         : "bg-slate-100 hover:bg-teal-600 hover:text-white text-slate-800"
@@ -147,7 +147,7 @@ export const EmergencyNumbersDrawer = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500">
+        <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 text-center text-[10px] sm:text-xs text-slate-500">
           Operated in coordination with Ministry of Health & Family Welfare (MoHFW), Govt of India.
         </div>
       </div>
@@ -156,3 +156,4 @@ export const EmergencyNumbersDrawer = ({ isOpen, onClose }) => {
 };
 
 export default EmergencyNumbersDrawer;
+

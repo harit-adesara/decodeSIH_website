@@ -252,39 +252,39 @@ export const HospitalPortal = ({ onOpenProfile }) => {
   });
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 sm:space-y-6 pb-16">
       {/* Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
             <Building2 className="w-4 h-4 text-teal-600" />
             <span>Healthcare Facility Management Portal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
+          <h1 className="text-xl sm:text-3xl font-extrabold font-display text-slate-900">
             {user?.name || "Hospital Facility"}
           </h1>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-500 mt-1">
             <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-teal-600" />
-              {user?.city !== "All" ? `${user?.city}, ` : ""}{user?.district}, {user?.state}
+              <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+              <span>{user?.city !== "All" ? `${user?.city}, ` : ""}{user?.district}, {user?.state}</span>
             </span>
             {user?.phone && (
               <span className="flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-teal-600" />
-                {user.phone}
+                <Phone className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span>{user.phone}</span>
               </span>
             )}
-            <span className="text-slate-400">
+            <span className="text-slate-400 hidden sm:inline">
               • {user?.qualification || "Verified Healthcare Provider"}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {onOpenProfile && (
             <button
               onClick={onOpenProfile}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all border border-slate-200"
+              className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all border border-slate-200"
             >
               Edit Profile
             </button>
@@ -292,7 +292,7 @@ export const HospitalPortal = ({ onOpenProfile }) => {
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-teal-600/20 active:scale-95 transition-all"
+            className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 active:scale-95 transition-all"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Add New Ward</span>
@@ -302,26 +302,17 @@ export const HospitalPortal = ({ onOpenProfile }) => {
 
       {/* Notification Banner */}
       {feedbackMsg && (
-        <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 text-xs sm:text-sm font-semibold text-teal-900 flex items-center justify-between animate-fadeIn">
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold text-xs sm:text-sm flex items-center justify-between animate-fadeIn">
           <span>{feedbackMsg}</span>
-          <button onClick={() => setFeedbackMsg("")} className="text-slate-400 hover:text-slate-700">✕</button>
+          <button onClick={() => setFeedbackMsg("")} className="text-emerald-600 hover:text-emerald-900">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
       {/* Overview Statistics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-teal-600" />
-            <span>Total Wards</span>
-          </div>
-          <div className="text-2xl font-bold font-display text-slate-900 mt-1">
-            {stats?.totalWards || wards.length}
-          </div>
-          <div className="text-[10px] text-teal-700 font-medium">Active departments</div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200 shadow-sm">
           <div className="text-[11px] font-semibold text-slate-500 uppercase flex items-center gap-1.5">
             <Bed className="w-3.5 h-3.5 text-blue-600" />
             <span>Total Beds</span>

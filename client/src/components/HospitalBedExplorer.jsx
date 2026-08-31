@@ -118,16 +118,16 @@ export const HospitalBedExplorer = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header & Location Controls */}
-      <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3 sm:space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-2 text-teal-700 text-xs font-bold uppercase tracking-wider mb-1">
               <Building2 className="w-4 h-4 text-teal-600" />
               <span>National Bed Surveillance Network</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold font-display text-slate-900">
+            <h2 className="text-lg sm:text-2xl font-extrabold font-display text-slate-900">
               {title}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mt-0.5">
@@ -139,7 +139,7 @@ export const HospitalBedExplorer = ({
             {hospitals.length > 0 && (
               <button
                 onClick={toggleExpandAll}
-                className="px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold flex items-center gap-1.5 border border-teal-200 transition-all"
+                className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold flex items-center gap-1.5 border border-teal-200 transition-all"
               >
                 <Layers className="w-3.5 h-3.5 text-teal-600" />
                 <span>
@@ -153,7 +153,7 @@ export const HospitalBedExplorer = ({
             <button
               onClick={fetchBedData}
               disabled={loading}
-              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2 border border-slate-200 transition-all active:scale-95"
+              className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2 border border-slate-200 transition-all active:scale-95"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-teal-600" : ""}`} />
               <span>Refresh</span>
@@ -171,53 +171,55 @@ export const HospitalBedExplorer = ({
         />
 
         {/* Filter Controls Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-          <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-2.5 flex-1">
             {/* Search Input */}
-            <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[200px] max-w-md">
+            <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[180px]">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search hospital name, ward, locality..."
-                className="w-full bg-slate-50 text-slate-800 text-xs font-medium pl-8 pr-3 py-2 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
+                className="w-full bg-slate-50 text-slate-800 text-xs font-medium pl-8 pr-3 py-2.5 sm:py-2 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </form>
 
-            {/* Ward Type Dropdown */}
-            <div className="relative min-w-[170px]">
-              <select
-                value={wardTypeFilter}
-                onChange={(e) => setWardTypeFilter(e.target.value)}
-                className="w-full bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 pr-7 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer"
-              >
-                {WARD_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt === "All" ? "All Ward Types" : opt}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <div className="flex items-center gap-2">
+              {/* Ward Type Dropdown */}
+              <div className="relative flex-1 sm:flex-initial sm:min-w-[170px]">
+                <select
+                  value={wardTypeFilter}
+                  onChange={(e) => setWardTypeFilter(e.target.value)}
+                  className="w-full bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2.5 sm:py-2 pr-7 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer"
+                >
+                  {WARD_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt === "All" ? "All Ward Types" : opt}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
 
-            {/* Sort Dropdown */}
-            <div className="relative min-w-[150px]">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 pr-7 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer"
-              >
-                <option value="beds_desc">Most Vacant Beds</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-              </select>
-              <ArrowUpDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {/* Sort Dropdown */}
+              <div className="relative flex-1 sm:flex-initial sm:min-w-[150px]">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2.5 sm:py-2 pr-7 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none appearance-none cursor-pointer"
+                >
+                  <option value="beds_desc">Most Vacant</option>
+                  <option value="price_asc">Price: Low-High</option>
+                  <option value="price_desc">Price: High-Low</option>
+                </select>
+                <ArrowUpDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
           </div>
 
           {/* Only Available Toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pt-1 sm:pt-0">
             <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -232,11 +234,22 @@ export const HospitalBedExplorer = ({
       </div>
 
       {/* Summary KPI Counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-teal-600" />
-            <span>Healthcare Facilities</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase flex items-center gap-1.5 truncate">
+            <Building2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+            <span className="truncate">Facilities</span>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold font-display text-slate-900 mt-1">
+            {summary?.totalHospitals || hospitals.length}
+          </div>
+          <div className="text-[9px] sm:text-[10px] text-teal-700 font-medium truncate">In selected region</div>
+        </div>
+
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase flex items-center gap-1.5 truncate">
+            <Bed className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="truncate">Total Capacity</span>
           </div>
           <div className="text-2xl font-bold font-display text-slate-900 mt-1">
             {summary?.totalHospitals || hospitals.length}

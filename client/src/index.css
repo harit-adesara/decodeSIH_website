@@ -56,6 +56,21 @@
   background: #0d9488;
 }
 
+/* Hide scrollbar for clean horizontal tab swipe on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth Touch Scrolling on iOS & Android */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
 /* Subtle Indian Tricolor Gradient Bar */
 .tricolor-stripe {
   background: linear-gradient(
@@ -69,3 +84,9 @@
   );
   height: 3.5px;
 }
+
+/* Mobile Safe Area Padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+

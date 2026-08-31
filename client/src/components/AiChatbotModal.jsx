@@ -522,58 +522,56 @@ export const AiChatbotModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
       <div
-        className={`w-full bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`w-full bg-white rounded-none sm:rounded-3xl border-0 sm:border border-slate-200 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 relative ${
           isExpanded
-            ? "max-w-6xl h-[94vh]"
-            : "max-w-5xl h-[90vh] max-h-[720px]"
+            ? "max-w-6xl h-full sm:h-[94vh]"
+            : "max-w-5xl h-full sm:h-[90vh] sm:max-h-[760px]"
         }`}
       >
         {/* Header */}
-        <div className="p-3.5 sm:p-4 bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 text-white flex items-center justify-between shrink-0 shadow-md">
-          <div className="flex items-center gap-3">
-            {!showSidebar && (
-              <button
-                onClick={() => setShowSidebar(true)}
-                className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all mr-1"
-                title="Show conversation list"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-            )}
-            <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner text-white">
+        <div className="p-3 sm:p-4 bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 text-white flex items-center justify-between shrink-0 shadow-md">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <button
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all shrink-0"
+              title={showSidebar ? "Hide conversations" : "Show conversation list"}
+            >
+              <ChevronLeft className={`w-4 h-4 transition-transform ${showSidebar ? "rotate-180 md:rotate-0" : ""}`} />
+            </button>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner text-white shrink-0">
               <Bot className="w-5 h-5 text-teal-300" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-display font-bold text-white text-sm sm:text-base">
-                  Bharat Swasthya AI Tele-Health
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h3 className="font-display font-bold text-white text-xs sm:text-base truncate">
+                  Bharat Swasthya AI
                 </h3>
-                <span className="flex items-center gap-1 bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="hidden min-[400px]:flex items-center gap-1 bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   <Sparkles className="w-2.5 h-2.5 text-amber-300" />
-                  Voice + Multilingual
+                  Voice AI
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-teal-100/80 text-xs mt-0.5">
-                <MapPin className="w-3 h-3 text-teal-300" />
+              <div className="flex items-center gap-1 text-teal-100/80 text-[11px] sm:text-xs mt-0.5 truncate">
+                <MapPin className="w-3 h-3 text-teal-300 shrink-0" />
                 {activeConversation ? (
                   <button
                     onClick={handleOpenLocationPicker}
-                    className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
+                    className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer truncate"
                     title="Change location for this conversation"
                   >
-                    <span>
+                    <span className="truncate">
                       <strong className="text-white">
                         {getConvLocationLabel(activeConversation) ||
                           `${locationContext.district}, ${locationContext.state}`}
                       </strong>
                     </span>
-                    <Pencil className="w-2.5 h-2.5 text-teal-300" />
+                    <Pencil className="w-2.5 h-2.5 text-teal-300 shrink-0" />
                   </button>
                 ) : (
-                  <span>
-                    Regional Context:{" "}
+                  <span className="truncate">
+                    Regional:{" "}
                     <strong className="text-white">
                       {locationContext.district}, {locationContext.state}
                     </strong>
@@ -583,10 +581,10 @@ export const AiChatbotModal = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-2">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-100 hover:text-white transition-all"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-100 hover:text-white transition-all hidden sm:block"
               title={isExpanded ? "Restore size" : "Expand size"}
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -602,15 +600,15 @@ export const AiChatbotModal = ({
         </div>
 
         {/* Subheader Toolbar: Language Picker & Region Status */}
-        <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
-          <div className="flex items-center gap-2">
+        <div className="px-3 sm:px-4 py-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <Globe className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-            <span className="font-semibold text-[11px] text-slate-700">Voice Language:</span>
+            <span className="font-semibold text-[11px] text-slate-700">Voice:</span>
             <div className="relative">
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-slate-800 font-medium focus:border-teal-500 focus:outline-none cursor-pointer pr-6 shadow-xs appearance-none"
+                className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-[11px] sm:text-xs text-slate-800 font-medium focus:border-teal-500 focus:outline-none cursor-pointer pr-5 shadow-xs appearance-none max-w-[180px] sm:max-w-none truncate"
               >
                 {SARVAM_LANGUAGES.map((lang) => (
                   <option key={lang.code} value={lang.code}>
@@ -626,6 +624,13 @@ export const AiChatbotModal = ({
           </div>
 
           <div className="flex items-center gap-2 ml-auto text-xs text-slate-500">
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="md:hidden text-[11px] text-teal-700 font-semibold flex items-center gap-1 py-0.5 px-2 rounded-md bg-teal-50 border border-teal-200"
+            >
+              <MessageSquare className="w-3 h-3" />
+              <span>Past Chats</span>
+            </button>
             <span className="hidden md:inline text-[11px]">
               Active in <strong>{locationContext.district || "Pune"}</strong>
             </span>
@@ -633,20 +638,33 @@ export const AiChatbotModal = ({
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Sidebar (Full overlay on mobile, slide panel on desktop) */}
           <div
-            className={`${
-              showSidebar ? "w-72" : "w-0"
-            } transition-all duration-300 border-r border-slate-200 bg-slate-50 flex flex-col overflow-hidden shrink-0`}
+            className={`transition-all duration-300 border-r border-slate-200 bg-slate-50 flex flex-col overflow-hidden shrink-0 ${
+              showSidebar
+                ? "w-full md:w-72 absolute md:relative inset-0 md:inset-auto z-30 md:z-0"
+                : "w-0 hidden md:flex md:w-0"
+            }`}
           >
-            <div className="p-3 border-b border-slate-200">
+            <div className="p-3 border-b border-slate-200 flex items-center justify-between gap-2">
               <button
-                onClick={handleNewChat}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-all shadow-sm active:scale-95"
+                onClick={() => {
+                  handleNewChat();
+                  if (window.innerWidth < 768) setShowSidebar(false);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95"
               >
                 <MessageSquarePlus className="w-4 h-4" />
                 New Chat
+              </button>
+
+              <button
+                onClick={() => setShowSidebar(false)}
+                className="md:hidden p-2 rounded-xl bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs font-semibold"
+                title="Back to chat"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -665,7 +683,10 @@ export const AiChatbotModal = ({
                 conversations.map((conv) => (
                   <button
                     key={conv._id}
-                    onClick={() => selectConversation(conv)}
+                    onClick={() => {
+                      selectConversation(conv);
+                      if (window.innerWidth < 768) setShowSidebar(false);
+                    }}
                     className={`group w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all ${
                       activeConversation?._id === conv._id
                         ? "bg-teal-100 text-teal-800 border border-teal-200"

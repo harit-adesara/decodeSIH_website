@@ -119,25 +119,25 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
   }, [selectedLocation.state, selectedLocation.district, selectedLocation.city]);
 
   return (
-    <div className="space-y-10 pb-16">
+    <div className="space-y-6 sm:space-y-10 pb-16">
       {/* Hero Welcome Banner */}
-      <div className="p-6 sm:p-10 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
-        <div className="space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-bold border border-teal-200">
+      <div className="p-4 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
+        <div className="space-y-3 sm:space-y-4 max-w-2xl text-left">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-[11px] sm:text-xs font-bold border border-teal-200">
             <ShieldCheck className="w-3.5 h-3.5" />
             Official Public Health Platform • India
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight text-slate-900 leading-tight">
             Integrated Disease Surveillance & <span className="text-teal-600">AI Outbreak Radar</span>
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 text-xs sm:text-base leading-relaxed">
             National digital health network connecting Citizens, ASHA Community Health Workers, and Medical Officers with real-time syndromic surveillance, weather-linked vector forecasts, and verified clinical guidance.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
             <button
               onClick={onOpenLogin}
-              className="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95"
+              className="px-5 py-3 rounded-xl sm:rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
             >
               <span>Sign In / Register Free</span>
               <ArrowRight className="w-4 h-4" />
@@ -145,7 +145,7 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
 
             <button
               onClick={onOpenEmergency}
-              className="px-5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95"
+              className="px-4 py-3 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
             >
               <PhoneCall className="w-4 h-4 text-rose-600 animate-pulse" />
               <span>Emergency 108 Directory</span>
@@ -154,12 +154,12 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
         </div>
 
         {/* Security & Access Info Card */}
-        <div className="w-full lg:w-96 p-6 rounded-3xl bg-slate-50 border border-slate-200 shadow-inner space-y-4">
+        <div className="w-full lg:w-96 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-50 border border-slate-200 shadow-inner space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
             <Lock className="w-4 h-4 text-teal-600" />
             Platform Access & Privacy
           </div>
-          <ul className="space-y-2.5 text-xs text-slate-600">
+          <ul className="space-y-2 text-xs text-slate-600">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
               <span><strong>Emergency Services:</strong> 108 & helplines are open 24x7 without login.</span>
@@ -216,12 +216,12 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
         </div>
 
         {viralDiseases.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {viralDiseases.map((disease, idx) => (
               <div
                 key={idx}
                 onClick={() => setSelectedViralDisease(disease)}
-                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
+                className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 shadow-sm glass-card-hover flex flex-col justify-between cursor-pointer group hover:border-teal-400 transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -321,13 +321,13 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {helplines.map((item, index) => {
             const IconComp = item.icon;
             return (
               <div
                 key={index}
-                className={`p-5 rounded-3xl bg-white border transition-all flex flex-col justify-between shadow-sm ${
+                className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border transition-all flex flex-col justify-between shadow-sm ${
                   item.primary
                     ? "border-rose-300 ring-2 ring-rose-500/10"
                     : "border-slate-200 hover:border-slate-300"
@@ -340,13 +340,13 @@ export const PublicLandingView = ({ onOpenEmergency, onOpenLogin, onOpenChatWith
                     </span>
                     <IconComp className={`w-4 h-4 ${item.primary ? "text-rose-600" : "text-slate-400"}`} />
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base mb-1">{item.name}</h3>
+                  <h3 className="font-bold text-slate-900 text-sm sm:text-base mb-1">{item.name}</h3>
                   <p className="text-slate-500 text-xs leading-relaxed mb-4">{item.desc}</p>
                 </div>
 
                 <a
                   href={`tel:${item.number}`}
-                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm min-h-[44px] flex items-center justify-center gap-2 transition-all active:scale-95 ${
                     item.primary
                       ? "bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
                       : "bg-slate-100 hover:bg-teal-600 hover:text-white text-slate-800"
