@@ -15,14 +15,12 @@ import {
   Bed,
   Lock,
   ShieldAlert,
-  ArrowLeft,
-  LogIn,
   AlertTriangle,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 
-export const PublicApiDocs = ({ onGoHome, onGoLogin }) => {
+export const PublicApiDocs = () => {
   const { user, role, isAuthenticated } = useAuth();
   const [selectedEndpoint, setSelectedEndpoint] = useState(0);
   const [liveResponse, setLiveResponse] = useState(null);
@@ -60,7 +58,7 @@ export const PublicApiDocs = ({ onGoHome, onGoLogin }) => {
           </p>
 
           {/* User Status Details Box */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-left text-xs text-slate-600 space-y-2.5 max-w-md mx-auto mb-8">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 text-left text-xs text-slate-600 space-y-2.5 max-w-md mx-auto">
             <div className="flex items-center justify-between">
               <span className="text-slate-500 font-medium">Your Current Account:</span>
               <span className="font-semibold text-slate-800">
@@ -77,27 +75,6 @@ export const PublicApiDocs = ({ onGoHome, onGoLogin }) => {
               <span className="text-slate-500 font-medium">HTTP Status:</span>
               <span className="font-mono font-bold text-rose-600">403 Forbidden</span>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => (onGoHome ? onGoHome() : (window.location.href = "/"))}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
-            </button>
-
-            {(!isAuthenticated || role !== "admin") && (
-              <button
-                onClick={() => (onGoLogin ? onGoLogin() : (window.location.href = "/"))}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Sign In as Admin</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
