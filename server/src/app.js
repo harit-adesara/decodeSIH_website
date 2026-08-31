@@ -15,6 +15,7 @@ import hospitalRouter from "./routes/hospital.routes.js";
 import publicRouter from "./routes/public.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import immAlertRouter from "./routes/immAlert.routes.js";
+import healthRouter from "./routes/health.routes.js";
 
 const app = express();
 
@@ -51,14 +52,9 @@ if (process.env.NODE_ENV === "production") {
 // Static Folder for Medical Uploads & Assets
 app.use("/uploads", express.static(path.resolve("public/uploads")));
 
-// Health Check Endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "healthy",
-    service: "Bharat Swasthya AI Engine",
-    timestamp: new Date().toISOString(),
-  });
-});
+// Health Check Endpoints
+app.use("/health", healthRouter);
+app.use("/api/v1/health", healthRouter);
 
 // API V1 Routes
 app.use("/api/v1/auth", authRouter);
